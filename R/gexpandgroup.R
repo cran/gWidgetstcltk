@@ -1,0 +1,153 @@
+## expander group, like a group, only expands, contracts if requested
+## inherits from ggroup, see ggroup's arguments: horizontal, spacing, container
+setClass("gExpandgrouptcltk",
+         contains="gContainertcltk",
+         prototype=prototype(new("gContainertcltk"))
+         )
+
+
+setMethod(".gexpandgroup",
+          signature(toolkit="guiWidgetsToolkittcltk"),
+          function(toolkit,
+                   text="", markup=FALSE,
+                   handler=NULL, action=NULL,
+                   container = NULL, ...){
+
+            force(toolkit)
+
+            theArgs = list(...)
+            groupArgs = list()
+            for(i in c("horizontal","spacing","use.scrollwindow")) {
+              if(!is.null(theArgs[[i]])) {
+                groupArgs[[i]] = theArgs[[i]]
+                theArgs[[i]] = NULL
+              }
+            }
+
+            theArgs$horizontal=FALSE
+            theArgs$container = container
+
+            cg = do.call("ggroup",theArgs)
+
+            labelGroup = ggroup(horizontal=TRUE, cont=cg)
+
+            rightArrow = system.file("images/1rightarrow.gif",package="gWidgets")
+            downArrow = system.file("images/1downarrow.gif",package="gWidgets")
+
+            icon = gimage(downArrow,cont=labelGroup)
+            label = glabel(text, cont=labelGroup)
+
+            ## we need this so that getBlock doesn't find cg's block
+            eg1 = ggroup(cont=cg, expand=TRUE)
+
+            groupArgs$container=eg1
+            eg = do.call("ggroup", groupArgs)
+
+            obj = new("gExpandgrouptcltk",block = eg1, widget = eg,
+              toolkit = toolkit, ID = getNewID())
+
+
+            tag(obj, "containerGroup") <- cg
+            tag(obj, "expandGroup") <- eg1
+            tag(obj, "icon") <- icon
+            tag(obj, "label") <- label
+            tag(obj, "state") <- TRUE
+            tag(obj, "rightArrow") <- rightArrow
+            tag(obj, "downArrow") <- downArrow
+
+            changeState = function(h,...) {
+              if((state <- tag(obj,"state"))) {
+                visible(obj) <- FALSE
+              } else {
+                visible(obj) <- TRUE
+              }
+            }
+            addHandlerClicked(icon, handler=changeState)
+
+            if(!is.null(handler)) {
+              addhandlerchanged(icon, handler, action)
+              addhandlerchanged(label, handler, action)
+            }
+
+
+            invisible(obj)
+          })
+
+
+
+## methods
+setMethod(".add",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gExpandgrouptcltk", value = "gWidgettcltk"),
+          function(obj, toolkit, value,  ...) {
+            ## add value to expandgroup
+            add(obj@widget, value, ...)
+          })
+setMethod(".addSpace",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gExpandgrouptcltk"),
+          function(obj, toolkit, value,  ...) {
+            ## add value to expandgroup
+            addSpace(obj@widget, value, ...)
+          })
+setMethod(".addSpring",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gExpandgrouptcltk"),
+          function(obj, toolkit,  ...) {
+            ## add value to expandgroup
+            addSpring(obj@widget, ...)
+          })
+## push onto label
+setReplaceMethod(".font",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gExpandgrouptcltk"),
+          function(obj, toolkit,  ..., value) {
+            ## add value to expandgroup
+            font(tag(obj,"label")) <- value
+            return(obj)
+          })
+
+
+## value refers to label
+setMethod(".svalue",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gExpandgrouptcltk"),
+          function(obj, toolkit, index=NULL, drop=NULL, ...) {
+            svalue(tag(obj,"label"))
+          })
+
+setReplaceMethod(".svalue",
+                 signature(toolkit="guiWidgetsToolkittcltk",obj="gExpandgrouptcltk"),
+                 function(obj, toolkit, index=NULL, ..., value) {
+                   svalue(tag(obj,"label")) <- as.character(value)
+                   return(obj)
+                 })
+
+setMethod(".visible",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gExpandgrouptcltk"),
+          function(obj, toolkit, set=TRUE,...) {
+            tag(obj,"state")
+          })
+
+## control expand/close with logical
+setReplaceMethod(".visible",
+                 signature(toolkit="guiWidgetsToolkittcltk",obj="gExpandgrouptcltk"),
+                 function(obj, toolkit, ..., value) {
+                   cg = tag(obj,"containerGroup")
+                   eg = tag(obj,"expandGroup")
+                   if( (value <- as.logical(value)) ) {
+                    ## true, expand
+                     add(cg, eg, expand=TRUE)
+                     svalue(tag(obj,"icon")) <- tag(obj,"downArrow")
+                   } else {
+                     delete(cg,eg)
+                     svalue(tag(obj,"icon")) <- tag(obj,"rightArrow")
+                   }
+                   tag(obj,"state") <-value
+
+                   return(obj)
+                 })
+
+
+## handlers
+## putonto expander button
+setMethod(".addhandlerchanged",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gExpandgrouptcltk"),
+          function(obj, toolkit, handler, action=NULL, ...) {
+            addHandlerChanged(tag(obj,"icon"), handler, action,...)
+          })

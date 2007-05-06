@@ -1,0 +1,236 @@
+## can't extend or shorten via []<- but o/w is working
+## implement horizontal=TRUE
+
+setClass("gRadiotcltk",
+         representation = representation("gComponenttcltk",
+           coercewith="NULLorFunction"),
+         contains="gComponenttcltk",
+         prototype=prototype(new("gComponenttcltk"))
+         )
+
+## constructor
+setMethod(".gradio",
+          signature(toolkit="guiWidgetsToolkittcltk"),
+          function(toolkit,
+                   items, selected=1, horizontal=FALSE,
+                   handler=NULL, action=NULL,
+                   container=NULL,       
+                   ...
+                   ) {
+            force(toolkit)
+
+            n = length(items)
+
+            if (n<2)
+              stop("Radio button group makes sense only with at least two items.")
+
+            if(is(container,"logical") && container)
+              container = gwindow()
+            if(!is(container,"guiWidget")) {
+              warning("Container is not correct. No NULL containers possible\n" )
+              return()
+            }
+
+            tt = container@widget@block
+            gp = tkframe(tt)
+            
+            theRBs = list(); theLabels = list()
+            for(i in 1:n) {
+              theRBs[[i]] = tkradiobutton(gp, anchor="e", text=items[i])
+#              theLabels[[i]] = tklabel(gp,text=items[i], anchor="w")
+            }
+            
+            theValue = tclVar(items[selected])
+            sapply(1:n, function(i)
+                   tkconfigure(theRBs[[i]], variable=theValue, value=items[i]))
+
+            if(horizontal) {
+              for(i in 1:n) {
+                tkpack(theRBs[[i]],side="left", padx = 0)
+ #               tkpack(theLabels[[i]],side="left", padx=0)
+              }
+            } else {
+              ## vertical
+              for(i in 1:n) {
+                tkpack(theRBs[[i]], side="top", anchor="w")
+##                tkgrid(theRBs[[i]])#,theLabels[[i]])
+##                tkgrid.configure(theRBs[[i]],sticky="e",padx=1)
+##              tkgrid.configure(theLabels[[i]],sticky="w")
+              }
+            }
+                      
+            ## use coerce with
+            theArgs = list(...)
+            if(!is.null(theArgs$coerce.with)) {
+              coerce.with = theArgs$coerce.with
+            } else {
+              if(is.numeric(items))
+                coerce.with = as.numeric
+              else if(is.logical(items))
+                coerce.with = as.logical
+              else
+                coerce.with = as.character
+            }
+            if(is.character(coerce.with))
+              coerce.with = get(coerce.with)
+            
+            obj = new("gRadiotcltk",block=gp, widget=gp,
+              toolkit=toolkit, ID=getNewID(), coercewith = coerce.with)
+
+            tag(obj,"items") <- items
+#            tag(obj,"theLabels") <- theLabels
+            tag(obj,"theRBs") <- theRBs
+            tag(obj,"tclVar") <- theValue
+            
+            ## add to container
+            add(container,  obj,...)
+  
+            ## add handler
+            if(!is.null(handler))
+              addhandlerchanged(obj, handler, action)
+
+            
+            invisible(obj)
+          })
+
+## methods
+setMethod(".svalue",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gRadiotcltk"),
+          function(obj, toolkit, index=NULL, drop=NULL, ...) {
+
+            rbValue = tag(obj,"tclVar")
+            rbVal <- as.character(tclvalue(rbValue))
+
+            ## return index or value
+            index = ifelse(is.null(index),FALSE,as.logical(index))
+            if(index) {
+              return(which(rbVal %in% as.character(tag(obj,"items"))))
+            } else {
+              if(!is.null(obj@coercewith))
+                return(obj@coercewith(rbVal))
+              else
+                return(rbVal)
+            }
+          })
+
+## svalue<-
+setReplaceMethod(".svalue",
+                 signature(toolkit="guiWidgetsToolkittcltk",obj="gRadiotcltk"),
+                 function(obj, toolkit, index=NULL, ..., value) {
+
+                   items = obj[]
+                   
+                   if(!is.null(index) && index==TRUE) {
+                     ind = value
+                   } else {
+                     if(value %in% items) {
+                       ind = mathc(value,items)
+                     } else {
+                       ind = -1
+                     }
+                   }
+                   if(ind >= 0) {
+                     theVar = tag(obj,"tclVar")
+                     tclvalue(theVar) <- items[ind]
+                   }
+                   
+                   return(obj)
+                 })
+
+
+setMethod(".leftBracket",
+          signature(toolkit="guiWidgetsToolkittcltk",x="gRadiotcltk"),
+          function(x, toolkit, i, j, ..., drop=TRUE) {
+            ## return(items)
+            items = tag(x,"items")
+
+            if(missing(i))
+              items[,...,drop=drop]
+            else
+              items[i,...,drop=drop]
+          })
+            
+setMethod("[",
+          signature(x="gRadiotcltk"),
+          function(x, i, j, ..., drop=TRUE) {
+            .leftBracket(x, x@toolkit, i, j, ..., drop=drop)
+          })
+
+
+## This sets the labels for the buttons
+## add in markup here.
+setReplaceMethod(".leftBracket",
+          signature(toolkit="guiWidgetsToolkittcltk",x="gRadiotcltk"),
+          function(x, toolkit, i, j, ..., value) {
+
+            curVal = svalue(x, index=TRUE)
+            
+            ## check
+            if(missing(i))
+              i = 1:n
+            if(length(value) != length(i)) {
+              cat("value has the wrong length\n")
+              return(x)
+            }
+
+            ## update items
+            items = tag(x,"items")
+            items[i] <- value
+            tag(x,"items") <- items
+
+            ## set visual labels
+            theRBs = tag(x,"theRBs")
+            theVar = tag(x,"tclVar")
+            for(j in 1:length(i))  {
+              tkconfigure(theRBs[[i[j]]], variable=theVar, value=items[i[j]], text=as.character(value[j]))
+            }
+            tag(x,"theRBs") <- theRBs
+            
+            ## set the value
+            tclvalue(theVar) <- items[curVal]
+            ## all done
+            return(x)
+          })
+
+setReplaceMethod("[",
+                 signature(x="gRadiotcltk"),
+                 function(x, i, j,..., value) {
+                   .leftBracket(x, x@toolkit, i, j, ...) <- value
+                   return(x)
+                 })
+
+setMethod(".length",
+          signature(toolkit="guiWidgetsToolkittcltk",x="gRadiotcltk"),
+          function(x,toolkit) {
+            length(tag(x,"items"))
+          })
+
+##################################################
+## handlers
+
+
+## This handler isn't right. It reacts toa click on the box containing
+## the widget, not the radio buttons
+
+setMethod(".addhandlerchanged",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gRadiotcltk"),
+          function(obj, toolkit, handler, action=NULL, ...) {
+
+            theRBs = tag(obj,"theRBs")
+            tmp = sapply(theRBs, function(i) {
+              ## need to pause to let the click catch up
+              addhandler(i,toolkit, signal="<Button-1>",action=action,
+                         handler = function(h,...) {
+                           tcl("after",5,function(h,...) handler(h,...))
+                         })
+            })
+            ## return(ID)
+          })
+
+## click and changed the same
+setMethod(".addhandlerclicked",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gRadiotcltk"),
+          function(obj, toolkit, handler, action=NULL, ...) {
+            .addhandlerchanged(obj,toolkit,handler,action,...)
+          })
+
