@@ -1,0 +1,4 @@
+2007-07-01  John Verzani  <jverzani@gmail.com>
+
+	* R/gdialogs.R (onCancel): use one function. Add space
+

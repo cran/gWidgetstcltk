@@ -103,7 +103,7 @@ tcltkDialog = function(
 
   tkwait.window(dlg)
   
-  invisble(ReturnVal)
+  invisible(ReturnVal)
 }
 
 
