@@ -3,6 +3,7 @@ setMethod(".gwindow",
           signature(toolkit="guiWidgetsToolkittcltk"),
           function(toolkit,
                    title="Window", visible=TRUE,
+                   width = NULL, height = NULL,
                    handler=NULL, action = NULL,
                    ...
                    ) {
@@ -13,6 +14,12 @@ setMethod(".gwindow",
             tktitle(win) <- title
             ## enable autoresizing
             tkwm.geometry(win,"")
+            ## set default size? only minsize here
+            if(!is.null(width)) {
+              if(is.null(height)) height = .7*width
+              tkwm.minsize(win, width, height)
+            }
+
 
             obj = new("gWindowtcltk",block=win, widget=win, toolkit=toolkit, ID=getNewID())
             
@@ -91,6 +98,13 @@ setMethod(".size",
           function(obj, toolkit, ...) {
             missingMsg(".size,gwindow")
             return()
+          })
+
+setReplaceMethod(".size",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gWindowtcltk"),
+          function(obj, toolkit, ...,value) {
+            tkwm.minsize(obj@widget, value[1], value[2])
+            return(obj)
           })
 
 setMethod(".dispose",

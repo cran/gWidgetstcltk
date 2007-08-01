@@ -389,6 +389,7 @@
 \alias{.add,gHelptcltk,guiWidgetsToolkittcltk,ANY-method}
 \alias{.add,gHelpbrowsertcltk,guiWidgetsToolkittcltk,ANY-method}
 \alias{.add,gLayouttcltk,guiWidgetsToolkittcltk,gWidgettcltk-method}
+\alias{.add,gLayouttcltk,guiWidgetsToolkittcltk,gSeparatortcltk-method}
 \alias{.add,gMenutcltk,guiWidgetsToolkittcltk,guiWidget-method}
 \alias{.add,gMenutcltk,guiWidgetsToolkittcltk,gMenutcltk-method}
 \alias{.add,gMenutcltk,guiWidgetsToolkittcltk,list-method}
@@ -545,6 +546,7 @@
 %%
 \alias{.size<--methods}
 \alias{.size<-,gWidgettcltk,guiWidgetsToolkittcltk-method}
+\alias{.size<-,gWindowtcltk,guiWidgetsToolkittcltk-method}
 \alias{.size<-,gComponenttcltk,guiWidgetsToolkittcltk-method}
 \alias{.size<-,gContainertcltk,guiWidgetsToolkittcltk-method}
 \alias{.size<-,gEdittcltk,guiWidgetsToolkittcltk-method}

@@ -31,24 +31,39 @@ setMethod(".gseparator",
             else
               col = "black"
 
-            tt <- getBlock(container, ...)
-            gp <- tkframe(tt, background = col)
-            
+            tt <- getBlock(container)
+            gp <- tkframe(tt)
+
+
             if(horizontal) {
-              tkpack(tkframe(tt),  fill="both", expand=1, pady=2)
-              tkpack(gp, expand=1, fill="both", side="top", fill="x")
-              tkpack(tkframe(tt),  fill="both", expand=1, pady=2)
+              tkpack(tkframe(gp),  fill="both", expand=1, pady=2)
+              tkpack(tkframe(gp, background=col), expand=1, fill="both", side="top", fill="x")
+              tkpack(tkframe(gp),  fill="both", expand=1, pady=2)
             } else {
-              tkpack(tkframe(tt),  fill="both", expand=1, padx=2)
-              tkpack(gp, expand=1, fill="both", side="left", fill="y")
-              tkpack(tkframe(tt),  fill="both", expand=1, padx=2)
+              tkpack(tkframe(gp),  fill="both", expand=1, padx=2)
+              tkpack(tkframe(gp, background=col), expand=1, fill="both", side="left", fill="y")
+              tkpack(tkframe(gp),  fill="both", expand=1, padx=2)
             }
 
             obj = new("gSeparatortcltk", block=gp, widget=gp, toolkit=toolkit, ID=getNewID())
 
 
+            ## add gp to container. Fixe expand argument to be TRUE
+            theArgs$expand = TRUE
+            do.call(add, c(list(obj=container, value=obj), theArgs))
+##            add(container, obj, ...)
+
+
             invisible(obj)
             
           })
+
+
+setMethod(".add",
+          signature(toolkit="guiWidgetsToolkittcltk", obj="gLayouttcltk",
+                    value="gSeparatortcltk"),
+          function(obj, toolkit, value, ...) {
+          })
+
 
 

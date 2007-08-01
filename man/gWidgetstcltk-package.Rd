@@ -61,7 +61,8 @@ for several widgets that is used to format text is not available. The
 \cr
 
 \code{gwindow()} The \code{visible=} argument is ignored. The top-level
-window is always produced.
+window is always produced. The \code{width=} and  \code{height=}
+arguments refer to the minimum window size, not the preferred default size.
 \cr
 
 \code{ggroup()} also has the \code{expand=} and \code{anchor=}

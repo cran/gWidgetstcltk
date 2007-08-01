@@ -73,7 +73,11 @@ setReplaceMethod(".svalue",
                    buttonList = tag(obj,"buttonList")
                    curPage = tag(obj,"curPage")
 
+                   if(value == 0) return(obj)
+
+                   
                    n = length(obj)
+                   oldPageno = 0
                    if(n > 0)
                      oldPageno = which(curPage == names(buttonList))
                    if(length(oldPageno) == 0) oldPageno=0
@@ -88,7 +92,8 @@ setReplaceMethod(".svalue",
                    if(newPageno > n) newPageno = n
                    if(n > 0)
                      sapply(names(buttonList), function(i) enabled(buttonList[[i]]) <- FALSE)
-                   enabled(buttonList[[newPageno]]) <- TRUE
+                   if(n > 0)            # cant set if none there
+                     enabled(buttonList[[newPageno]]) <- TRUE
 
                    ## packingOptions
                    theArgs = list(...)
@@ -136,7 +141,6 @@ setMethod(".dispose",
               j = cur.pageno + i
               if(deleteOK(j)) {
                 ## delete from button list,
-                cat("Delete",j,"\n")
                 svalue(obj) <- j
                 delete(buttonGroup, buttonList[[j]])
                 delete(nb, widgetList[[j]])
@@ -344,14 +348,17 @@ setMethod(".leftBracket",
           function(x, toolkit, i, j, ..., drop=TRUE) {
             widgetList = tag(x,"widgetList")
             if(missing(i))
-              i = 1:length(x)
+              i = 1:length(widgetList)
             if(length(i) > 1) {
               lst = sapply(i,function(j)
                 widgetList[[j]]
                 )
               return(lst)
             } else {
-              return(widgetList[[i]])
+              if(i <= length(widgetList))
+                return(widgetList[[i]])
+              else
+                return(NULL)
             }
           })
 
@@ -400,7 +407,12 @@ setMethod(".addhandlerchanged",
 setMethod(".addhandlerexpose",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gNotebooktcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
-            for(i in 1:length(obj)) 
-              addhandler(obj[i],"<Expose>",handler, action)
+            n <- length(obj)
+            if(n > 0) {
+              for(i in 1:n)  {
+                if(!is.null(obj[i]))
+                  addhandler(obj[i],"<Expose>",handler, action)
+              }
+            }
           })
 
