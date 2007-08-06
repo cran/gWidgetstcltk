@@ -9,6 +9,7 @@ setMethod(".gframe",
           function(toolkit,
                    text = "", markup=FALSE,
                    pos = 0, ## pos in [0,1] 0 for left, (.01,.99) center, 1 for right
+                   horizontal=TRUE,
                    container=NULL,
                    ...) {
 
@@ -36,11 +37,6 @@ setMethod(".gframe",
               warning("Container is not correct. No NULL containers possible\n" )
               return()
             }
-
-            if(is.null(theArgs$horizontal))
-              horizontal = TRUE
-            else
-              horizontal = theArgs$horizontal
 
             tt = getBlock(container)
             f = tkwidget(tt, "labelframe", text=text, labelanchor=labAnchor)

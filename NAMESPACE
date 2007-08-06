@@ -8,7 +8,8 @@ importFrom(gWidgets,
 "gframe", "gexpandgroup", "gnotebook", "glayout", "gpanedgroup",
 "gmessage", "ginput", "gconfirm", "gbasicdialog",
 "addStockIcons","getStockIcons",
-           "stockIconFromClass","stockIconFromObject"
+           "stockIconFromClass","stockIconFromObject",
+           ".fixFontMessUp"
 )
 
 importClassesFrom(gWidgets, 
@@ -67,7 +68,7 @@ importMethodsFrom(gWidgets,
 ##        "stockIconFromClass","stockIconFromObject",
 ##        "Timestamp","Timestamp<-",
 ##
-export("str2")
+## export("str2")
 
 
 exportMethods(

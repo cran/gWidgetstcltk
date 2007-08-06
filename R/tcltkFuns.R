@@ -35,6 +35,11 @@ getTopParent = function(tkobj) {
 }
 
 
+setMethod(".getToolkitWidget",
+          signature(obj="gWidgettcltk", toolkit="guiWidgetsToolkittcltk"),
+          function(obj, toolkit) getWidget(obj))
+
+
 ## Does the top level window exists
 windowExists = function(obj) {
   win = getTopParent(getWidget(obj))

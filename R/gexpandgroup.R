@@ -9,7 +9,7 @@ setClass("gExpandgrouptcltk",
 setMethod(".gexpandgroup",
           signature(toolkit="guiWidgetsToolkittcltk"),
           function(toolkit,
-                   text="", markup=FALSE,
+                   text="", markup=FALSE,horizontal=TRUE,
                    handler=NULL, action=NULL,
                    container = NULL, ...){
 
@@ -17,14 +17,14 @@ setMethod(".gexpandgroup",
 
             theArgs = list(...)
             groupArgs = list()
-            for(i in c("horizontal","spacing","use.scrollwindow")) {
+            for(i in c("spacing","use.scrollwindow")) {
               if(!is.null(theArgs[[i]])) {
                 groupArgs[[i]] = theArgs[[i]]
                 theArgs[[i]] = NULL
               }
             }
 
-            theArgs$horizontal=FALSE
+            theArgs$horizontal=horizontal
             theArgs$container = container
 
             cg = do.call("ggroup",theArgs)

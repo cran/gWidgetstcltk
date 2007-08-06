@@ -265,6 +265,9 @@ setReplaceMethod(".leftBracket",
             sapply(items, function(i) tkinsert(widget,"end",i))
             is.odd = function(x) x %%2 == 1
             n = (1:length(items))-1
+            if(length(items) == 0)
+              return(x)                 # all done
+            ## otherwise, fix colors
             sapply(n,
                    function(i) {
                      if(is.odd(i))

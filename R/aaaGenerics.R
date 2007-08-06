@@ -336,7 +336,7 @@ setMethod("font",signature(obj="gWidgettcltk"),
 ## font<-
 setReplaceMethod("font",signature(obj="gWidgettcltk"),
           function(obj, ..., value) {
-            .font(obj, obj@toolkit,...) <- value
+            .font(obj, obj@toolkit,...) <- .fixFontMessUp(value)
             return(obj)
           })
 setReplaceMethod(".font",

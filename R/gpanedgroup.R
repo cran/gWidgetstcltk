@@ -42,6 +42,12 @@ setMethod(".gpanedgroup",
               toolkit=toolkit,ID=getNewID())
 
             tag(obj,"horizontal") <- horizontal
+
+            if(!missing(widget1) || !is.null(widget1))
+              cat("Use gpanedgroup as a container to add widgets")
+            if(!missing(widget2) || !is.null(widget2))
+              cat("Use gpanedgroup as a container to add widgets")
+
             
             return(obj)
           })
