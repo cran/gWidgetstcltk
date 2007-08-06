@@ -24,7 +24,6 @@ setMethod(".gtable",
 
             ## NOT IMPLEMENTED
             ## * icon.FUN
-            ## * filtering
             ## * sorting
             
             force(toolkit)
@@ -224,11 +223,8 @@ setMethod(".leftBracket",
             if(isVector) {
               return(items[i])
             } else {
-              chosencol = tag(x,"chosencol")
-              if(drop)
-                return(items[i,chosencol])
-              else
-                return(items[i,])
+              if(missing(j)) j = 1:ncol(items)
+              return(items[i,j, drop=drop])
             }
           })
             
@@ -322,14 +318,14 @@ setReplaceMethod(".size",
 setMethod(".addhandlerchanged",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gTabletcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
-            addhandlerdoubleclick(obj, handler, action)
+            addhandlerdoubleclick(obj, handler, action,...)
           })
 
 ## when a selection is changed
 setMethod(".addhandlerclicked",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gTabletcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
-            .addHandler(obj,toolkit,signal="<<ListboxSelect>>", handler, action)
+            .addHandler(obj,toolkit,signal="<<ListboxSelect>>", handler, action,...)
           })
 
 ## pretty print table
@@ -409,8 +405,6 @@ setMethod(".gtableWithFilter",
             tbl = gtable(items,
               multiple=multiple,
               chosencol=chosencol,
-              handler=handler,
-              action=action,
               cont=g, expand=TRUE)
 
             
@@ -420,21 +414,20 @@ setMethod(".gtableWithFilter",
             obj = new("gTableWithFiltertcltk",block=g,widget=tbl,
               toolkit=toolkit,ID=getNewID())
 
-            tag(obj,"items") <- items
-            tag(obj,"filterPopup") <- filterPopup
-            tag(obj,"filterByLabel") <- filterByLabel
+            tag(obj, "allItems") <- items
+            tag(obj, "tbl") <- tbl
+            tag(obj, "filterPopup") <- filterPopup
+            tag(obj, "filterByLabel") <- filterByLabel
+
             
             ## one of filter.column or filter.fun is non-NULL
             if(is.null(filter.FUN)) {
               ## define filter.FUN
-              filter.FUN = function(tbl, filterBy) {
-                items = tag(obj,"items")
-                DF = items[,]
+              filter.FUN = function(DF, filterBy) {
                 if(filterBy == "") return(rep(TRUE,nrow(DF)))
-                
                 inds = as.character(DF[,filter.column]) == filterBy
               }
-
+              
               ## set up droplist
               filterPopup[] <- c("",sort(unique(as.character(items[,filter.column]))))
               svalue(filterByLabel) <- paste("Filter by",names(items)[filter.column],"==",sep=" ", collapse=" ")
@@ -443,21 +436,32 @@ setMethod(".gtableWithFilter",
               filterPopup[] <- c("",filter.labels)
             }
 
-            
+            tag(obj,"filter.FUN") <- filter.FUN
 
-            addHandlerChanged(filterPopup, action=tbl,
+            ## get obj from scoping
+            addHandlerChanged(filterPopup,action=obj,
                               handler=function(h,...) {
-                                inds = filter.FUN(h$action, svalue(filterPopup))
-                                tbl[,] <- items[inds,]
-                              })
-            
+                                DF = tag(obj, "allItems")
+                                tbl = tag(obj,"tbl")
+                                filter.fun = tag(obj,"filter.FUN")
+                                fval = svalue(h$obj) # popup
 
+                                inds = filter.FUN(DF, fval)
+                                ## update  tbl
+                                obj[,] <- DF[inds,]
+                                ## but keep allItems
+                                tag(obj,"allItems") <- DF
+                              })
+            ## add handler to gtable object, but pass in override for methods
+            if(!is.null(handler)) 
+             ID= addhandlerchanged(tbl,handler,action,actualobj=obj,...)
+            
             return(obj)
           })
 
 
-## methods: Most push down onto table
-## incorporate chosenval here
+          
+
 setMethod(".svalue",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gTableWithFiltertcltk"),
           function(obj, toolkit, index=NULL, drop=NULL,...) {
@@ -475,7 +479,7 @@ setReplaceMethod(".svalue",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gTableWithFiltertcltk"),
                  function(obj, toolkit, index=NULL, ..., value) {
 
-                   tbl = obj@widget
+                   tbl = tag(obj,"tbl")
                    svalue(tbl, toolkit=toolkit, index=index,  ...) <- value
 
                    return(obj)
@@ -486,7 +490,7 @@ setReplaceMethod(".svalue",
 setMethod(".leftBracket",
           signature(toolkit="guiWidgetsToolkittcltk",x="gTableWithFiltertcltk"),
           function(x, toolkit, i, j, ..., drop=TRUE) {
-            tbl = x@widget@widget       # confusing but we look at a
+            tbl = tag(x,"tbl")
                                         # dot function
             .leftBracket(tbl, toolkit, i, j, ..., drop=drop)
           })
@@ -500,11 +504,30 @@ setMethod("[",
 setReplaceMethod(".leftBracket",
           signature(toolkit="guiWidgetsToolkittcltk",x="gTableWithFiltertcltk"),
           function(x, toolkit, i, j, ..., value) {
-            ## need to replace the whole enchilada: filter, items etc.
-            ## Ughh
-            cat("[<- Not implemented yet for gtable\n")
+            if(!missing(i) || !missing(j)) {
+              cat("[<- only replaces the entire object. Try obj[,]<-value\n")
+              return(x)
+            }
+
+            ## underlying gtable object
+            tbl = tag(x,"tbl")
+
+            ## We have to a) update allItems, b) update table
+            tag(x, "allItems") <- value
+            ## tbl needs to be filtered
+            DF = value
+            fval = svalue(tag(x, "filterPopup"))
+            if(fval == "") {
+              tbl[,] <- DF
+            } else {
+              filter.FUN = tag(x,"filter.FUN")
+              inds = filter.FUN(DF, fval)
+              tbl[,] <- DF[inds,,drop=FALSE]
+            }
+              
+
             return(x)
-          })
+           })
 
 setReplaceMethod("[",
                  signature(x="gTableWithFiltertcltk"),
@@ -517,14 +540,14 @@ setReplaceMethod("[",
 setMethod(".dim",
           signature(toolkit="guiWidgetsToolkittcltk",x="gTableWithFiltertcltk"),
           function(x, toolkit) {
-            tbl = x@widget
+            tbl = tag(x,"tbl")
             return(dim(tbl))
           })
 ## length
 setMethod(".length",
           signature(toolkit="guiWidgetsToolkittcltk",x="gTableWithFiltertcltk"),
           function(x, toolkit) {
-            tbl = x@widget
+            tbl = tag(x,"tbl")
             return(length(tbl))
           })
 
@@ -532,7 +555,7 @@ setMethod(".length",
 setReplaceMethod(".size", 
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gTableWithFiltertcltk"),
                  function(obj, toolkit, ..., value) {
-                   tbl = obj@widget
+                   tbl = tag(obj,"tbl")
                    size(tbl) <- value
                    return(obj)
                  })
@@ -542,23 +565,24 @@ setReplaceMethod(".size",
 setMethod(".addhandlerchanged",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gTableWithFiltertcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
-            tbl = obj@widget@widget
-            .addhandlerdoubleclick(tbl, toolkit, handler, action)
+            tbl = tag(obj,"tbl")
+            .addhandlerdoubleclick(tbl, toolkit, handler, action,actualobj=obj)
           })
 
 ## same as changed
 setMethod(".addhandlerdoubleclick",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gTableWithFiltertcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
-            .addhandlerchanged(obj, toolkit, handler, action)
+            .addhandlerchanged(obj, toolkit, handler, action,...)
           })
 
 ## when a selection is changed
 setMethod(".addhandlerclicked",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gTableWithFiltertcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
-            tbl = obj@widget@widget
-            .addHandler(tbl,toolkit,signal="<<ListboxSelect>>", handler, action)
+            tbl = tag(obj,"tbl")
+            .addHandler(tbl,toolkit,signal="<<ListboxSelect>>", handler, action,
+                        actualobj=obj)
           })
 
 

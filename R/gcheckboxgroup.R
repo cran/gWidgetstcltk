@@ -25,8 +25,7 @@ setMethod(".gcheckboxgroup",
             lst = list()
             n = length(items)
             for(i in 1:n) {
-              newItem = gcheckbox(items[i], checked=checked[i],
-                handler=handler, action=action, cont=group)
+              newItem = gcheckbox(items[i], checked=checked[i], cont=group)
               lst[[ as.character(items[i]) ]] = newItem
             }
   
@@ -140,16 +139,22 @@ setReplaceMethod(".leftBracket",
              return(x)
           })
 
-## handlers
+## handlers should define addHandler class for gradio, gcheckbox, and
+## gcheckboxgroup. Each needs to have this pause trick. As it is, if I
+## wanted to define a new handler I;d have to copy all but the signal.
+
 setMethod(".addhandlerchanged",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gCheckboxgrouptcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
             sapply(tag(obj,"itemlist"),function(i) {
+              changeHandler = handler
               ## need to pause to let the click catch up
-              addhandler(i,toolkit, signal="<Button-1>",action=action,
+              addhandler(i,toolkit, signal="<Button-1>",
+                         actualobj=obj,
+                         action=action,
                          handler = function(h,...) {
-                           tcl("after",5,function(h,...) handler(h,...))
+                           tcl("after",5,function(...)
+                               changeHandler(h,...))
                          })
             })
-            
           })

@@ -216,12 +216,18 @@ setMethod(".addhandlerchanged",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gRadiotcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
 
+            changeHandler = handler
             theRBs = tag(obj,"theRBs")
             tmp = sapply(theRBs, function(i) {
               ## need to pause to let the click catch up
-              addhandler(i,toolkit, signal="<Button-1>",action=action,
+              ## we use scope to look up changeHandler and h
+              addhandler(i,toolkit, signal="<Button-1>",
+                         actualobj = obj, 
+                         action=action,
                          handler = function(h,...) {
-                           tcl("after",5,function(h,...) handler(h,...))
+                           tcl("after",5,function(...) {
+                             changeHandler(h,...)
+                           })
                          })
             })
             ## return(ID)

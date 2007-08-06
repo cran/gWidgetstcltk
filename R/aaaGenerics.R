@@ -831,18 +831,6 @@ setMethod(".addHandler",
           })
 
 
-## in aaaHandlers
-## setMethod(".addHandler",
-##           signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
-##           function(obj, toolkit,
-##                    signal, handler, action=NULL, ...) {
-##             ## use tkbind
-##             tkbind(obj@widget,signal,
-##                    function(...) {
-##                      h = list(ref=obj, action=action)
-##                      handler(h,...)
-##                      })
-##           })
 
 
 ## removew handler

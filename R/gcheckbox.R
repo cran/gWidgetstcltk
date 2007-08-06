@@ -104,11 +104,18 @@ setReplaceMethod("[",
 setMethod(".addhandlerchanged",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gCheckboxtcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
-            addhandler(tag(obj,"check"),toolkit, signal="<Button-1>",handler=handler, action=action)
+            changeHandler = handler
+            addhandler(tag(obj,"check"),toolkit, signal="<Button-1>",
+                       action=action, actualobj=obj,
+                       handler = function(h,...) {
+                           tcl("after",5,function(...) {
+                             changeHandler(h,...) ## need to pause
+                           })
+                         })
           })
 
 setMethod(".addhandlerclicked",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gCheckboxtcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
-            addhandlerchanged(obj, handler, action)
+            .addhandlerchanged(obj, toolkit, handler, action)
           })

@@ -3,6 +3,8 @@
 ## ID, type, handlerID are characters
 
 
+## use actualobj to pass something different to h$obj in handlers
+
 ### This stores the handlers
 ### it will be ahsh keyed by ID and then handlerID.
 ### The ID allows for garbage collection (sometime)
@@ -17,11 +19,17 @@ setMethod(".addHandler",
             ## use tkbind
             ## What to do for an ID, how to deregister?
             ID = as.character(obj@ID)
-            
+
+            theArgs = list(...)
             
             tkbind(getWidget(obj),signal,
               function(...) {
-                h = list(ref=obj, obj=obj, action=action)
+                h = list(
+                  obj=if(!is.null(theArgs$actualobj)) {
+                    theArgs$actualobj
+                  } else {
+                    obj
+                  },  action=action)
                 handler(h,...)
               })
 
@@ -44,8 +52,12 @@ setMethod(".addHandler",
 setMethod(".addHandler",
           signature(toolkit="guiWidgetsToolkittcltk",obj="tcltkObject"),
           function(obj, toolkit, signal, handler, action=NULL, ...) {
+
+            theArgs = list(...)
+            theobj = theArgs$actualobj
+
             tkbind(obj,signal, function(...) {
-              h = list(ref=NULL, action=action)
+              h = list(obj=theobj, action=action)
               handler(h,...)
             })
             invisible(list(type=NULL,handlerID=NULL))

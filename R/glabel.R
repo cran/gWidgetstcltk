@@ -44,7 +44,8 @@ setMethod(".glabel",
             
             if(editable) {
               handler = function(h,...) {
-                val = ginput("Change label value:",svalue(h$obj))
+                val = ginput(message="Change label value:",text=svalue(h$obj),
+                  title="Change text for label", icon="question")
                 if(!is.na(val))
                   svalue(obj) <- val
               }
