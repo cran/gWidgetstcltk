@@ -65,7 +65,7 @@ mapListToToolBar = function(tb, lst, style) {
   for(i in names(lst)) {
     if(!is.null(lst[[i]]$separator)) {
       ## add separator
-      .jcall(tb,"V","addSeparator")
+      ## .jcall(tb,"V","addSeparator") 
     } else if(!is.null(lst[[i]]$handler)) {
       ## how to decide there are no text parts?
       addButton(tb, style, i, lst[[i]]$icon, lst[[i]]$handler, lst[[i]]$action)

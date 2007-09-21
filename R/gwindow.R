@@ -3,7 +3,7 @@ setMethod(".gwindow",
           signature(toolkit="guiWidgetsToolkittcltk"),
           function(toolkit,
                    title="Window", visible=TRUE,
-                   width = NULL, height = NULL,
+                   width = NULL, height = NULL, location=NULL,
                    handler=NULL, action = NULL,
                    ...
                    ) {
@@ -20,7 +20,9 @@ setMethod(".gwindow",
               tkwm.minsize(win, width, height)
             }
 
-
+            ## how to set location???
+            if(!is.null(location)) cat("location argument not yet implemented\n")
+            
             obj = new("gWindowtcltk",block=win, widget=win, toolkit=toolkit, ID=getNewID())
             
             if (!is.null(handler)) {

@@ -255,7 +255,7 @@ mapListToMenuBar = function(menulist, topMenu) {
     ## toplevel
     sapply(names(menulist), function(i) {
       tkadd(topMenu,"command",label=i,command = function() {
-        l = force(lst[[i]])
+        l = force(menulist[[i]])
         h = list()
         h$action = l$action
         l$handler(h)

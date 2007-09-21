@@ -27,7 +27,14 @@ setMethod(".gdroplist",
               return()
             }
 
-            ## items must be a vector here
+            ## items could be a data frame, in which case
+            ## row 1 has the data, row 2 the icon name
+
+            if(inherits(items,"data.frame")) {
+              items <- items[,1, drop=TRUE]
+            }
+            
+             ## items must be a vector here
             items = as.vector(items)              # undoes factor
             items = unique(items)                 # unique
             

@@ -430,6 +430,8 @@ Timestamp = function(obj,k=1) {
 ## functions to deal with icons
 ## class to icon translation -- return stock name
 ## with prefix
+allIcons = getStockIcons()
+getStockIconName = function(name) allIcons[[name]]
 stockIconFromClass = function(theClass=NULL) {
   default = "symbol_star"
   
@@ -440,11 +442,11 @@ stockIconFromClass = function(theClass=NULL) {
     return(NA)
   
   if(theClass %in% .models)
-    return(getstockiconname("lines"))
+    return(getStockIconName("lines"))
   if(theClass %in% .ts)
-    return(getstockiconname("ts"))
+    return(getStockIconName("ts"))
   if(theClass %in% .functions)
-    return(getstockiconname("function"))
+    return(getStockIconName("function"))
 
   ret = switch(theClass,
     "numeric"= "numeric",
@@ -459,7 +461,7 @@ stockIconFromClass = function(theClass=NULL) {
     "recordedplot" = "plot",
     NA)
   
-  return(getstockiconname(ret))
+  return(getStockIconName(ret))
 }
 
 stockIconFromObject = function(obj)
