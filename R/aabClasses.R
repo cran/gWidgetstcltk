@@ -16,14 +16,16 @@ setClass("gGrouptcltk",
          prototype=prototype(new("gContainertcltk"))
          )
 
+setClass("gWindowtcltk",
+         representation = representation("gContainertcltk"),
+         ##           horizontal="logical"),
+         contains="gContainertcltk",
+         prototype=prototype(new("gContainertcltk"))
+         )
+
 setClass("gNotebooktcltk",
          representation = representation("gComponenttcltk",
            closebuttons="logical",
            dontCloseThese="numeric"),
          contains="gComponenttcltk"
          )
-setClass("gWindowtcltk",
-         contains="gContainertcltk",
-         prototype=prototype(new("gContainertcltk"))
-         )
-

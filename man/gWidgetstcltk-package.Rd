@@ -157,7 +157,8 @@ the base tcltk.
 
 \code{gdroplist()} This is a hack. It looks okay, but not great
 especially when \code{editable=TRUE}. The extra argument \code{width=}
-controls the width of the text box, as this does not grow dynamically.
+controls the width of the text box, as this does not grow
+dynamically. 
 
 
 \code{gedit()}, unlike the \pkg{gWidgetsRGtk2} widget, has no type-ahead
@@ -218,7 +219,11 @@ filtering), unlike with RGtk2.
 \code{gtext()} The widget does not get dynamically resized. The
 \code{size<-} method can be used to resize the widget. This method
 guesses at the converstion from pixels to characters (width) and lines
-of text (height) used by the underlying widget.
+of text (height) used by the underlying widget. The \code{svalue()}
+method returns all the text unless some text is selected by the mouse
+and : \code{index=TRUE} in which case the
+indices of the selected text are returned or \code{drop=TRUE} in which
+case only the selected text is returned.
 \cr
 
 \code{gtoolbar()} A hack. The buttons take up alot of screen real estate.

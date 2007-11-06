@@ -23,7 +23,11 @@ setMethod(".gwindow",
             ## how to set location???
             if(!is.null(location)) cat("location argument not yet implemented\n")
             
-            obj = new("gWindowtcltk",block=win, widget=win, toolkit=toolkit, ID=getNewID())
+            obj = new("gWindowtcltk",block=win, widget=win, toolkit=toolkit,
+              ID=getNewID())
+
+
+            
             
             if (!is.null(handler)) {
               id <- addhandlerdestroy(obj, handler=handler, action=action)
@@ -50,6 +54,7 @@ setMethod(".add",
             } else {
               packArgs$side="top"
             }
+            ## override with anchor argument
             if(!is.null(theArgs$anchor)) {
               an = theArgs$anchor
               if(an[1] == 1)
@@ -61,6 +66,7 @@ setMethod(".add",
               else
                 packArgs$side = "bottom"
             }
+
 
             do.call("tkpack", packArgs)
           })

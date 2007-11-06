@@ -36,7 +36,7 @@ setMethod(".gtext",
                                 command=function(...)tkxview(txt,...))
             yscr <- tkscrollbar(gp, repeatinterval=5,
                                 command=function(...)tkyview(txt,...))
-            txt <- tktext(gp,bg="white",#font="courier",
+            txt <- tktext(gp,bg="white", setgrid=FALSE, #font="courier",
                           xscrollcommand=function(...)tkset(xscr,...),yscrollcommand=function(...)tkset(yscr,...),
                           wrap="none")
             tkgrid(txt,row=0,column=0, sticky="news")
@@ -78,11 +78,27 @@ setMethod(".gtext",
 setMethod(".svalue",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gTexttcltk"),
           function(obj, toolkit, index=NULL, drop=NULL, ...) {
-            ## grab all text
+
+            ## rongui request, if INDEX = TRUE return selected text
+            ## by index in the buffer
+            if(!is.null(index) && index == TRUE) {
+              ## get the selected text from gtext,
+              ## return the index instead of text.
+              if(tclvalue(tktag.ranges(getWidget(obj),"sel")) != ""){
+                val = strsplit(tclvalue(tktag.ranges(getWidget(obj),
+                  "sel")), " ")[[1]]}
+              else
+                val =c(0,0)
+              return(as.numeric(val))
+            }
+
+            ## otherwise we return text
+            ## if drop=FALSE or NULL grab all text
+            ## if drop=TRUE, get selected text only
             if(is.null(drop) || drop == FALSE) {
               val = tclvalue(tkget(getWidget(obj),"0.0","end"))
             } else {
-              if(tktag.ranges(getWidget(obj),"sel") != "")
+              if(length(as.numeric(tktag.ranges(getWidget(obj),"sel"))) > 0)
                 val = tclvalue(tkget(getWidget(obj),"sel.first","sel.last"))
               else
                 val = ""
