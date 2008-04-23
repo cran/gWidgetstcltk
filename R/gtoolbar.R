@@ -19,7 +19,7 @@ setMethod(".gtoolbar",
                    container=NULL, ...) {
 
             force(toolkit)
-            
+
             if(is(container,"logical") && container)
               container = gwindow()
             if(!is(container,"guiWidget")) {
@@ -29,46 +29,71 @@ setMethod(".gtoolbar",
 
 
             style = match.arg(style)
+            tkstyle <- c("both"="top",
+                         "icons"="image",
+                         "text"="text",
+                         "both-horiz"="left")
 
+            tt <- getBlock(container)
+            tb <- ttkframe(tt)
+
+
+            
             toolbar = ggroup(horizontal=TRUE, cont=container, expand=TRUE)
-            mapListToToolBar(toolbar, toolbarlist, style)
+            .mapListToToolBar(tb, toolbarlist, tkstyle[style])
 
-            obj = new("gToolbartcltk",block=toolbar, widget=toolbar,
-              toolkit=toolkit, ID=getNewID(),style=style)
+            obj = new("gToolbartcltk",block=tb, widget=tb,
+              toolkit=toolkit, ID=getNewID(),e = new.env(),
+              style=style)
 
             tag(obj,"toolbarlist") <- toolbarlist
-            
+
+            add(container, obj, ...)
             invisible(obj)
   
           })
 
 
 ## helpers
+.addToolbarButton <- function(tb, style, text=NULL, icon=NULL,handler=NULL, action=NULL) {
 
-addButton = function(tb, style, text=NULL, icon=NULL,handler=NULL, action=NULL) {
-
-  if(style == "icons") {
-    button = gimage(icon,dirname="stock",handler=handler,action=action,
-      container=tb, anchor=c(-1,0))
-  } else if(style == "text") {
-    button = gbutton(text,handler=handler,action=action,
-      container=tb, anchor=c(-1,0))
-  } else if(style == "both" || style == "both-horiz") {
-    button = gbutton(icon,handler=handler,action=action,
-      container=tb, anchor=c(-1,0), compound="top" )
+  ## get icon
+  if(!is.null(icon)) {
+    file <- findTkIcon(icon)
+    icon <- tcl("image","create","photo",file=file)
   }
+  
+  ## make a button put in icon if there
+  b <- ttkbutton(tb, image=icon, text=text, compound=style)
+
+  ## add in handler
+  handler = force(handler)              # need to force so scoping works in this call
+  if(!is.null(handler)) {
+    tkbind(b,"<Button-1>", function(...) {
+      h = list(obj=b, action=action)
+      handler(h,...)
+    })
+  }
+
+  slaves <- tclvalue(tcl("grid","slaves",tb))
+  slaves <- unlist(strsplit(slaves," "))
+  n <- length(slaves)
+  tkgrid(b, row=0, column=n, sticky="ns")
+  
+#  tkpack(b, side="left",anchor="w",expand=TRUE,fill="y")
+
 }
 
 
-mapListToToolBar = function(tb, lst, style) {
+.mapListToToolBar = function(tb, lst, style) {
   ## list is simple compared to menubar
   for(i in names(lst)) {
     if(!is.null(lst[[i]]$separator)) {
       ## add separator
-      ## .jcall(tb,"V","addSeparator") 
+      gseparator(horizontal=FALSE, cont=tb)
     } else if(!is.null(lst[[i]]$handler)) {
       ## how to decide there are no text parts?
-      addButton(tb, style, i, lst[[i]]$icon, lst[[i]]$handler, lst[[i]]$action)
+      .addToolbarButton(tb, style, i, lst[[i]]$icon, lst[[i]]$handler, lst[[i]]$action)
     }
   }
 }
@@ -92,9 +117,9 @@ setReplaceMethod(".svalue",
                    n = length(tag(obj,"toolbarlist"))
 
                    ## how to delete from group
-                   cat("No method to delete toolbar components\n")
+                   gwCat(gettext("No method to delete toolbar components\n"))
                    
-                   mapListToToolBar(toolbar, value, obj@style)
+                   .mapListToToolBar(toolbar, value, obj@style)
 
                    tag(obj,"toolbarlist") <- value
                    

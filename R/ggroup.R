@@ -17,7 +17,7 @@ setMethod(".ggroup",
 
 
             if(is.null(container)) {
-              cat("No NULL containers in tcltk. Creating a new window\n")
+              cat(gettext("No NULL containers in tcltk. Creating a new window\n"))
               container=gwindow()
             } else if(is.logical(container) && container) {
               container = gwindow()
@@ -32,13 +32,14 @@ setMethod(".ggroup",
             ## implement scrollbars if asked. 
             if(use.scrollwindow == TRUE) {
               cat("use.scrollwindow not implemented in gWidgetstcltk\n") 
-              gp = tkframe(tt)
+              gp = ttkframe(tt)
             } else {
-              gp = tkframe(tt)
+              gp = ttkframe(tt)
             }
             
 
-            obj = new("gGrouptcltk",block=gp, widget=gp, horizontal=horizontal)
+            obj = new("gGrouptcltk",block=gp, widget=gp, horizontal=horizontal,
+              e = new.env())
             
 
             ## attach to container if there
@@ -62,7 +63,8 @@ setReplaceMethod(".svalue",
             ## adds some breathing room to object
             ## value is pixels
             gp <- getWidget(obj)
-            tkcofigure(gp,padx=value,pady=value)
+#            tkcofigure(gp,padx=value,pady=value)
+            tkcofigure(gp,padding = value)            
 
             return(obj)
           })

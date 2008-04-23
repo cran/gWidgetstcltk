@@ -18,7 +18,7 @@ setMethod(".gslider",
             ## JSlider is integer only (as far as I can tell
             ## if by < 1, call gspinbutton
             if(by < .99) {
-              cat("gslider in tcltk is integer only, using gspinbutton instead\n")
+              cat(gettext("gslider in tcltk is integer only, using gspinbutton instead\n"))
               obj = gspinbutton(
                 from, to, by, value, digits = 1,
                 handler, action,container,..., toolkit)
@@ -40,7 +40,7 @@ setMethod(".gslider",
               orientation = "vertical"
 
             tt = getBlock(container)
-            gp = tkframe(tt)
+            gp = ttkframe(tt)
             SliderValue <- tclVar(as.character(value))
             slider <- tkscale(gp, from=from, to=to,
                               showvalue=TRUE, variable=SliderValue,
@@ -49,7 +49,7 @@ setMethod(".gslider",
 
             
             obj = new("gSlidertcltk",block=gp, widget=slider,
-              toolkit=toolkit, ID=getNewID())
+              toolkit=toolkit, ID=getNewID(), e = new.env())
             tag(obj,"tclVar") <- SliderValue
             
             add(container, obj,...)

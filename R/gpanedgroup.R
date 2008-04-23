@@ -9,45 +9,44 @@ setMethod(".gpanedgroup",
           function(toolkit,
                    widget1, widget2, horizontal=TRUE, container=NULL, ...) {
             ## add a paned group
-
+            
             force(toolkit)
             
             
             if(is.null(container)) {
-              cat("No NULL containers in tcltk. Creating a new window\n")
+              cat(gettext("No NULL containers in tcltk. Creating a new window\n"))
               container=gwindow()
             } else if(is.logical(container) && container) {
               container = gwindow()
             }
-
+            
             if(!is(container,"guiWidget")) {
               container = gwindow()
             }
-
+            
             ## process args
             if(horizontal)
               orient = "horizontal"
             else
               orient = "vertical"
-
+            
             
             tt <- getBlock(container)
-            pg <- tkwidget(tt,"panedwindow", orient=orient)
+            ##            pg <- tkwidget(tt,"panedwindow", orient=orient)
+            pg <- ttkpanedwindow(tt, orient=orient)
             tkpack(pg, expand=TRUE, fill="both")
-
+            
             
             ## make object -- not block is pg so that add works correctly
             ## as it calls getBlock(container)
             obj = new("gPanedgrouptcltk", block=pg, widget=pg,
-              toolkit=toolkit,ID=getNewID())
-
+              toolkit=toolkit,ID=getNewID(), e = new.env())
+            
             tag(obj,"horizontal") <- horizontal
-
-            if(!missing(widget1) || !is.null(widget1))
-              cat("Use gpanedgroup as a container to add widgets")
-            if(!missing(widget2) || !is.null(widget2))
-              cat("Use gpanedgroup as a container to add widgets")
-
+            
+            if(!missing(widget1) || !missing(widget2)) {
+              gwCat(gettext("In tcltk, you use the gpanedgroup object in the container argument of a constructor\n"))
+            }
             
             return(obj)
           })
@@ -74,7 +73,9 @@ setMethod(".add",
             }
             argList$sticky = sticky
 
-
+            ## for ttk
+            argList$sticky <- NULL
+            
             do.call("tcl", argList) ## tcl(tt,"add",widget,...)
             
           })
@@ -89,3 +90,35 @@ setMethod(".delete",
 
             tcl(getWidget(obj),"forget",getBlock(widget))
           })
+
+
+
+## svalue refers to sash position between 0 and 1
+## sashpos
+setMethod(".svalue",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gPanedgrouptcltk"),
+          function(obj, toolkit, index=NULL, drop=NULL, ...) {
+            sashpos <- tclvalue(tcl(getWidget(obj),"sashpos",0))
+            theSize <- size(obj)
+            
+            if(tag(obj,"horizontal"))
+              return(floor(sashpos/theSize[1]))
+            else
+              return(floor(sashpos/theSize[2]))
+          })
+
+## svalue sets position
+setReplaceMethod(".svalue",
+                 signature(toolkit="guiWidgetsToolkittcltk",obj="gPanedgrouptcltk"),
+                 function(obj, toolkit, index=NULL, ..., value) {
+                   if(0 <= value && value <= 1) {
+                     theSize <- size(obj)
+                     if(tag(obj,"horizontal"))
+                       pos <- floor(value *  theSize[1])
+                     else
+                       pos <- floor(value *  theSize[2])
+
+                     tcl(getWidget(obj),"sashpos", 0, as.integer(pos))
+                   }
+                   return(obj)
+                 })

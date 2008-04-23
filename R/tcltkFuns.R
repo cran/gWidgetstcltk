@@ -45,3 +45,23 @@ windowExists = function(obj) {
   win = getTopParent(getWidget(obj))
   as.logical(tkwinfo("exists", win))
 }
+
+findTkIcon <- function(i) {
+  if(is.null(i)) return("")
+  
+  stock <- getStockIcons()
+  gwi <- system.file(paste("image/",i,".png",sep=""), package="gWidgetstcltk")
+  if(is.null(i) || is.na(i) || i == "")
+    val <- ""
+  else if(file.exists(i))
+    val <- i
+  else if (file.exists(gwi))
+    val <- gwi
+  else
+    val <- stock[[i, exact=TRUE]]
+  ## what to return
+  if(is.null(val))
+    return("")
+  else
+    return(val)
+}

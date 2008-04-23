@@ -40,15 +40,16 @@ setMethod(".gedit",
             }
 
            tt = getBlock(container)
-           gp = tkframe(tt)
+           gp = ttkframe(tt)
 
            entryValue = tclVar(text)
-           entry = tkentry(gp,width=as.character(width),
+           entry = ttkentry(gp,width=as.character(width),
              textvariable = entryValue)
            tkgrid(entry)
            
             obj = new("gEdittcltk",block=gp, widget=entry,
-              toolkit=toolkit,ID=getNewID(),coercewith=coerce.with)
+              toolkit=toolkit,ID=getNewID(),e = new.env(),
+              coercewith=coerce.with)
            tag(obj,"tclVar") <- entryValue
            
 
@@ -95,19 +96,19 @@ setReplaceMethod(".svalue",
 setMethod(".leftBracket",
           signature(toolkit="guiWidgetsToolkittcltk",x="gEdittcltk"),
           function(x, toolkit, i, j, ..., drop=TRUE) {
-            cat("gedit: completion is not implemented\n")
+            gwCat(gettext("gedit: completion is not implemented\n"))
           })
             
 setMethod("[",
           signature(x="gEdittcltk"),
           function(x, i, j, ..., drop=TRUE) {
-            cat("gedit: completion is not implemented\n")
+            gwCat(gettext("gedit: completion is not implemented\n"))
           })
 
 setReplaceMethod(".leftBracket",
           signature(toolkit="guiWidgetsToolkittcltk",x="gEdittcltk"),
           function(x, toolkit, i, j, ..., value) {
-            cat("gedit: completion is not implemented\n")
+            gwCat(gettext("gedit: completion is not implemented\n"))
             return(x)
           })
 
@@ -126,7 +127,7 @@ setReplaceMethod(".size",
                      tkconfigure(obj@widget,width=floor(value[1]/5)) 
                                         # convert pixels to chars
                    else
-                     cat("size needs a numeric vector c(width,...)\n")
+                     cat(gettext("size needs a numeric vector c(width,...)\n"))
                    return(obj)
                  })
 

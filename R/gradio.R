@@ -32,12 +32,13 @@ setMethod(".gradio",
             }
 
             tt = container@widget@block
-            gp = tkframe(tt)
+            gp = ttkframe(tt)
             
             theRBs = list(); theLabels = list()
             for(i in 1:n) {
-              theRBs[[i]] = tkradiobutton(gp, anchor="e", text=items[i])
-#              theLabels[[i]] = tklabel(gp,text=items[i], anchor="w")
+#              theRBs[[i]] = tkradiobutton(gp, anchor="e", text=items[i])
+              theRBs[[i]] = ttkradiobutton(gp,  text=items[i])
+#              theLabels[[i]] = ttklabel(gp,text=items[i], anchor="w")
             }
             
             theValue = tclVar(items[selected])
@@ -75,7 +76,8 @@ setMethod(".gradio",
               coerce.with = get(coerce.with)
             
             obj = new("gRadiotcltk",block=gp, widget=gp,
-              toolkit=toolkit, ID=getNewID(), coercewith = coerce.with)
+              toolkit=toolkit, ID=getNewID(), e = new.env(),
+              coercewith = coerce.with)
 
             tag(obj,"items") <- items
 #            tag(obj,"theLabels") <- theLabels
@@ -169,7 +171,7 @@ setReplaceMethod(".leftBracket",
             if(missing(i))
               i = 1:n
             if(length(value) != length(i)) {
-              cat("value has the wrong length\n")
+              cat(gettext("value has the wrong length. Can not alter length."))
               return(x)
             }
 
@@ -221,11 +223,11 @@ setMethod(".addhandlerchanged",
             tmp = sapply(theRBs, function(i) {
               ## need to pause to let the click catch up
               ## we use scope to look up changeHandler and h
-              addhandler(i,toolkit, signal="<Button-1>",
+              .addHandler(i,toolkit, signal="<Button-1>",
                          actualobj = obj, 
                          action=action,
                          handler = function(h,...) {
-                           tcl("after",5,function(...) {
+                           tcl("after",100,function(...) {
                              changeHandler(h,...)
                            })
                          })

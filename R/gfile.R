@@ -128,8 +128,31 @@ setMethod(".gfilebrowse",
 
             ## put entry as widget to pick up gEdit methods
             obj = new("gFilebrowsetcltk",
-              block=group, widget=entry@widget@widget, toolkit=toolkit,ID=getNewID())
+#              block=group, widget=entry@widget@widget, toolkit=toolkit,ID=getNewID())
+              block=group, widget=entry@widget,
+              toolkit=toolkit,ID=getNewID(),e = new.env())
 
+            tag(obj,"entry") <- entry
+            
             invisible(obj)
+          })
+
+
+setMethod(".svalue",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gFilebrowsetcltk"),
+          function(obj, toolkit, index=NULL, drop=NULL, ...) {
+            
+            entry = tag(obj,"entry")
+            svalue(entry,index,drop,...)
+          })
+
+## svalue<-
+setReplaceMethod(".svalue",
+                 signature(toolkit="guiWidgetsToolkittcltk",
+                           obj="gFilebrowsetcltk"),
+                 function(obj, toolkit, index=NULL, ..., value) {
+                   entry = tag(obj,"entry")
+                   svalue(entry, index,...) <- value
+                   return(obj)
           })
 

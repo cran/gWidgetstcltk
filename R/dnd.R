@@ -94,8 +94,7 @@ setMethod(".adddropmotion",
 setMethod(".adddropmotion",
           signature(toolkit="guiWidgetsToolkittcltk",obj="tcltkObject"),
           function(obj, toolkit,  handler=NULL, action=NULL, ...) {
-            cat("not implemented\n")
-            ##            .addHandler(obj,toolkit, signal="drag-motion",handler, action, ...)
+            .addHandler(obj,toolkit, signal="<<DragOver>>",handler, action, ...)
           })
 
 

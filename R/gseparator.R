@@ -32,26 +32,27 @@ setMethod(".gseparator",
               col = "black"
 
             tt <- getBlock(container)
-            gp <- tkframe(tt)
+            gp <- ttkframe(tt)
 
+            if(horizontal)
+              orient <- "horizontal"
+            else
+              orient <- "vertical"
+            sep <- ttkseparator(gp, orient=orient)
 
-            if(horizontal) {
-              tkpack(tkframe(gp),  fill="both", expand=1, pady=2)
-              tkpack(tkframe(gp, background=col), expand=1, fill="both", side="top", fill="x")
-              tkpack(tkframe(gp),  fill="both", expand=1, pady=2)
-            } else {
-              tkpack(tkframe(gp),  fill="both", expand=1, padx=2)
-              tkpack(tkframe(gp, background=col), expand=1, fill="both", side="left", fill="y")
-              tkpack(tkframe(gp),  fill="both", expand=1, padx=2)
-            }
-
-            obj = new("gSeparatortcltk", block=gp, widget=gp, toolkit=toolkit, ID=getNewID())
+            if(horizontal)
+              tkpack(sep, expand=TRUE, fill="x")
+            else
+              tkpack(sep, expand=TRUE, fill="y")
+            
+            obj = new("gSeparatortcltk", block=gp, widget=sep,
+              toolkit=toolkit, ID=getNewID(), e = new.env())
 
 
             ## add gp to container. Fixe expand argument to be TRUE
             theArgs$expand = TRUE
-            do.call(add, c(list(obj=container, value=obj), theArgs))
-##            add(container, obj, ...)
+##            do.call(add, c(list(obj=container, value=obj), theArgs))
+            add(container, obj, ...)
 
 
             invisible(obj)
@@ -59,11 +60,11 @@ setMethod(".gseparator",
           })
 
 
-setMethod(".add",
-          signature(toolkit="guiWidgetsToolkittcltk", obj="gLayouttcltk",
-                    value="gSeparatortcltk"),
-          function(obj, toolkit, value, ...) {
-          })
+## setMethod(".add",
+##           signature(toolkit="guiWidgetsToolkittcltk", obj="gLayouttcltk",
+##                     value="gSeparatortcltk"),
+##           function(obj, toolkit, value, ...) {
+##           })
 
 
 

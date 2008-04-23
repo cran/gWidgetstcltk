@@ -28,28 +28,35 @@ setMethod(".gtext",
             }
 
             tt = getBlock(container)
-            gp = tkframe(tt)
+            gp = ttkframe(tt)
 
-            if(wrap) wrap="true" else wrap="none"
+            if(wrap) wrap="word" else wrap="none"
             
-            xscr <- tkscrollbar(gp, repeatinterval=5,orient="horizontal",
-                                command=function(...)tkxview(txt,...))
-            yscr <- tkscrollbar(gp, repeatinterval=5,
-                                command=function(...)tkyview(txt,...))
-            txt <- tktext(gp,bg="white", setgrid=FALSE, #font="courier",
-                          xscrollcommand=function(...)tkset(xscr,...),yscrollcommand=function(...)tkset(yscr,...),
-                          wrap="none")
+            xscr <- ttkscrollbar(gp, orient="horizontal",
+                                 command=function(...)tkxview(txt,...))
+            yscr <- ttkscrollbar(gp, 
+                                 command=function(...)tkyview(txt,...))
+            
+            txt <- tktext(gp,
+                          bg="white", setgrid=FALSE, #font="courier",
+                          undo = TRUE,                  # undo support
+                          xscrollcommand=function(...)tkset(xscr,...),
+                          yscrollcommand=function(...)tkset(yscr,...),
+                          wrap=wrap)
+            
+            ## pack into a grid
+            ## see tkFAQ 10.1 -- makes for automatic resizing
             tkgrid(txt,row=0,column=0, sticky="news")
             tkgrid(yscr,row=0,column=1, sticky="ns")
             tkgrid(xscr, row=1, column=0, sticky="ew")
-            ## see tkFAQ 10.1 -- makes for automatic resizing
             tkgrid.columnconfigure(gp, 0, weight=1)
             tkgrid.rowconfigure(gp, 0, weight=1)
+
             ## set point
             tkmark.set(txt,"insert","0.0")
             
             obj = new("gTexttcltk", block=gp, widget=txt, tags=list(),
-              toolkit=toolkit,ID=getNewID())
+              toolkit=toolkit,ID=getNewID(), e = new.env())
 
 
             ## add initial text
@@ -97,13 +104,17 @@ setMethod(".svalue",
             ## if drop=TRUE, get selected text only
             if(is.null(drop) || drop == FALSE) {
               val = tclvalue(tkget(getWidget(obj),"0.0","end"))
+              ## strip off last "\n"'s
+              val <- gsub("\n*$","",val)
             } else {
-              if(length(as.numeric(tktag.ranges(getWidget(obj),"sel"))) > 0)
+              range <- as.numeric(tktag.ranges(getWidget(obj),"sel"))
+              ## range is numeric(0) if none
+              if(length(range) > 0)
                 val = tclvalue(tkget(getWidget(obj),"sel.first","sel.last"))
               else
                 val = ""
             }
-            val = unlist(strsplit(val,"\n"))
+                                        ## val = unlist(strsplit(val,"\n"))
             return(val)
           })
 
@@ -244,7 +255,8 @@ setMethod(".add",
 setReplaceMethod(".font",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gTexttcltk"),
                  function(obj, toolkit, ..., value) {
-                   cat("gtext: implement font()\n")
+                   ### XXX Implement this
+                   gwCat("gtext: implement font()\n")
                    return(obj)
                  })
 
@@ -253,6 +265,7 @@ setReplaceMethod(".font",
 setMethod(".addhandlerkeystroke",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gTexttcltk"),
           function(obj,toolkit, handler=NULL, action=NULL,...) {
+            
             .addHandler(obj,toolkit,"<Key>",handler,action)
           })
 setMethod(".addhandlerchanged",

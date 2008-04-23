@@ -26,11 +26,12 @@ setMethod(".glayout",
             }
             
             tt <- getBlock(container)
-            gp <- tkframe(tt)
+            gp <- ttkframe(tt)
             tkpack(gp, expand=TRUE, fill="both")
 
             obj = new("gLayouttcltk",
-              block=gp, widget=gp, toolkit=toolkit)
+              block=gp, widget=gp,
+              toolkit=toolkit, e = new.env())
             
             
             add(container, obj, ...)
@@ -40,7 +41,7 @@ setMethod(".glayout",
             adjust = "center"                             # left or right or center
 
             tag(obj,"homogeneous") <- homogeneous
-            tag(obj,"spacing") <- spacing
+            tag(obj,"spacing") <- as.numeric(spacing)
             tag(obj,"adjust") <- adjust
             
             invisible(obj)
@@ -69,9 +70,11 @@ setReplaceMethod(".leftBracket",
           function(x, toolkit, i, j, ..., value) {
             ## check that all is good
             if(is.character(value)) {
-              value = tklabel(getBlock(x),text=value)
+              value = ttklabel(getBlock(x),text=value)
             }
 
+            spacing <- tag(x,"spacing")
+            
             ## need means to adjust via sticky
             sticky = "n"
             theArgs = list(...)
@@ -86,6 +89,7 @@ setReplaceMethod(".leftBracket",
             }
             if(!is.null(theArgs$expand) && theArgs$expand)
               sticky = "nsew"
+
             
             tkgrid(getBlock(value),
                    row = min(i) - 1,
@@ -93,7 +97,7 @@ setReplaceMethod(".leftBracket",
                    column = min(j) - 1,
                    columnspan = 1 + max(j) - min(j),
                    sticky = sticky,
-                   padx=1, pady=1
+                   padx=spacing, pady=spacing
                    )
                    
             return(x)

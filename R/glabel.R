@@ -18,7 +18,7 @@ setMethod(".glabel",
             force(toolkit)
 
             if(markup) {
-              cat("In gWidgetstcltk there is no markup language. Use font()<- instead.\n")
+              gwCat(gettext("In gWidgetstcltk there is no markup language. Use font()<- instead.\n"))
             }
 
             
@@ -30,13 +30,14 @@ setMethod(".glabel",
             }
 
             tt = getBlock(container)
-            gp = tkframe(tt)
+            gp = ttkframe(tt)
 
-            label = tklabel(gp, text=text)
+            label = ttklabel(gp, text=text)
             tkpack(label,expand=TRUE, fill="both")
                    
             obj = new("gLabeltcltk",
-              block=gp, widget=label, markup=markup, toolkit=toolkit,ID=getNewID())
+              block=gp, widget=label, markup=markup,
+              toolkit=toolkit,ID=getNewID(), e = new.env())
 
             ## add to container
             add(container, obj, ...)

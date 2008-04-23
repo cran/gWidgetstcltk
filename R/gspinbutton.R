@@ -26,14 +26,14 @@ setMethod(".gspinbutton",
             
 
             tt = getBlock(container)
-            gp = tkframe(tt)
+            gp = ttkframe(tt)
             
             sb = tkwidget(gp, "spinbox", from=from, to=to, increment=by)
             tcl(sb,"set",value)
             tkpack(sb, expand=TRUE, fill="both")
             
             obj = new("gSpinbuttontcltk",block=gp, widget=sb,
-              toolkit=toolkit, ID=getNewID())
+              toolkit=toolkit, ID=getNewID(), e = new.env())
             
             add(container, obj,...)
             

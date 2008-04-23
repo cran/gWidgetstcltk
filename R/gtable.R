@@ -1,9 +1,123 @@
-## table for selecting values
-## most methods in gdf.R inherited from gGrid class
+## TODO:
+## * issue with 1 col, space in values
+## * use colnames to decide width
+## 
+
+## table for selecting values from a data frame
+## uses tree to show table
+
 setClass("gTabletcltk",
          contains="gComponenttcltk",
          prototype=prototype(new("gComponenttcltk"))
          )
+
+
+## some helper functions
+.allChildren <- function(obj) {
+  unlist(strsplit(tclvalue(tcl(getWidget(obj),"children",""))," "))
+}
+
+## covert a dta frame into a character based on
+.toCharacter <- function(x,width,...) UseMethod(".toCharacter")
+.toCharacter.default <- function(x,width,...) as.character(x)
+.toCharacter.integer <- function(x,width,...) {
+ if(missing(width)) width <- max(nchar(as.character(x))) + 2  
+  format(x, justify="right", width=width)
+}
+.toCharacter.numeric <- function(x,width,...) {
+  if(missing(width)) width <- max(nchar(as.character(x))) + 2
+  format(x,trim=FALSE, width=width, justify="right")
+}
+.toCharacter.factor <- function(x,width,...) {
+  if(missing(width)) width <- max(nchar(as.character(x))) + 2
+  .toCharacter(as.character(x),width,...)
+}
+.toCharacter.logical <- function(x,width,...) {
+  if(missing(width)) width <- 7
+  format(as.character(x), justify="centre", width=width)
+}
+.toCharacter.data.frame <- function(x,width,....) {
+  nms <- names(x)
+  df <- as.data.frame(lapply(x,function(i) .toCharacter(i)),
+                      stringsAsFactors=FALSE)
+  names(df) <- nms
+  return(df)
+}
+
+
+.populateTable <- function(tr, items, icons=NULL, nms=names(items),
+                           fresh=TRUE) {
+
+  ## we load things row by row -- not by column like others
+  ## we leave text value empty, saving spot for icon.
+  ## How to adjust width?
+  d <- dim(items); m <- d[1]; n <- d[2]
+  widths <- .computeWidths(items)
+
+  
+  
+  ## does this fix size? -- yes XXX
+  ## 0:n for 1 extra row (0-based)
+#  tcl(tr,"configure",columns=0:n) #(n+as.numeric(n>1))) # extra fudge if n>1
+  
+  if(is.null(icons))
+    icons <- rep(icons,length=m)
+  else
+    widths[1] <- 12*widths[1] + 35         # add space for icons
+
+  ## first column
+##XX  tcl(tr,"column","#0",width=widths[1], stretch=TRUE)
+  if(fresh)
+    tcl(tr,"configure",column=0)
+  tcl(tr,"column","#0",width=widths[1], stretch=TRUE)
+  if(fresh)
+    tcl(tr,"column",0,width=1, stretch=FALSE) # override below if needed
+  tcl(tr, "heading","#0",text=nms[1])
+
+  ## set widths/names of other columns if present
+  if(n >=2) {
+    for(j in 2:n) {
+      tcl(tr,"column",j-2, width=widths[j]*12, stretch=TRUE, anchor="e")
+      tcl(tr,"heading", j-2, text=nms[2])
+    }
+    tcl(tr,"column",n-2, width=1, stretch=TRUE) #  extra column
+  }
+
+  ## add values
+  if(m > 0) {
+    sapply(1:m, function(i) {
+      icon <- findTkIcon(icons[i])
+      icon <- tcl("image","create","photo",file=icon)
+      if(n > 1) {
+        values = unlist(items[i,-1])
+        ## hack -- with only 1 column tcltk splits across spaces
+        if(length(values) == 1) values = c(values,"") 
+        tcl(tr,"insert","","end",
+            text= items[i,1],
+            values = values,
+            image=icon,
+            tags = .Tcl.args(list(background="red"))
+            )
+      } else {
+        tcl(tr,"insert","","end",
+            text=items[i,1],
+            image = icon)
+      }
+    })
+  }
+}
+## clear the children. Should also remove row count
+.clearColumns <- function(tr) {
+  vals <- tcl(tr,"children","")
+  tcl(tr,"delete", vals)
+}
+## compute widths needed from data.frame
+.computeWidths <- function(d) {
+  d <- as.data.frame(d)
+  nms <- names(d)
+  n <- dim(d)[2]
+  sapply(1:n, function(j) max(10,sapply(c(nms[j],d[,j,drop=TRUE]), nchar)))
+}
 
 
 ## ## constructor for selecting values from a data set -- not meant for editing
@@ -23,46 +137,9 @@ setMethod(".gtable",
                    ...) {
 
             ## NOT IMPLEMENTED
-            ## * icon.FUN
             ## * sorting
             
             force(toolkit)
-
-            ## do we filter? If so, send to filter function.
-            ## this is a hack, but seems easy enough to implement
-            if(!is.null(filter.column) || !is.null(filter.FUN)) {
-              obj = .gtableWithFilter(toolkit,
-                items,
-                multiple,
-                chosencol,                        # for drag and drop, value
-                icon.FUN,
-                filter.column,
-                filter.labels,
-                filter.FUN,   # two args gtable instance, filter.labels element
-                handler,
-                action,
-                container,
-                ...)
-              return(obj)
-            }
-
-            ## Not filtering
-            
-            theArgs = list(...)
-
-            isVector = TRUE
-            if(is.vector(items)) {
-              isVector = TRUE
-            } else if(is.matrix(items) || is.data.frame(items)) {
-              if(dim(items)[2] > 1) {
-                isVector = FALSE
-              } else {
-                items = items[,1,drop=TRUE] # make a vector
-              }
-            } else {
-              warning("items must be vector, matrix or data frame.")
-              return()
-            }
 
             if(is(container,"logical") && container)
               container = gwindow()
@@ -71,60 +148,64 @@ setMethod(".gtable",
               return()
             }
 
-            selectmode = if(multiple) "extended" else "single"
+            theArgs = list(...)
+
             
+            ## we want a data frame for items
+            if(missing(items)) items <- data.frame(x=c(""),stringsAsFactors=FALSE)
+            ## coerce items to a data frame
+            if(!inherits(items,"matrix") || !inherits(items,"data.frame"))
+              items <- as.data.frame(items, stringsAsFactors=FALSE)
+            d <- dim(items); m <- d[1]; n <- d[2]
+            
+            ## icon.FUN -- NULL means no icon
+            if(is.null(icon.FUN))
+              icon.FUN <- function(items) rep("",dim(items)[1])
+            
+            ## if filtering we call a different constructor
+            if(!is.null(filter.column) || !is.null(filter.FUN)) {
+              obj <-
+                .gtableWithFilter(toolkit,
+                                  items,
+                                  multiple,
+                                  chosencol,   
+                                  icon.FUN,
+                                  filter.column,
+                                  filter.labels,
+                                  filter.FUN,
+                                  handler,
+                                  action,
+                                  container,...)
+              return(obj)
+            }
+
+            ## selectmode
+            selectmode = if(multiple) "extended" else "browse"
+
+            ## setup widget
             tt = getBlock(container)
-            gp = tkframe(tt)
+            gp = ttkframe(tt)
 
-            if(is.null(theArgs$height))
-              height = 10*max(min(5,length(items)),15) # in lines
-            else
-              height = theArgs$height   # pixels
-
-            if(is.null(theArgs$width))
-              width = min(25,max(c(10,sapply(as.character(items),nchar))))*6
-            else
-              width = theArgs$width     # pixels
+            
+            ## set up widget, tr, with scrollbars
+            xscr <- ttkscrollbar(gp, orient="horizontal",
+                                 command=function(...)tkxview(tr,...))
+            yscr <- ttkscrollbar(gp, 
+                                 command=function(...)tkyview(tr,...))
+            
+            tr <- ttktreeview(gp, columns = 1:n, displaycolumns="#all",
+                              selectmode = selectmode,
+                              xscrollcommand=function(...)tkset(xscr,...),
+                              yscrollcommand=function(...)tkset(yscr,...))
             
             
-            xscr <- tkscrollbar(gp, repeatinterval=5,orient="horizontal",
-                                command=function(...)tkxview(tl,...))
-            yscr <- tkscrollbar(gp, repeatinterval=5,
-                               command=function(...)tkyview(tl,...))
+          
 
-            tl<-tklistbox(gp,
-                          selectmode=selectmode,
-                          xscrollcommand= function(...)tkset(xscr,...),
-                          yscrollcommand= function(...)tkset(yscr,...),
-                          background="white")
+          
+            obj = new("gTabletcltk",block=gp,widget=tr,
+              toolkit=toolkit,ID=getNewID(), e = new.env())
 
-
-            tkgrid(tl,row=0,column=0, sticky="news")
-            tkgrid(yscr,row=0,column=1, sticky="ns")
-            tkgrid(xscr, row=1, column=0, sticky="ew")
-            ## see tkFAQ 10.1 -- makes for automatic resizing
-            tkgrid.rowconfigure(gp, 0, weight=1)
-            tkgrid.columnconfigure(gp, 0, weight=1)
-
-
-##             tkgrid(tl,yscr)
-##             tkgrid.configure(yscr,row=0,column=1, sticky="nsw")
-##             tkgrid(xscr, sticky="enw",row=1, column=0)
-##             ## see tkFAQ 10.1 -- makes for automatic resizing
-##             tkgrid.columnconfigure(gp, 0, weight=1)
-##             tkgrid.rowconfigure(gp, 0, weight=1)
-            ## set point
-
-
-            if((is.matrix(items) || is.data.frame(items)) &&
-               dim(items)[2] > 1
-               ) tkconfigure(tl, font="courier") # fixed
-            
-
-            obj = new("gTabletcltk",block=gp,widget=tl,
-              toolkit=toolkit,ID=getNewID())
-
-            tag(obj,"isVector") <- isVector
+            tag(obj,"icon.FUN") <- icon.FUN
             tag(obj,"chosencol") <- chosencol
             tag(obj,"color") = if(!is.null(theArgs$color))
               theArgs$color
@@ -135,21 +216,28 @@ setMethod(".gtable",
             else
               "red"
 
-            size(obj) <- c(width, height)
             
-            obj[] <- items
-
+            ## load data
             tag(obj,"items") <- items
-            
-            ## no cell editing
-            ## *implement me
-            
+            .populateTable(tr,items,icon.FUN(items),names(items))
 
+
+            ## pack together
+            tkgrid(tr,row=0,column=0, sticky="news")
+            tkgrid(yscr,row=0,column=1, sticky="ns")
+            tkgrid(xscr, row=1, column=0, sticky="ew")
+            ## see tkFAQ 10.1 -- makes for automatic resizing
+            tkgrid.columnconfigure(gp, 0, weight=1)
+            tkgrid.rowconfigure(gp, 0, weight=1)
+
+            ## font -- fixed unless overridden
+#            tkconfigure(tr, font="courier") # fixed
+            
+            
             ## add handler
             if (!is.null(handler)) {
               id = addhandlerchanged(obj,handler,action)
             }
-
             
             ## add to container
             add(container, obj,...)
@@ -166,10 +254,10 @@ setMethod(".svalue",
 
             widget = getWidget(obj)
 
-            indices = as.numeric(tkcurselection(widget)) + 1
-            if(!tag(obj,"isVector"))
-              indices = indices - 1
-            
+            sel <- unlist(strsplit(tclvalue(tcl(widget,"selection"))," "))
+            theChildren <- .allChildren(widget)
+            indices <- which(sel == theChildren)
+
             if(!is.null(index) && index == TRUE)
               return(indices)
             
@@ -177,7 +265,12 @@ setMethod(".svalue",
             if(missing(drop) || is.null(drop))
               drop = TRUE               # default is to drop unless asked not to
 
-            return(obj[indices, drop=drop])
+            chosencol <- tag(obj,"chosencol")
+
+            if(drop)
+              return(obj[indices, chosencol,drop=drop])
+            else
+              return(obj[indices, ])
           })
 
 
@@ -185,28 +278,20 @@ setReplaceMethod(".svalue",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gTabletcltk"),
                  function(obj, toolkit, index=NULL, ..., value) {
 
-                   widget = getWidget(obj)
-                   isVector = tag(obj,"isVector")
+                   widget <- getWidget(obj)
+                   theChildren <- .allChildren(widget)
                    
                    if(!is.null(index) && index) {
-                     tkselection.clear(widget, 0,"end")
-                     tkselection.set(widget, value - isVector) # offset if vector
+                     ## set by index
+                     tcl(widget,"selection","set",theChildren[value])
                    } else {
                      ## set value if present
-
                      ## need to update this for our hack to handle data frames
                      items = tag(obj,"items")
-
-                     if(!isVector) {
-                       m = match(value,items[,tag(obj,"chosencol"),drop=TRUE])
-                     } else {
-                       m = match(value,items)
-                     }
+                     m = match(value,items[,tag(obj,"chosencol"),drop=TRUE])
                      
                      if(!is.na(m)) {    # NA is nomatch
-                       tkselection.clear(widget, 0,"end")
-                       tkselection.set(widget,
-                                       m - 1 + as.numeric(!tag(obj,"isVector")))
+                       tcl(widget,"selection","set",theChildren[m])
                      } 
                    }
                    return(obj)
@@ -214,86 +299,91 @@ setReplaceMethod(".svalue",
 
 
 ## retrieve values
-setMethod(".leftBracket",
-          signature(toolkit="guiWidgetsToolkittcltk",x="gTabletcltk"),
-          function(x, toolkit, i, j, ..., drop=TRUE) {
-            items = tag(x,"items")
-            isVector = tag(x,"isVector")
-            if(missing(i)) i = if(isVector) 1:length(items) else 1:nrow(items)
-            if(isVector) {
-              return(items[i])
-            } else {
-              if(missing(j)) j = 1:ncol(items)
-              return(items[i,j, drop=drop])
-            }
-          })
-            
 setMethod("[",
           signature(x="gTabletcltk"),
           function(x, i, j, ..., drop=TRUE) {
             .leftBracket(x, x@toolkit, i, j, ..., drop=drop) 
           })
-## replace values
-setReplaceMethod(".leftBracket",
+setMethod(".leftBracket",
           signature(toolkit="guiWidgetsToolkittcltk",x="gTabletcltk"),
-          function(x, toolkit, i, j, ..., value) {
+          function(x, toolkit, i, j, ..., drop=TRUE) {
             items = tag(x,"items")
-
-
-            if(tag(x,"isVector")) {
-              if(missing(i)) 
-                items <- value
-              else
-                items[i] <- value
-            } else {
-              ## a matrix or data frame
-              if(missing(i))
-                items <- value
-              else
-                items[i,] <- value
-            }
-            ## save
-            tag(x,"items") <- items
-            if(!tag(x,"isVector")) {
-              items = .prettyPrintTable(items)
-            }
-              
-            ## clear out previous, then add
-            widget = getWidget(x)
-            tkdelete(widget, 0, "end")
-            ## add them
-            sapply(items, function(i) tkinsert(widget,"end",i))
-            is.odd = function(x) x %%2 == 1
-            n = (1:length(items))-1
-            if(length(items) == 0)
-              return(x)                 # all done
-            ## otherwise, fix colors
-            sapply(n,
-                   function(i) {
-                     if(is.odd(i))
-                       tkitemconfigure(widget,i,background=tag(x,"color"))
-                   })
-            if(!tag(x,"isVector"))
-              tkitemconfigure(widget,0,foreground=tag(x,"colnamesColor"))
-            return(x)
-            
+            if(missing(j)) j = 1:ncol(items)
+            return(items[i,j, drop=drop])
           })
+            
 
+## XXX -- harder one
+## do [,]; [i,], [,j] (no new row, column); [i,j] no new value
+## replace values
 setReplaceMethod("[",
                  signature(x="gTabletcltk"),
                  function(x, i, j,..., value) {
                    .leftBracket(x, x@toolkit, i, j, ...) <- value
                    return(x)
                  })
+setReplaceMethod(".leftBracket",
+          signature(toolkit="guiWidgetsToolkittcltk",x="gTabletcltk"),
+          function(x, toolkit, i, j, ..., value) {
+
+            widget <- getWidget(x)
+            items <- tag(x,"items")
+            icon.FUN <- tag(x,"icon.FUN")
+
+            ## what to do
+            ## main case [,] -- populate
+            if(missing(i) && missing(j)) {
+              ## replace entire thing
+              .clearColumns(widget)
+              items <- as.data.frame(value, stringsAsFactors=FALSE)
+              tag(x,"items") <- items
+              .populateTable(widget, .toCharacter(items),
+                             icon.FUN(items), names(items),fresh=FALSE)
+              return(x)
+            }
+
+            d <- dim(x)
+            ## error check
+            if(missing(i)) {
+              if(max(j) > dim(x)[2]) {
+                cat(gettext("Can't add columns. Use [,]<-\n"))
+                return()
+              }
+              i <- 1:d[1]
+            } else if(missing(j)) {
+              if(max(i) > dim(x)[1]) {
+                cat(gettext("Can't add rows. Use [,]<-\n"))
+                return()
+              }
+              j <- 1:d[2]
+            }
+
+            ## size is okay
+            items[i,j] <- value
+            tag(x,"items") <- items     # set
+            citems <- .toCharacter(items)
+            allChildren <- .allChildren(widget)
+
+            ## add row by row (i)
+            for(ind in  1:length(i)) {
+              ## add one at a time, don't redo icon
+              ## might be able to speed up (value=unlist(citems[ind])
+              ## This doesn't redo icons!
+              sapply(1:length(j), function(k) {
+                vals <- citems[ind,j[k],drop=FALSE]
+                tcl(widget,"set",allChildren[ind], j[k], unlist(vals))
+              })
+            }
+            
+            return(x)
+          })
+
 
 ## dim
 setMethod(".dim",
           signature(toolkit="guiWidgetsToolkittcltk",x="gTabletcltk"),
           function(x, toolkit) {
-            if(tag(x,"isVector"))
-              length(x)
-            else
-              dim(tag(x,"items"))
+            dim(tag(x,"items"))
           })
 ## length
 setMethod(".length",
@@ -302,16 +392,71 @@ setMethod(".length",
             length(tag(x,"items"))
           })
 
-## size<- work on tl
+setMethod(".visible",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gTabletcltk"),
+          function(obj, toolkit, set=TRUE, ...) {
+            tag(obj,"visible")
+          })
+
+setReplaceMethod(".visible",
+                 signature(obj="gTabletcltk"),
+                 function(obj,toolkit, ..., value) {
+                   d <- dim(obj)
+                   value <- rep(value, length=d[1]) # recycle!
+                   tag(obj,"visible") <- value
+                   ## now redraw
+                   obj[] <- tag(obj,"items")
+                   return(obj)
+                 })
+
+setMethod(".names",
+          signature(toolkit="guiWidgetsToolkittcltk",x="gTabletcltk"),
+          function(x, toolkit) {
+            widget <- getWidget(x)
+            d <- dim(x); n <- d[2]
+            nms <- sapply(1:n,function(j)
+                          tclvalue(tcl(widget,"heading",j,"-text")))
+            unlist(nms)
+          })
+
+setReplaceMethod(".names",
+                 signature(x="gTabletcltk"),
+                 function(x,toolkit, value) {
+                   widget <- getWidget(x)
+                   d <- dim(x); n <- d[2]
+                   if(length(value) != n) {
+                     cat(gettext("names<- must match length\n"))
+                     return(x)
+                   }
+                   sapply(1:n,function(j) tcl(widget,"heading",j,"text"=value[j]))
+                   return(x)
+                 })
+
+## width setting is hacked in, if value has 1 or more than 2 values, we assume
+## they are column widths
 setReplaceMethod(".size", 
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gTabletcltk"),
                  function(obj, toolkit, ..., value) {
-                   if(is.numeric(value) && length(value) == 2)
-                     tkconfigure(obj@widget,
-                                 width=floor(value[1]/5), # convert pixels to chars
-                                 height=floor(value[2]/10)) # convert pixels to lines
-                   else
-                     cat("size needs a numeric vector c(width,height)\n")
+
+                   ## width is tricky. Use current widths
+                   d <- dim(obj); m <- d[1]; n <- d[2]
+                   widths <- sapply(1:n, function(j) {
+                     tclvalue(tcl(getWidget(obj), "column", j-1, "-width"))
+                   })
+                   widths <- as.numeric(widths)
+                   
+                   curWidth <- sum(widths)
+                   widths <- floor((1+widths) * value[1]/curWidth)
+
+                   ## set width
+                   sapply(1:n, function(j) {
+                     tcl(getWidget(obj), "column", j-1, width=widths[j])
+                   })
+                   
+                   ## set height
+                   height=value[2]
+                   tk(getWidget(obj),"configure", height = floor(height/16))
+
                    return(obj)
                  })
 
@@ -328,7 +473,7 @@ setMethod(".addhandlerchanged",
 setMethod(".addhandlerclicked",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gTabletcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
-            .addHandler(obj,toolkit,signal="<<ListboxSelect>>", handler, action,...)
+            .addHandler(obj,toolkit,signal="<<TreeviewSelect>>", handler, action,...)
           })
 
 ## pretty print table
@@ -371,11 +516,11 @@ setGeneric(".gtableWithFilter",
                     multiple = FALSE,
                     chosencol = 1,                        # for drag and drop, value
                     icon.FUN = NULL,
-                   filter.column = NULL,
+                    filter.column = NULL,
                     filter.labels = NULL,
                     filter.FUN = NULL,   # two args gtable instance, filter.labels element
                     handler = NULL,
-                   action = NULL,
+                    action = NULL,
                     container = NULL,
                     ...)
            standardGeneric(".gtableWithFilter")
@@ -451,7 +596,7 @@ setMethod(".gtableWithFilter",
 
                                 inds = filter.FUN(DF, fval)
                                 ## update  tbl
-                                obj[,] <- DF[inds,]
+                                obj[,] <- DF[inds,,drop=FALSE]
                                 ## but keep allItems
                                 tag(obj,"allItems") <- DF
                               })
@@ -470,7 +615,7 @@ setMethod(".svalue",
           function(obj, toolkit, index=NULL, drop=NULL,...) {
 
             if(!is.null(index) && index) {
-              cat("The index refers to the visible data value, not the entire data frame\n")
+              gwCat("The index refers to the visible data value, not the entire data frame\n")
             }
 
             return(svalue(obj@widget, toolkit=toolkit, index=index, drop=drop, ...))
@@ -508,7 +653,7 @@ setReplaceMethod(".leftBracket",
           signature(toolkit="guiWidgetsToolkittcltk",x="gTableWithFiltertcltk"),
           function(x, toolkit, i, j, ..., value) {
             if(!missing(i) || !missing(j)) {
-              cat("[<- only replaces the entire object. Try obj[,]<-value\n")
+              gwCat(gettext("[<- only replaces the entire object. Try obj[,]<-value\n"))
               return(x)
             }
 
@@ -554,7 +699,7 @@ setMethod(".length",
             return(length(tbl))
           })
 
-## size<- work on tl
+## size<- work on tr
 setReplaceMethod(".size", 
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gTableWithFiltertcltk"),
                  function(obj, toolkit, ..., value) {

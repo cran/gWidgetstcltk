@@ -43,18 +43,15 @@ Would be combined, as in:
   }
 
 
-The basic tcltk installation does not include several widgets that
-appear in other toolkits. For instance a grid widget, a notebook widget,
-etc. These are provided by extensions to the basic tcltk
-libraries. Rather than require users to install these libraries, the
-missing widgets are approximated, or hacked, as much as possible. Some
-are still unavailable. Suggestions as to how the hacks could be improved
-are welcome.
-  
 Other differences are that tcltk does not seem to have a markup language
 like Pango for GTK or HTML for JAVA, as such the \code{markup} argument
 for several widgets that is used to format text is not available. The
 \code{font<-} method can substitute.
+
+Until version 8.5 of tk, the basic tcltk installation did not include
+several widgets that appear in other toolkits. For instance a grid
+widget, a notebook widget, etc. This package now requires tk 8.5 to work
+and R 2.7-0 or newer.
 \cr
 
 \bold{Containers:}
@@ -84,18 +81,10 @@ markup.
 \cr
 
 
-\code{gexpandgroup()} This is a hack, but works well. As with
-\code{gframe}, the \code{markup=} argument doesn't work, but the font
-for the label can be adjusted using \code{font<-}.
+\code{gexpandgroup()} Works as expected.
 
 
-\code{gdfnotebook()} Is a hack. There is no underlying notebook
-widget. The hack provides some of the functionality, but lacks the look
-of a true notebook widget. Primarily the tabs can grow without bounds in
-length (in other toolkits, gWidgetsRGtk2 for example, there is a mechanism to
-provide arrows for selecting among a subset of the tabs when there are
-too many). The tabs do not use the  markup argument or have close buttons.
-
+\code{gdfnotebook()} Works with the addition of ttknotebook.
 The \code{add} method, which is used to add pages, is called when the
 notebook is given as a container during the construction of a
 widget. Hence, to add a page something like this is done:
@@ -114,9 +103,6 @@ adjust the location of the widget withing the cell. A value of c(-1,1)
 is the lower left, c(-1,1) the upper left (the default), c(1,-1) the
 lower right, and c(1,1) the upper right. The value 0 for either is also
 possible.
-
-Unlike \code{gWidgetsRGtk2} the use of \code{visible<-} is not
-necessary, the widget is updated dynamically.
 \cr
 
 
@@ -129,10 +115,9 @@ in
   b2 = gbutton("button 2", container=pg)
 }
 
-The paned window will need to be adjusted manually. The \code{delete}
-method can be used to delete a widget. It may be added back with the
-\code{add} method.
-\cr
+The paned window can be adjusted manually or using the \code{svalue}
+method. The \code{delete} method can be used to delete a widget. It may
+be added back with the \code{add} method.  \cr
 
 
 \bold{The basic widgets or components:} (These may also be known as controls)
@@ -141,8 +126,7 @@ method can be used to delete a widget. It may be added back with the
 \code{gbutton()} mostly works. The button won't resize to take up all
 the possible space for a widget, even if \code{expand=TRUE} is given.
 
-\code{gcalendar()} is not implemented, as there is no underlying
-calendar widget in the base tcltk.
+\code{gcalendar()} is a hack.
 \cr
 
 \code{gcheckbox()} works as advertised
@@ -155,10 +139,7 @@ calendar widget in the base tcltk.
 the base tcltk.
 \cr
 
-\code{gdroplist()} This is a hack. It looks okay, but not great
-especially when \code{editable=TRUE}. The extra argument \code{width=}
-controls the width of the text box, as this does not grow
-dynamically. 
+\code{gdroplist()} Works as expected. 
 
 
 \code{gedit()}, unlike the \pkg{gWidgetsRGtk2} widget, has no type-ahead
@@ -177,13 +158,14 @@ device.
 
 \code{ghelp()} Works as advertised. Uses a popup menu instead of a
 notebook, as gWidgetsRGtk2.
+\cr
 
 \code{gimage()} Only works with gif and pnm files, as the underlying
 tcltk widget only uses these by default. 
 \cr
 
 \code{glabel()} No markup available. Use \code{font<-} instead.
-
+\cr
 
 \code{gmenu()} adds only to the top window, not any container. This is a tcltk
 limitation. Use a popupmenu instead. 
@@ -208,28 +190,31 @@ clicks of the arrows or to the return key in the text area.
 \code{gstatusbar()} A hack. Just a \code{ggroup()} instance in disguise.
 \cr
 
-\code{gtable()} Uses the underling \code{tklistbox} which shows vectors
-of data. A hack creates a vector out of a matrix or data frame. The
-scrollbars are always present. There is no support for icons. Filtering
-by a column or by a function is implemented. When setting or retrieving
-values using \code{svalue} the index refers to the visible data set (if
-filtering), unlike with RGtk2.
+\code{gtable()} This is built on the underlying tree widget. It is not
+ideal, but avoids needing to have a separate library (eg. Tktable)
+installed. The size is a bit of a hack. The tcl widget wants to specify
+the number of rows to show for the height, but gWidgets specifies the
+height in pixels. We convert by dividing pixels by 16. The width for the
+widget is specified by each column. We proportionally allocate the
+specified width to each column based on the current width of the
+column. As such, there is no guarantee that setting the size, then
+querying for the size will produce the same values.
 \cr
 
-\code{gtext()} The widget does not get dynamically resized. The
-\code{size<-} method can be used to resize the widget. This method
-guesses at the converstion from pixels to characters (width) and lines
-of text (height) used by the underlying widget. The \code{svalue()}
-method returns all the text unless some text is selected by the mouse
-and : \code{index=TRUE} in which case the
-indices of the selected text are returned or \code{drop=TRUE} in which
-case only the selected text is returned.
+\code{gtext()} The \code{size<-} method can be used to resize the
+widget. This method guesses at the converstion from pixels to characters
+(width) and lines of text (height) used by the underlying widget. The
+\code{svalue()} method returns all the text unless some text is selected
+by the mouse and : \code{index=TRUE} in which case the indices of the
+selected text are returned or \code{drop=TRUE} in which case only the
+selected text is returned.
 \cr
 
 \code{gtoolbar()} A hack. The buttons take up alot of screen real estate.
 \cr
 
-\code{gtree()} Not implemented.
+\code{gtree()} Implemented using ttktreeview. It is slow however, so use
+on smaller trees only.
 \cr
 
 
@@ -254,9 +239,9 @@ variable is a formula.
 \code{ggraphicsnotebook()} No \code{ggraphics} so no notebook.
 \cr
 
-\code{gvarbrowser()} A hack. This seems to be best done with a tree
-widget, but none is available. One can drag variables from the list of
-variables. 
+\code{gvarbrowser()} Uses a tree to show heirarchical structure of
+workspace. Does not poll to update workspace. It does reread workspace
+when Filter by: value is changed.
 \cr
 
 \bold{Dialogs:} (These are modal, hence they have no methods.)
@@ -322,8 +307,6 @@ Maintainer: John Verzani <gwidgetsrgtk@gmail.com>
   \url{http://www.jstatsoft.org/v17/i09/v17i09.pdf} or the \pkg{tkWidgets}
   package of Zhang \url{www.bioconductor.org}.
   
-}
-\note{
 }
 \keyword{ package }
 \examples{

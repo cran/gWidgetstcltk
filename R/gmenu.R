@@ -34,14 +34,15 @@ setMethod(".gmenu",
               tt <- getBlock(container)
             else
               tt = getTopParent(getBlock(container))
-            topMenu <- tkmenu(tt, tearoff=FALSE)
 
+            topMenu <- tkmenu(tt, tearoff=FALSE)
+            
             mapListToMenuBar(menulist, topMenu)
 
             
             ## unlike RGtk2 use removeall to make changes
-            obj = new("gMenutcltk", block=tt, widget=topMenu,
-              toolkit=toolkit,ID=getNewID())
+            obj = new("gMenutcltk", block=topMenu, widget=topMenu,
+              toolkit=toolkit,ID=getNewID(), e = new.env())
   
             tag(obj, "menulist") <- menulist
 
@@ -133,7 +134,7 @@ setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk",
                     obj="gWindowtcltk", value="gMenutcltk"),
           function(obj, toolkit,  value, ...) {
-            tkconfigure(getBlock(value), menu=getWidget(value))
+            tkconfigure(getWidget(obj), menu=getBlock(value))
           })
 
 
@@ -249,17 +250,19 @@ makeSubMenu = function(lst, label, parentMenu) {
 
 mapListToMenuBar = function(menulist, topMenu) {
   if(is.null(menulist[[1]]$handler)) {
-    sapply(names(menulist), function(i)
+    sapply(names(menulist), function(i) 
            makeSubMenu(menulist[[i]],label=i,topMenu))
   } else {
     ## toplevel
     sapply(names(menulist), function(i) {
-      tkadd(topMenu,"command",label=i,command = function() {
-        l = force(menulist[[i]])
-        h = list()
-        h$action = l$action
-        l$handler(h)
-      })
+      label <- if(!is.null(menulist$label)) menulist$label else i
+      tkadd(topMenu,"command",label=label,
+            command = function() {
+              l = force(menulist[[i]])
+              h = list()
+              h$action = l$action
+              l$handler(h)
+            })
     })
   }
 }

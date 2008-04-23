@@ -50,7 +50,9 @@ getNewID = function() {                 # get new one, incremented
          
 
 setClass("gWidgettcltk",
-         representation(ID="numeric"),
+         representation(ID="numeric",
+                        e="environment"
+                        ),
          )
 
 
@@ -157,16 +159,16 @@ setReplaceMethod("[",signature(x="gWidgettcltk"),
 ## size ## return size -- not implemented
 setMethod("size",signature(obj="gWidgettcltk"),
           function(obj, ...) {
-            warning("size not defined, Set window size with size<-()")
-            return()
             .size(obj, obj@toolkit,...)
           })
 
 setMethod(".size", 
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
           function(obj, toolkit, ...) {
-            MSG("define .size")
-            ##  what is size?
+            width <- tclvalue(tkwinfo("width",getWidget(obj)))
+            height <- tclvalue(tkwinfo("height",getWidget(obj)))
+
+            return(as.numeric(c(width=width, height=height)))
           })
 
 ## size<-
@@ -179,7 +181,7 @@ setReplaceMethod("size",signature(obj="gWidgettcltk"),
 setReplaceMethod(".size", 
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
                  function(obj, toolkit, ..., value) {
-                   
+                   tkconfigure(getWidget(obj), width=value[1], height=value[2])
                    return(obj)
                  })
 
@@ -392,11 +394,12 @@ setReplaceMethod(".font",
                    if(!is.null(value$size)) theArgs$size = as.integer(value$size)
 
                    ## now call
+                   ## font with ttk is different -- fix XXX
                    theFont = do.call("tkfont.create",theArgs)
-                   tkconfigure(getWidget(obj), font=theFont)
-
+                   ret <- try(tkconfigure(getWidget(obj), font=theFont), silent=TRUE)
                    ## colors are different
-                   if(!is.null(value$color)) tkconfigure(getWidget(obj), foreground=value$color)
+                   if(!is.null(value$color))
+                       try(tkconfigure(getWidget(obj), foreground=value$color), silent=TRUE)
 
                    ## all done
                    return(obj)
@@ -412,26 +415,26 @@ setReplaceMethod(".font",
 
 
 
-## create namespace object
-tags = list()
-assignInNamespace("tags",list(),"gWidgetstcltk")
+## ## create namespace object
+## tags = list()
+## assignInNamespace("tags",list(),"gWidgetstcltk")
 
-## clear out tags for this ID. Not exported. Is this used?
-Tagsclear = function(obj) {
+## ## clear out tags for this ID. Not exported. Is this used?
+## Tagsclear = function(obj) {
 
-  id = obj@ID
+##   id = obj@ID
   
-  tags = getFromNamespace("tags",ns="gWidgetstcltk")
-  allKeys = names(tags)
+##   tags = getFromNamespace("tags",ns="gWidgetstcltk")
+##   allKeys = names(tags)
 
-  inds = grep(paste("^",id,"::",sep=""),allKeys)
-  if(length(inds) == 0)
-    return(NA)
+##   inds = grep(paste("^",id,"::",sep=""),allKeys)
+##   if(length(inds) == 0)
+##     return(NA)
 
-  ## else
-  tags[[inds]] <- NULL
-  assignInNamespace("tags",tags,ns="gWidgetstcltk")
-}
+##   ## else
+##   tags[[inds]] <- NULL
+##   assignInNamespace("tags",tags,ns="gWidgetstcltk")
+## }
 
 
 setMethod("tag",signature(obj="gWidgettcltk"),
@@ -457,37 +460,46 @@ setMethod(".tag", signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk")
             if(missing(i)) i = NULL
             if(missing(drop)) drop <- TRUE                                    
 
+            if(is.null(i))
+              return(as.list(obj@e))
+            else
+              return(obj@e[[i]])
+            
+##             ############ OLD ####################
+##             id = obj@ID
 
-            id = obj@ID
+##             ## get all values for this id
+##             tags = getFromNamespace("tags",ns="gWidgetstcltk")
+##             allKeys = names(tags)
 
-            ## get all values for this id
-            tags = getFromNamespace("tags",ns="gWidgetstcltk")
-            allKeys = names(tags)
 
-            inds = grep(paste("^",id,"::",sep=""),allKeys)
-            if(length(inds) == 0)
-              return(NULL)
+##             allKeys <- ls(obj@e)
+            
 
-            justTheKeys = sapply(allKeys[inds],function(keyWithID) {
-              sub(paste("^",id,"::",sep=""),"",keyWithID)
-            })
+##             inds = grep(paste("^",id,"::",sep=""),allKeys)
+##             if(length(inds) == 0)
+##               return(NULL)
 
-            tagByKey = list()
-            for(key in justTheKeys) 
-              tagByKey[[key]] = tags[[paste(id,key,sep="::")]]
+##             justTheKeys = sapply(allKeys[inds],function(keyWithID) {
+##               sub(paste("^",id,"::",sep=""),"",keyWithID)
+##             })
+
+##             tagByKey = list()
+##             for(key in justTheKeys) 
+##               tagByKey[[key]] = tags[[paste(id,key,sep="::")]]
                       
             
             
-            if(is.null(i)) return(tagByKey)
+##             if(is.null(i)) return(tagByKey)
 
-            if(drop) {
-              if(length(i) == 1)
-                return(tagByKey[[i]])
-              else
-                return(sapply(i, function(j) tagByKey[j]))
-            } else {
-              return(sapply(i, function(j) tagByKey[j]))
-            }
+##             if(drop) {
+##               if(length(i) == 1)
+##                 return(tagByKey[[i]])
+##               else
+##                 return(sapply(i, function(j) tagByKey[j]))
+##             } else {
+##               return(sapply(i, function(j) tagByKey[j]))
+##             }
           })
 
 ## tag <-
@@ -516,20 +528,25 @@ setReplaceMethod(".tag", signature(toolkit="guiWidgetsToolkittcltk",obj="gWidget
             if(missing(i)) i = NULL
             
 
-            id = obj@ID
-            key = paste(id,i,sep="::")
-            
-            ## if we append we need to work a little harder
-            tags = getFromNamespace("tags",ns="gWidgetstcltk")
-  
-            if(replace==FALSE) {
-              value = c(tags[[key]],value)
-            }
-
-            tags[[key]] <- value
-            assignInNamespace("tags", tags,ns="gWidgetstcltk")
-
+            obj@e[[i]] <- value
             return(obj)
+
+##             ########### OLD ######################
+            
+##             id = obj@ID
+##             key = paste(id,i,sep="::")
+            
+##             ## if we append we need to work a little harder
+##             tags = getFromNamespace("tags",ns="gWidgetstcltk")
+  
+##             if(replace==FALSE) {
+##               value = c(tags[[key]],value)
+##             }
+
+##             tags[[key]] <- value
+##             assignInNamespace("tags", tags,ns="gWidgetstcltk")
+
+##             return(obj)
 
           })
 ## setReplaceMethod(".tag", signature(toolkit="guiWidgetsToolkittcltk",obj="tcltkObject"),
@@ -633,7 +650,7 @@ setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk",
                     obj="guiWidget", value="ANY"),
           function(obj, toolkit, value, ...) {
-            cat("Can't add without a value\n")
+            gwCat(gettext("Can't add without a value\n"))
           })
 setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk",
@@ -711,9 +728,9 @@ setMethod(".addSpring",
             tt <- getBlock(obj)
 
             if(obj@horizontal)
-              tkpack(tklabel(tt,text=" "),expand=TRUE,fill="x",side="left")
+              tkpack(ttklabel(tt,text=" "),expand=TRUE,fill="x",side="left")
             else
-              tkpack(tklabel(tt,text=" "),expand=TRUE,fill="y",side="top")
+              tkpack(ttklabel(tt,text=" "),expand=TRUE,fill="y",side="top")
             invisible()
           })
 
@@ -733,9 +750,9 @@ setMethod(".addSpace",
             tt <- getBlock(obj)
             value = as.integer(value)
             if(horizontal)
-              tkpack(tklabel(tt, text=""),side="left",padx=value)
+              tkpack(ttklabel(tt, text=""),side="left",padx=value)
             else
-              tkpack(tklabel(tt, text=""),side="top",pady=value)
+              tkpack(ttklabel(tt, text=""),side="top", pady=value)
             invisible()
           })
 
@@ -805,18 +822,42 @@ setGeneric("addhandler", function(obj, signal, handler, action=NULL, ...)
            standardGeneric("addhandler"))
 setMethod("addhandler",signature(obj="guiWidget"),
           function(obj, signal, handler, action=NULL, ...) {
-            .addHandler(obj@widget, obj@toolkit, signal, handler, action, ...)
+            .addhandler(obj@widget, obj@toolkit, signal, handler, action, ...)
           })
 setMethod("addhandler",signature(obj="gWidgettcltk"),
           function(obj, signal, handler, action=NULL, ...) {
-            .addHandler(obj, obj@toolkit, signal, handler, action, ...)
+            .addhandler(obj, obj@toolkit, signal, handler, action, ...)
           })
 setMethod("addhandler",signature(obj="tcltkObject"),
           function(obj, signal, handler, action=NULL, ...) {
-            .addHandler(obj, guiToolkit("tcltk"), signal, handler, action, ...)
+            .addhandler(obj, guiToolkit("tcltk"), signal, handler, action, ...)
           })
 
 ## method for dispatch
+setGeneric(".addhandler",
+           function(obj, toolkit,
+                  signal, handler, action=NULL, ...)
+           standardGeneric(".addhandler"))
+
+
+setMethod(".addhandler",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="guiWidget"),
+          function(obj, toolkit,
+                   signal, handler, action=NULL, ...) {
+            .addhandler(obj@widget, force(toolkit), signal, handler, action, ...)
+          })
+
+setMethod(".addhandler",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
+          function(obj, toolkit,
+                   signal, handler, action=NULL, ...) {
+            .addHandler(obj, force(toolkit), signal, handler, action, ...)
+          })
+
+
+
+
+## Make upcase for Handler
 setGeneric(".addHandler",
            function(obj, toolkit,
                   signal, handler, action=NULL, ...)
@@ -827,7 +868,7 @@ setMethod(".addHandler",
           signature(toolkit="guiWidgetsToolkittcltk",obj="guiWidget"),
           function(obj, toolkit,
                    signal, handler, action=NULL, ...) {
-            .addHandler(obj@widget, force(toolkit), signal, handler, action, ...)
+            .addhandler(obj@widget, force(toolkit), signal, handler, action, ...)
           })
 
 
@@ -866,6 +907,52 @@ setMethod("removehandler", signature("tcltkObject"),
 ##               ## now store the hash
 ##             assignInNamespace("allHandlers",allHandlers,ns="gWidgetstcltk")
 ##           })
+
+
+## blockhandler
+setMethod("blockhandler", signature("gWidgettcltk"),
+          function(obj, ID=NULL, ...) {
+            .blockhandler(obj, obj@toolkit, ID, ...)
+          })
+setMethod("blockhandler", signature("tcltkObject"),
+          function(obj, ID=NULL, ...) {
+            .blockhandler(obj, guiToolkit("tcltk"), ID, ...)
+          })
+
+setMethod(".blockhandler",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
+          function(obj, toolkit, ID=NULL, ...) {
+            .blockhandler(getWidget(obj),toolkit,ID,...)
+          })
+
+setMethod(".blockhandler",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="tcltkObject"),
+          function(obj, toolkit, ID=NULL, ...) {
+            gwCat(gettext("define block handler\n"))
+          })
+
+## unblock handler
+setMethod("unblockhandler", signature("gWidgettcltk"),
+          function(obj, ID=NULL, ...) {
+            .unblockhandler(obj, obj@toolkit, ID, ...)
+          })
+setMethod("unblockhandler", signature("tcltkObject"),
+          function(obj, ID=NULL, ...) {
+            .unblockhandler(obj, guiToolkit("tcltk"), ID, ...)
+          })
+
+setMethod(".unblockhandler",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
+          function(obj, toolkit, ID=NULL, ...) {
+            .blockhandler(getWidget(obj),toolkit,ID,...)
+          })
+
+setMethod(".unblockhandler",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="tcltkObject"),
+          function(obj, toolkit, ID=NULL, ...) {
+            cat("define unblock handler\n")
+          })
+
 
 
 ## addhandlerchanged
@@ -931,7 +1018,7 @@ setMethod(".addhandlerunrealize",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
           function(obj, toolkit,
                    handler, action=NULL, ...) {
-            .addHandler(obj, toolkit, signal="<Unrealize>",
+            .addHandler(obj, toolkit, signal="<Unmap>",
                         handler=handler, action=action, ...)
           })
 
@@ -1025,6 +1112,25 @@ setMethod(".addhandlerrightclick",
                         handler=handler, action=action, ...)
           })
 
+
+## mousemotion
+setMethod("addhandlermousemotion",signature(obj="gWidgettcltk"),
+          function(obj, handler=NULL, action=NULL, ...) {
+            .addhandlermousemotion(obj,obj@toolkit,handler, action, ...)
+          })
+setMethod("addhandlermousemotion",signature(obj="tcltkObject"),
+          function(obj, handler=NULL, action=NULL, ...) {
+            .addhandlermousemotion(obj,guiToolkit("tcltk"),handler, action, ...)
+          })
+
+setMethod(".addhandlermousemotion",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
+          function(obj, toolkit,
+                   handler, action=NULL, ...) {
+            .addHandler(obj, toolkit, signal="<Motion>",
+                        handler=handler, action=action, ...)
+          })
+
 ## idle
 setMethod("addhandleridle",signature(obj="gWidgettcltk"),
           function(obj, handler=NULL, action=NULL, interval=1000, ...) {
@@ -1036,14 +1142,6 @@ setMethod("addhandleridle",signature(obj="tcltkObject"),
             .addhandleridle(obj, guiToolkit("tcltk"),
                             handler=handler, action=action, interval=interval, ...)
           })
-
-## in aaaHandlers
-## setMethod(".addhandleridle",
-##           signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
-##           function(obj, toolkit,
-##                    handler=NULL, action=NULL, interval=1000, ...) {
-##             cat("IMPLEMENT idle handler")
-##           })
 
 
 ## addpopumenu
@@ -1166,16 +1264,14 @@ setMethod("dim", "gWidgettcltk", function(x) .dim(x,x@toolkit))
 setMethod(".dim",
           signature(toolkit="guiWidgetsToolkittcltk",x="gWidgettcltk"),
           function(x,toolkit) {
-            cat("Define dim for x of class:")
-            print(class(x))
+            gwCat(sprintf("Define dim for x of class: %s", class(x)[1]))
             return(NULL)
 })
 setMethod("length", "gWidgettcltk", function(x) .length(x,x@toolkit))
 setMethod(".length",
           signature(toolkit="guiWidgetsToolkittcltk",x="gWidgettcltk"),
           function(x,toolkit) {
-            cat("Define length for x of class:")
-            print(class(x))
+            gwCat(sprintf("Define length for x of class:%s\n"),class(x)[1])
             return(NULL)            
 })
           

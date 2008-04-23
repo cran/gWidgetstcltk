@@ -44,7 +44,7 @@ setMethod(".gexpandgroup",
             eg = do.call("ggroup", groupArgs)
 
             obj = new("gExpandgrouptcltk",block = eg1, widget = eg,
-              toolkit = toolkit, ID = getNewID())
+              toolkit = toolkit, ID = getNewID(), e = new.env())
 
 
             tag(obj, "containerGroup") <- cg
@@ -141,6 +141,21 @@ setReplaceMethod(".visible",
                    tag(obj,"state") <-value
 
                    return(obj)
+                 })
+
+
+## names refers to label
+setMethod(".names",
+          signature(toolkit="guiWidgetsToolkittcltk",x="gExpandgrouptcltk"),
+          function(x, toolkit) {
+            svalue(tag(x,"label"))
+          })
+
+setReplaceMethod(".names",
+                 signature(toolkit="guiWidgetsToolkittcltk",x="gExpandgrouptcltk"),
+                 function(x, toolkit, value) {
+                   svalue(tag(x,"label")) <- as.character(value)
+                   return(x)
                  })
 
 

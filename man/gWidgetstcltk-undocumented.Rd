@@ -679,6 +679,24 @@
 \alias{.removehandler-methods}
 \alias{.removehandler,gWidgettcltk,guiWidgetsToolkittcltk-method}
 \alias{.removehandler,tcltkObject,guiWidgetsToolkittcltk-method} 
+
+
+%%
+%% --  addhandler --
+%%
+\alias{addhandler-methods}
+\alias{addhandler,guiWidget-method}
+\alias{addhandler,gWidgettcltk-method}
+\alias{addhandler,tcltkObject-method}
+
+%%
+%% --  .addhandler --
+%%
+\alias{.addhandler-methods}
+\alias{.addhandler,guiWidget,guiWidgetsToolkittcltk-method}
+\alias{.addhandler,gWidgettcltk,guiWidgetsToolkittcltk-method}
+\alias{.addhandler,tcltkObject,guiWidgetsToolkittcltk-method} 
+
 %%
 %% --  addhandlerchanged --
 %%

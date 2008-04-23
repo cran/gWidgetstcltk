@@ -33,8 +33,10 @@ setMethod(".gdroplist",
             if(inherits(items,"data.frame")) {
               items <- items[,1, drop=TRUE]
             }
+            ## no icons in tcltk
             
-             ## items must be a vector here
+            
+            ## items must be a vector here
             items = as.vector(items)              # undoes factor
             items = unique(items)                 # unique
             
@@ -44,67 +46,36 @@ setMethod(".gdroplist",
               coerce.with = function(x) paste("'",x,"'",sep="") # no space
             }
             
-            ## we hack together this, otherwise we need to call in a new package using tclRequire, meaning more hassle for new users
-
-            tt = getBlock(container)
-            gp = tkframe(tt)
-            tkconfigure(gp,padx=0,pady=0, relief="groove",borderwidth=2)
-            tkpack(gp, side="left", fill="x")
-
-            txtVar = tclVar("")
-
-            if(editable) {
-              txt = tkentry(gp, width=max(10,max(nchar(items))),
-                textvariable=txtVar)
-              if(selected >0) tclvalue(txtVar) <- items[selected]
-            } else {
-              txt = tklabel(gp, text = "   ")
-              if(selected > 0) tkconfigure(txt, text = items[selected])
-            }
-            
-            ## icon for expanding. Could be improved
-            f = system.file("images/1downarrow.gif",
-              package="gWidgets")
-            imageID = paste(txt$ID,"combo",sep="")
-            tcl("image","create","photo",imageID,file=f)
-            
-            V <- tklabel(gp,image=imageID)
-
-            ## get Layout
-            tkpack(txt, fill="x", side="left",anchor="e")
-            line <- tkframe(gp, background = "black")
-            tkpack(line, expand=TRUE, fill="y", side="left", anchor="e")
-            tkpack(V, side="left",anchor="e")
-            
-#            tkgrid(V,txt)
-#            tkgrid.configure(txt,sticky="w")
-#            tkgrid.configure(V, sticky="e")
-
-            ## could have used gWidgets here, didn't
-            editPopupMenu <- tkmenu(txt, tearoff=FALSE)
-            
-            RightClick <- function(x,y) # x and y are the mouse coordinates
-              {
-                rootx <- as.integer(tkwinfo("rootx",V))
-                rooty <- as.integer(tkwinfo("rooty",V))
-                xTxt <- as.integer(x)+rootx
-                yTxt <- as.integer(y)+rooty
-                tcl("tk_popup",editPopupMenu,xTxt,yTxt)
-              }
-            tkbind(V, "<Button-1>",RightClick)
+            if(editable)
+              state <- "normal"
+            else
+              state <- "readonly"
 
             
-            obj = new("gDroplisttcltk",block=gp,widget=txt, toolkit=toolkit,ID=getNewID())
+            if(!is.null(theArgs$width))
+              width <- theArgs$width
+            else
+              width <- max(sapply(items,nchar)) + 5
+            
+            tt <- getBlock(container)
+            gp <- ttkframe(tt)
+            cbVar <- tclVar()
+            cb <- ttkcombobox(gp,
+                              values = items,
+                              textvariable = cbVar,
+                              width = width,
+                              state = state)
+
+            tkpack(cb)
+            
+            obj = new("gDroplisttcltk",block=gp,widget=cb,
+              toolkit=toolkit,ID=getNewID(), e = new.env())
 
             tag(obj,"coerce.with") <- coerce.with
             tag(obj,"editable") <- editable
-            tag(obj,"popupMenu") <- editPopupMenu
-            tag(obj,"txtVar") <- txtVar
+            tag(obj,"tclVar") <- cbVar
             tag(obj,"items") <- items
-            tag(obj,"itemWidth") <- max(nchar(items))
 
-            
-            sapply(items, function(i) addItemToPopupMenu(obj,i))
             
             addDropTarget(obj, handler = function(h,...)
                            svalue(obj) <- h$dropdata)
@@ -125,31 +96,35 @@ setMethod(".gdroplist",
 setMethod(".svalue",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gDroplisttcltk"),
           function(obj, toolkit, index=NULL, drop=NULL, ...) {
+            widget <- getWidget(obj)
 
-            if(tag(obj,"editable")) {
-              ## a text entry
-              val = tclvalue(tag(obj,"txtVar"))
-            } else {
-             ## a label
-              val = paste(as.character(tkcget(getWidget(obj),"-text")),sep=" ",collapse=" ")
+            ind <-  as.numeric(tclvalue(tcl(widget, "current"))) + 1 # 0-based
+
+                        
+            ## if index
+            if(!is.null(index) && index) {
+              return(ind)
             }
-            if(length(val) == 0) val = ""
+
+            
+            if(tag(obj,"editable")) {
+              val <- tclvalue(tcl(widget,"get"))
+            } else {
+              if(ind == 0) {
+                ## no selection
+                return(NA)
+              }
+
+              ## else get values from items -- not get to avoid conversion
+              items <- tag(obj,"items")
+              val <- items[ind]
+            }
 
             
             ## add in an as.numeric flag, getwidget when editable
             theArgs = list(...)         # deprecated
-            coerce.with = tag(obj, "coerce.with")
-            editable = tag(obj,"editable")
 
-            if(!is.null(index)) index=as.logical(index)
-            
-            
-            ## return index if asked for
-            if(is.null(editable) || editable == FALSE) {
-              if(!is.null(index) && index==TRUE) {
-                return(match(val,tag(obj,"items"))) 
-              }
-            }
+            coerce.with = tag(obj, "coerce.with")
 
             ## do we coerce return value?
             if(is.null(coerce.with))
@@ -169,6 +144,8 @@ setReplaceMethod(".svalue",
                  function(obj, toolkit, index=NULL, ..., value) {
                    theArgs = list(...)
 
+                   widget <- getWidget(obj)
+                   
                    n = length(obj)
                    if(is.null(index)) index = FALSE
                    index = as.logical(index)
@@ -177,37 +154,24 @@ setReplaceMethod(".svalue",
                    ## editable not implented
                    editable = tag(obj,"editable")
 
-                   if(!is.null(editable) && editable) {
-                     ## text box
-                     if(index == TRUE)  {
-                       ## set text to value
-                       tclvalue(tag(obj,"txtVar")) <-
-                         tag(obj,"items")[value]
-                     } else {
-                       tclvalue(tag(obj,"txtVar")) <-
-                         value
-                     }
+                   ## if index, set
+                   if(index) {
+                     tclvalue(tcl(widget,"current", as.numeric(value) - 1))
                    } else {
-                     ## not editable
-                     items = tag(obj,"items")
-                     maxSize = max(nchar(items))
-                     if(index) {
-                       tkconfigure(obj@widget,text=items[value])
+                     if(!is.null(editable) && editable) {
+                       ## editable
+                       tclvalue(tcl(widget,"set",value))
                      } else {
-                       if(any(value == items)) {
-                         ind = match(value,items)
-                         svalue(obj, index=TRUE) <- ind #recurse
+                       ## not editable, check its there
+                       vals <- tag(obj,"items")
+                       if(value %in% vals) {
+                         tclvalue(tcl(widget,"set",value))
                        } else {
-                         ## add to end
-                         item = as.character(value)
-                         items = c(items,item)
-                         tag(obj,"items") <- items
-                         tag(obj,"itemWidth") <- max(nchar(items))
-                         svalue(obj,index=TRUE) <- length(obj)
+                         cat(sprintf("%s is not a valid item",value),"\n")
                        }
                      }
                    }
-
+                   
                    tkevent.generate(getWidget(obj),"<<ValueChanged>>")
                    
                    return(obj)
@@ -263,16 +227,14 @@ setReplaceMethod(".leftBracket",
           signature(toolkit="guiWidgetsToolkittcltk",x="gDroplisttcltk"),
           function(x, toolkit, i, j, ..., value) {
 
-
+            widget <- getWidget(x)
+            ind <- svalue(x, index=TRUE)
+            
             if(missing(i)) {
-              if(length(x) > 0)
-                tkdelete(tag(x,"popupMenu"),0,"end")
-
-              ## add one by one using addItem
-              if(length(value) > 0) 
-                sapply(value, function(i) addItemToPopupMenu(x,i))
+              tcl(widget,"configure",values=value)
               tag(x,"items") <- value
-              tag(x,"itemWidth") <- max(5,max(nchar(value)))
+              if(ind > 0)
+                svalue(x, index=TRUE) <- ind
             } else {
               items = x[]
               items[i] <- value
@@ -288,53 +250,16 @@ setReplaceMethod(".leftBracket",
 setMethod(".addhandlerchanged",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gDroplisttcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
-            widget = getWidget(obj)
-            tkbind(getWidget(obj),"<<ValueChanged>>", function(...) {
-              h=list(); h$obj=obj; h$action=action
-              handler(h)
-            })
-
+            .addHandler(obj,toolkit,"<<ComboboxSelected>>",handler,action,...)
+            
             if(tag(obj,"editable"))
               .addHandler(obj, toolkit, signal="<Return>", handler, action)
-
+            
           })
 
 setMethod(".addhandlerclicked",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gDroplisttcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
-            .addhandlerchanged(obj,"changed",handler,action)
+            .addhandlerchanged(obj,toolkit, handler,action)
           })
 
-
-######
-### private methods
-addItemToPopupMenu = function(obj,item) {
-
-  copyText <- function(x) {
-    if(tag(obj,"editable")) {
-      tclvalue(tag(obj,"txtVar")) <- x
-    } else {
-      tkconfigure(obj@widget, text=.padString(x,tag(obj,"itemWidth")))
-    }
-
-    tkevent.generate(getWidget(obj),"<<ValueChanged>>")
-  }
-
-  tkadd(tag(obj,"popupMenu"), "command", label=item,
-            command=function() copyText(item))
-            
-
-}
-
-removeAllItems = function(obj) {
-  mb = tag(obj,"popupMenu")
-  tkdelete(mb,0,"end")
-}
-
-.padString = function(string, desiredChars) {
-  l = nchar(string)
-  if(l < desiredChars)
-    string = paste(string,paste(rep(" ",desiredChars - l),collapse=""), sep="")
-      
-  return(string)
-}

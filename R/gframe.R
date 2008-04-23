@@ -18,7 +18,7 @@ setMethod(".gframe",
 
             ## we can't do any markup here. Font() could be used
             if(markup) {
-              cat("HTML markup not supported for title. \n")
+              gwCat(gettext("HTML markup not supported for title. \n"))
               text = gsub("<[^>]*>","",text)    # strip off HTML
             }
 
@@ -28,6 +28,7 @@ setMethod(".gframe",
               labAnchor = "n"
             else if(.66 <= pos)
               labAnchor = "ne"
+
             
             theArgs = list(...)
 
@@ -39,8 +40,13 @@ setMethod(".gframe",
             }
 
             tt = getBlock(container)
-            f = tkwidget(tt, "labelframe", text=text, labelanchor=labAnchor)
+#            f = tkwidget(tt, "labelframe", text=text, labelanchor=labAnchor)
+            f = tkwidget(tt, "ttk::labelframe", text=text, labelanchor=labAnchor)
 
+            ## put in some padding. Adjust with svalue
+            tcl(widget,"configure","padding"=5)
+
+            
             ## handle expand and anchor arguments for packing frame
             argList = list(f)
             
@@ -59,7 +65,7 @@ setMethod(".gframe",
             obj = new("gFrametcltk",
               block=f, widget=f, toolkit=toolkit,
               horizontal=horizontal,
-              ID=getNewID())
+              ID=getNewID(), e = new.env())
 
             
             return(obj)
@@ -72,7 +78,8 @@ setReplaceMethod(".svalue",
           function(obj, toolkit, index=NULL, drop=NULL, ..., value) {
             ## adds some breathing room to object
             ## value is pixels
-            cat("implement svalue for gframe\n")
+            widget <- getWidget(obj)
+            tcl(widget,"configure","padding"=as.numeric(value))
             return(obj)
           })
 

@@ -431,39 +431,39 @@ Timestamp = function(obj,k=1) {
 ## class to icon translation -- return stock name
 ## with prefix
 allIcons = getStockIcons()
-getStockIconName = function(name) allIcons[[name]]
-stockIconFromClass = function(theClass=NULL) {
-  default = "symbol_star"
+getStockIconName = function(name) allIcons[[name,exact=TRUE]]
+## stockIconFromClass = function(theClass=NULL) {
+##   default = "symbol_star"
   
-  if(is.null(theClass) ||
-     is.na(theClass) ||
-     length(theClass) == 0
-     )
-    return(NA)
+##   if(is.null(theClass) ||
+##      is.na(theClass) ||
+##      length(theClass) == 0
+##      )
+##     return(NA)
   
-  if(theClass %in% .models)
-    return(getStockIconName("lines"))
-  if(theClass %in% .ts)
-    return(getStockIconName("ts"))
-  if(theClass %in% .functions)
-    return(getStockIconName("function"))
+##   if(theClass %in% .models)
+##     return(getStockIconName("lines"))
+##   if(theClass %in% .ts)
+##     return(getStockIconName("ts"))
+##   if(theClass %in% .functions)
+##     return(getStockIconName("function"))
 
-  ret = switch(theClass,
-    "numeric"= "numeric",
-    "integer"= "numeric",
-    "logical" = "logical",
-    "character"="select-font",
-    "matrix" = "matrix",
-    "data.frame" = "dataframe",
-    "list" = "dataframe",
-    "complex"="numeric",
-    "factor"="factor",
-    "recordedplot" = "plot",
-    NA)
+##   ret = switch(theClass,
+##     "numeric"= "numeric",
+##     "integer"= "numeric",
+##     "logical" = "logical",
+##     "character"="character",
+##     "matrix" = "matrix",
+##     "data.frame" = "dataframe",
+##     "list" = "dataframe",
+##     "complex"="numeric",
+##     "factor"="factor",
+##     "recordedplot" = "plot",
+##     NA)
   
-  return(getStockIconName(ret))
-}
+##   return(getStockIconName(ret))
+## }
 
-stockIconFromObject = function(obj)
-  stockIconFromClass(class(obj)[1])
+## stockIconFromObject = function(obj)
+##   stockIconFromClass(class(obj)[1])
 

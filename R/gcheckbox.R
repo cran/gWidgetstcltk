@@ -23,11 +23,11 @@ setMethod(".gcheckbox",
             }
             
             tt = container@widget@block
-            gp = tkframe(tt)
+            gp = ttkframe(tt)
 
             ## widget
-            check = tkcheckbutton(gp)
-            theLabel = tklabel(gp, text=text)
+            check = ttkcheckbutton(gp)
+            theLabel = ttklabel(gp, text=text)
             ## configure
             tclVar = tclVar(as.numeric(checked))
             tkconfigure(check,variable=tclVar)
@@ -37,7 +37,7 @@ setMethod(".gcheckbox",
             tkgrid.configure(theLabel,stick="w")
             
             obj = new("gCheckboxtcltk",block=gp, widget=check,
-              toolkit=toolkit, ID=getNewID())
+              toolkit=toolkit, ID=getNewID(), e = new.env())
 
             tag(obj,"check") <- check
             tag(obj,"tclVar") <- tclVar
@@ -73,8 +73,9 @@ setReplaceMethod(".svalue",
 setMethod(".leftBracket",
           signature(toolkit="guiWidgetsToolkittcltk",x="gCheckboxtcltk"),
           function(x, toolkit, i, j, ..., drop=TRUE) {
-            cat("How to get text from a tklabel?")
-            return("")
+            theLabel <- tag(obj,"label")
+            val <- tclvalue(tcl(theLabel,"configure","-text"))
+            return(var)
           })
             
 setMethod("[",

@@ -35,7 +35,7 @@ setMethod(".gbutton",
             }
 
             tt = getBlock(container)
-            gp = tkframe(tt)
+            gp = ttkframe(tt)
             
             gWidgetstcltkIcons = getStockIcons()
             
@@ -49,14 +49,14 @@ setMethod(".gbutton",
               x = try(tcl("image","create","photo",imageID,file=iconFile),
                 silent=TRUE)
               if(inherits(x,"try-error")) {
-                cat("gimage had issues. Only gif and pnm in gWidgetstcltk\n")
-                button = tkbutton(gp, text=text)
+                cat(gettext("gimage had issues. Only gif and pnm in gWidgetstcltk\n"))
+                button = ttkbutton(gp, text=text)
               } else {
-                button = tkbutton(gp, text=text, image=imageID,
+                button = ttkbutton(gp, text=text, image=imageID,
                   compound=compound)
               }
             } else {
-              button = tkbutton(gp, text=text)
+              button = ttkbutton(gp, text=text)
             }
             ## pack into gp.
             if(!is.null(theArgs$expand) && theArgs$expand)
@@ -66,7 +66,8 @@ setMethod(".gbutton",
             
             
             obj = new("gButtontcltk",
-              block=gp, widget=button, toolkit=toolkit,ID=getNewID())
+              block=gp, widget=button, toolkit=toolkit,ID=getNewID(),
+              e = new.env())
 
             ## add gp to container
             add(container, obj, ...)
@@ -94,13 +95,13 @@ setReplaceMethod(".svalue",
                    text = value
                    gWidgetstcltkIcons = getStockIcons()                   
                    iconFile = gWidgetstcltkIcons[[text]]
-                   if(!is.null(iconFile)) {
+                   if(!is.null(iconFile) && iconFile != "" ) {
                      ## put icon and text
                      imageID = paste("gimage",gp$ID,sep="")
                      x = try(tcl("image","create","photo",imageID,file=iconFile),
                        silent=TRUE)
                      if(inherits(x,"try-error")) {
-                       cat("gimage had issues. Only gif and pnm in gWidgetstcltk\n")
+                       cat(gettext("gimage had issues. Only gif and pnm in gWidgetstcltk\n"))
                        button = tkconfigure(obj@widget,
                          text=as.character(text))
                      } else {

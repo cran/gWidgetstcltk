@@ -44,7 +44,7 @@ setMethod(".gcheckboxgroup",
 
             
             ## make combination widget with all the values
-            obj = new("gCheckboxgrouptcltk",block=group, widget=group, toolkit=toolkit, coercewith = coerce.with)
+            obj = new("gCheckboxgrouptcltk",block=group, widget=group, toolkit=toolkit, coercewith = coerce.with, e = new.env())
   
             tag(obj, "items") <- items
             tag(obj, "itemlist") <- lst
@@ -139,6 +139,14 @@ setReplaceMethod(".leftBracket",
              return(x)
           })
 
+
+setMethod(".length",
+          signature(toolkit="guiWidgetsToolkittcltk",x="gCheckboxgrouptcltk"),
+          function(x,toolkit) {
+            length(tag(x,"items"))
+          })
+
+
 ## handlers should define addHandler class for gradio, gcheckbox, and
 ## gcheckboxgroup. Each needs to have this pause trick. As it is, if I
 ## wanted to define a new handler I;d have to copy all but the signal.
@@ -153,7 +161,7 @@ setMethod(".addhandlerchanged",
                          actualobj=obj,
                          action=action,
                          handler = function(h,...) {
-                           tcl("after",5,function(...)
+                           tcl("after",150,function(...)
                                changeHandler(h,...))
                          })
             })

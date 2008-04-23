@@ -6,7 +6,7 @@
 ## use actualobj to pass something different to h$obj in handlers
 
 ### This stores the handlers
-### it will be ahsh keyed by ID and then handlerID.
+### it will be hash keyed by ID and then handlerID.
 ### The ID allows for garbage collection (sometime)
 allHandlers = list()
 ## list with type [[ID]][[type]][[handlerID]]
@@ -22,6 +22,7 @@ setMethod(".addHandler",
 
             theArgs = list(...)
             
+            handler <- force(handler)
             tkbind(getWidget(obj),signal,
               function(...) {
                 h = list(
@@ -56,6 +57,7 @@ setMethod(".addHandler",
             theArgs = list(...)
             theobj = theArgs$actualobj
 
+            handler <- force(handler)
             tkbind(obj,signal, function(...) {
               h = list(obj=theobj, action=action)
               handler(h,...)

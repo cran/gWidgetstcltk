@@ -1,0 +1,30 @@
+Dear Emacs, please make this -*-Text-*- mode!
+
+NEWS for gWidgetstcltk
+
+Changes for  0.0-8
+-------------------
+
+* new uses ttk (tile) libraries. (Hence R 2.7.0)
+
+* implemented parent argument for gwindow. This can be used to specify
+  a gwindow parent or a location by x,y coordinates.
+
+* added parent argument for dialogs
+
+* replaced hacked versions of gcombobox, gnotebook, gexpandgroup,
+  gframe, ... with ttk versions 
+
+* added gtable widget based on ttktreeview replacing one based on
+  itemlist
+
+* added gtree widget using ttktreeview
+
+* exported addHandler for binding events not covered by gWidgets API
+
+* fixed tag to use an environment not one big list.
+
+* fixed gfilebrowse error
+
+* fixed wrap argument for gtext
+

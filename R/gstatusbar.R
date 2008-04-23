@@ -9,31 +9,61 @@ setMethod(".gstatusbar",
           function(toolkit,
                    text="", container=NULL, ...) {
 
-            group = ggroup(horizontal = TRUE, container=container,
-              expand=TRUE, anchor=c(-1,0))
-            statusbar = glabel(text, container=group, anchor=c(-1,0))
-
-            force(toolkit)            
             
-            obj = new("gStatusbartcltk",block=group, widget=statusbar, toolkit=toolkit, ID=getNewID())
+            force(toolkit)            
+
+            tt <- getBlock(container)
+            gp <- ttkframe(tt)
+            
+            sb <- tklabel(gp, text=text)
+            tkgrid(sb, row=0,column=0, sticky="w")
+#            tkpack(sb, side="left",anchor="w", expand=TRUE, fill="x")
+            
+            obj = new("gStatusbartcltk",block=gp, widget=sb,
+              toolkit=toolkit, ID=getNewID(), e = new.env())
+
+            stack <- c(text)
+            tag(obj,"stack") <- stack
+            
+            ## add to container
+            add(container, obj,...)
+
             
             invisible(obj)
           })
 
 ### methods
 
-## This gets from glabel instance
+## This pops label
 setMethod(".svalue",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gStatusbartcltk"),
           function(obj, toolkit, index=NULL, drop=NULL, ...) {
-            svalue(obj@widget)
+            ## pop the stack
+            stack <- tag(obj,"stack")
+            val <- stack[1]
+            if(length(stack))
+              stack <- stack[-1]
+            tag(obj,"stack") <- stack
+
+            if(length(stack))
+              value <- stack[1]
+            else
+              value <- ""
+            tkconfigure(obj@widget, text=as.character(value))
+
+            return(val)
           })
+
 
 ## This pushes to label
 setReplaceMethod(".svalue",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gStatusbartcltk"),
                  function(obj, toolkit, index=NULL, ..., value) {
-                   svalue(obj@widget) <- value
+                   stack <- tag(obj,"stack")
+                   stack <- c(value, stack)
+                   tag(obj,"stack") <- stack
+                   
+                   tkconfigure(obj@widget, text=as.character(value))
                    return(obj)
                  })
 

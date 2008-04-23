@@ -50,7 +50,7 @@ setReplaceMethod(".visible",
 setReplaceMethod(".svalue",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gGraphicstcltk"),
                  function(obj, toolkit, index=NULL,  ..., value) {
-                   cat("svalue not implemented\n")
+                   gwCat("svalue not implemented\n")
                    return(obj)
                  })
 
