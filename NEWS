@@ -2,6 +2,13 @@ Dear Emacs, please make this -*-Text-*- mode!
 
 NEWS for gWidgetstcltk
 
+Changes for  0.0-9
+-------------------
+
+* added tests directory to run tests from gWidgets package
+
+* fixed documentation to avoid warnings
+
 Changes for  0.0-8
 -------------------
 

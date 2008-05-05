@@ -1,5 +1,5 @@
 Package: gWidgetstcltk
-Version: 0.0-8
+Version: 0.0-9
 Title: Toolkit implementation of gWidgets for tcltk pacakge
 Author: John Verzani
 Maintainer: John Verzani <gwidgetsrgtk2@gmail.com>
@@ -9,4 +9,4 @@ Description: Port of gWidgets API to the tcltk package. Requires TK 8.5 or great
 License: GPL (>= 2)
 URL: http://www.math.csi.cuny.edu/pmg
 LazyLoad: yes
-Packaged: Wed Apr 23 21:46:12 2008; verzani
+Packaged: Mon May  5 21:30:50 2008; verzani

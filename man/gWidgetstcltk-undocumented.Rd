@@ -40,6 +40,8 @@
 \alias{.svalue<-,gTabletcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
 \alias{.svalue<-,gTableWithFiltertcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
 \alias{.svalue<-,gWindowtcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
+\alias{.svalue<-,gFilebrowsetcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
+\alias{.svalue<-,gPanedgrouptcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
 %%
 %%
 %% --  .glabel --
@@ -290,6 +292,8 @@
 \alias{.svalue,gCalendartcltk,ANY,ANY,guiWidgetsToolkittcltk-method}
 \alias{.svalue,gTabletcltk,ANY,ANY,guiWidgetsToolkittcltk-method}
 \alias{.svalue,gTableWithFiltertcltk,ANY,ANY,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gFilebrowsetcltk,ANY,ANY,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gPanedgrouptcltk,ANY,ANY,guiWidgetsToolkittcltk-method}
 
 %%
 %% --  svalue<- --
@@ -401,6 +405,8 @@
 \alias{.add,gTexttcltk,guiWidgetsToolkittcltk,gWidgettcltk-method}
 \alias{.add,gToolbartcltk,guiWidgetsToolkittcltk,list-method}
 \alias{.add,gWindowtcltk,guiWidgetsToolkittcltk,tcltkObject-method}
+\alias{.add,gWindowtcltk,guiWidgetsToolkittcltk,gStatusbartcltk-method}
+\alias{.add,gWindowtcltk,guiWidgetsToolkittcltk,gToolbartcltk-method}
 \alias{.add,gWindowtcltk,guiWidgetsToolkittcltk,gMenutcltk-method}
 \alias{.add,gWindowtcltk,guiWidgetsToolkittcltk,gWidgettcltk-method}
 \alias{.add,gWidgettcltk,guiWidgetsToolkittcltk,try-error-method} 
@@ -482,7 +488,8 @@
 \alias{.visible,gGridtcltk,guiWidgetsToolkittcltk-method}
 \alias{.visible,gExpandgrouptcltk,guiWidgetsToolkittcltk-method}
 \alias{.visible,gLayouttcltk,guiWidgetsToolkittcltk-method}
-\alias{.visible,tkwin,guiWidgetsToolkittcltk-method} 
+\alias{.visible,tkwin,guiWidgetsToolkittcltk-method}
+\alias{.visible,gTabletcltk,guiWidgetsToolkittcltk-method} 
 %%
 %% --  visible<- --
 %%
@@ -498,6 +505,7 @@
 \alias{.visible<-,gGraphicstcltk,guiWidgetsToolkittcltk-method}
 \alias{.visible<-,gGridtcltk,guiWidgetsToolkittcltk-method}
 \alias{.visible<-,gLayouttcltk,guiWidgetsToolkittcltk-method}
+\alias{.visible<-,gTabletcltk,ANY-method}
 \alias{.visible<-,gWindowtcltk,guiWidgetsToolkittcltk-method}
 \alias{.visible<-,tkwin,guiWidgetsToolkittcltk-method} 
 %%
@@ -555,6 +563,7 @@
 \alias{.size<-,gNotebooktcltk,guiWidgetsToolkittcltk-method}
 \alias{.size<-,gTabletcltk,guiWidgetsToolkittcltk-method}
 \alias{.size<-,gTableWithFiltertcltk,guiWidgetsToolkittcltk-method}
+\alias{.size<-,gTreetcltk,guiWidgetsToolkittcltk-method}
 \alias{.size<-,gVarbrowsertcltk,guiWidgetsToolkittcltk-method}
 
 
@@ -696,6 +705,34 @@
 \alias{.addhandler,guiWidget,guiWidgetsToolkittcltk-method}
 \alias{.addhandler,gWidgettcltk,guiWidgetsToolkittcltk-method}
 \alias{.addhandler,tcltkObject,guiWidgetsToolkittcltk-method} 
+
+%% --  blockhandler --
+%%
+\alias{blockhandler-methods}
+\alias{blockhandler,guiWidget-method}
+\alias{blockhandler,gWidgettcltk-method}
+\alias{blockhandler,tcltkObject-method}
+\alias{blockhandler,GtkTreeViewColumn-method} 
+%%
+%% --  .blockhandler --
+%%
+\alias{.blockhandler-methods}
+\alias{.blockhandler,gWidgettcltk,guiWidgetsToolkittcltk-method}
+\alias{.blockhandler,tcltkObject,guiWidgetsToolkittcltk-method} 
+
+%% --  unblockhandler --
+%%
+\alias{unblockhandler-methods}
+\alias{unblockhandler,guiWidget-method}
+\alias{unblockhandler,gWidgettcltk-method}
+\alias{unblockhandler,tcltkObject-method}
+\alias{unblockhandler,GtkTreeViewColumn-method} 
+%%
+%% --  .unblockhandler --
+%%
+\alias{.unblockhandler-methods}
+\alias{.unblockhandler,gWidgettcltk,guiWidgetsToolkittcltk-method}
+\alias{.unblockhandler,tcltkObject,guiWidgetsToolkittcltk-method} 
 
 %%
 %% --  addhandlerchanged --
@@ -880,6 +917,19 @@
 \alias{.add3rdmousepopupmenu,gLabeltcltk,guiWidgetsToolkittcltk-method}
  
 %%
+%% --  addhandlermousemotion --
+%%
+\alias{addhandlermousemotion-methods}
+\alias{addhandlermousemotion,gWidgettcltk-method}
+\alias{addhandlermousemotion,tcltkObject-method} 
+%%
+%% --  .add3rdmousepopupmenu --
+%%
+\alias{.addhandlermousemotion-methods}
+\alias{.addhandlermousemotion,gWidgettcltk,guiWidgetsToolkittcltk-method}
+\alias{.addhandlermousemotion,tcltkObject,guiWidgetsToolkittcltk-method} 
+ 
+%%
 %% --  adddropsource --
 %%
 \alias{adddropsource-methods}
@@ -955,7 +1005,8 @@
 %%
 \alias{.update-methods}
 \alias{.update,gComponenttcltk,guiWidgetsToolkittcltk-method}
-\alias{.update,gVarbrowsertcltk,guiWidgetsToolkittcltk-method} 
+\alias{.update,gVarbrowsertcltk,guiWidgetsToolkittcltk-method}
+\alias{.update,gTreetcltk,guiWidgetsToolkittcltk-method}
 %%
 %% --  .length --
 %%
@@ -968,6 +1019,7 @@
 \alias{.length,gRadiotcltk,guiWidgetsToolkittcltk-method}
 \alias{.length,gTabletcltk,guiWidgetsToolkittcltk-method}
 \alias{.length,gTableWithFiltertcltk,guiWidgetsToolkittcltk-method}
+\alias{.length,gCheckboxgrouptcltk,guiWidgetsToolkittcltk-method}
 %%
 %% --  dim --
 %%
@@ -1006,7 +1058,8 @@
 %%
 \alias{.names-methods}
 \alias{.names,gGridtcltk,guiWidgetsToolkittcltk-method}
-\alias{.names,gNotebooktcltk,guiWidgetsToolkittcltk-method} 
+\alias{.names,gNotebooktcltk,guiWidgetsToolkittcltk-method}
+\alias{.names,gTabletcltk,guiWidgetsToolkittcltk-method} 
 %%
 %% --  names<- --
 %%
@@ -1019,7 +1072,9 @@
 %%
 \alias{.names<--methods}
 \alias{.names<-,gGridtcltk,guiWidgetsToolkittcltk-method}
-\alias{.names<-,gNotebooktcltk,guiWidgetsToolkittcltk-method} 
+\alias{.names<-,gNotebooktcltk,guiWidgetsToolkittcltk-method}
+\alias{.names<-,gExpandgrouptcltk,guiWidgetsToolkittcltk-method}
+\alias{.names<-,gTableWithFiltertcltk,ANY-method} 
 %%
 %%
 %% -- .getToolkitWidget --
