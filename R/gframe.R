@@ -44,7 +44,7 @@ setMethod(".gframe",
             f = tkwidget(tt, "ttk::labelframe", text=text, labelanchor=labAnchor)
 
             ## put in some padding. Adjust with svalue
-            tcl(widget,"configure","padding"=5)
+            tcl(f,"configure","padding"=5)
 
             
             ## handle expand and anchor arguments for packing frame

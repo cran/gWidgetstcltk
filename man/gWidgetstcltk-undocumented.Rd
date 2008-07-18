@@ -294,6 +294,31 @@
 \alias{.svalue,gTableWithFiltertcltk,ANY,ANY,guiWidgetsToolkittcltk-method}
 \alias{.svalue,gFilebrowsetcltk,ANY,ANY,guiWidgetsToolkittcltk-method}
 \alias{.svalue,gPanedgrouptcltk,ANY,ANY,guiWidgetsToolkittcltk-method}
+\alias{.svalue,character,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gButtontcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gCheckboxgrouptcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gCheckboxtcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gDroplisttcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gEdittcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gExpandgrouptcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gFilebrowsetcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gGridtcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gImagetcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gLabeltcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gMenutcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gNotebooktcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gPanedgrouptcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gRadiotcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gSlidertcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gSpinbuttontcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gStatusbartcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gTabletcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gTableWithFiltertcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gTexttcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gToolbartcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gTreetcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gVarbrowsertcltk,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gWindowtcltk,guiWidgetsToolkittcltk-method}
 
 %%
 %% --  svalue<- --
@@ -874,7 +899,8 @@
 %% --  .addhandlerunrealize --
 %%
 \alias{.addhandlerunrealize-methods}
-\alias{.addhandlerunrealize,gWidgettcltk,guiWidgetsToolkittcltk-method} 
+\alias{.addhandlerunrealize,gWidgettcltk,guiWidgetsToolkittcltk-method}
+\alias{.addhandlerunrealize,gWindowtcltk,guiWidgetsToolkittcltk-method} 
 %%
 %% --  addhandleridle --
 %%
@@ -1057,9 +1083,11 @@
 %% --  .names --
 %%
 \alias{.names-methods}
+\alias{.names,gExpandgrouptcltk,guiWidgetsToolkittcltk-method}
 \alias{.names,gGridtcltk,guiWidgetsToolkittcltk-method}
 \alias{.names,gNotebooktcltk,guiWidgetsToolkittcltk-method}
-\alias{.names,gTabletcltk,guiWidgetsToolkittcltk-method} 
+\alias{.names,gTabletcltk,guiWidgetsToolkittcltk-method}
+
 %%
 %% --  names<- --
 %%
@@ -1074,6 +1102,7 @@
 \alias{.names<-,gGridtcltk,guiWidgetsToolkittcltk-method}
 \alias{.names<-,gNotebooktcltk,guiWidgetsToolkittcltk-method}
 \alias{.names<-,gExpandgrouptcltk,guiWidgetsToolkittcltk-method}
+\alias{.names<-,gTabletcltk,ANY-method}
 \alias{.names<-,gTableWithFiltertcltk,ANY-method} 
 %%
 %%
