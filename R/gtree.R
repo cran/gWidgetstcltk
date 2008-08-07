@@ -39,7 +39,9 @@ setMethod(".gtree",
             
             ## get base offspring
             os <- offspring(c(), offspring.data)
-
+            if(!inherits(os,"data.frame"))
+              os <- as.data.frame(os)
+            
             ## icons
             icons <- rep("", nrow(os))
             if(!is.null(icon.FUN)) 
@@ -71,8 +73,18 @@ setMethod(".gtree",
                                  command=function(...)tkxview(tr,...))
             yscr <- ttkscrollbar(gp, 
                                  command=function(...)tkyview(tr,...))
+##             if(n >= 2)
+##               columns <- colnames(os)[2:n]
+##             else
+##               columns <- colnames(os)
 
-            tr <- ttktreeview(gp, columns = colnames(os)[2:n],
+            tr <- ttktreeview(gp, columns = 1:n,
+                              ## this works, but the above is
+                              ##cleaner. It gives one extra column
+                              ##when n = 1
+                              ## columns = as.tclObj(columns, drop=FALSE),
+                              ## but the following fails -- extra columns
+                              ## columns = columns,
                               displaycolumns="#all",
                               selectmode=selectmode,
                               xscrollcommand=function(...)tkset(xscr,...),
@@ -168,12 +180,12 @@ setMethod(".gtree",
   ## coerce to a character matrix, but worry about single row data frames
   os <- as.data.frame(lapply(os,as.character),stringsAsFactors=FALSE)
   os <- as.matrix(os)
+  nms <- colnames(os)                   # os is a matrix now!
 
 
   ## widths and column headings
   if(parent == "" && n > 1) {
     ## column headings
-    nms <- colnames(os)                   # os is a matrix now!
     tcl(tr,"heading","#0", text="")
 
     sapply(2:n, function(j) {
@@ -181,6 +193,10 @@ setMethod(".gtree",
       tcl(tr,"column",j-2, "-width",width)
       tcl(tr,"heading",j - 2,text=nms[j])
     })
+  } else if(parent == "" && n == 1) {
+    tcl(tr,"heading","#0", text=nms[1])
+    tcl(tr,"column","#0", "-width", max(nchar(c(nms[1],os[,1,drop=TRUE]))) * 8 + 15)
+    tcl(tr,"column",0,"-width",0)
   }
   
   sapply(1:m, function(i) {
