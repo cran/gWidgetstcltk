@@ -2,6 +2,12 @@ Dear Emacs, please make this -*-Text-*- mode!
 
 NEWS for gWidgetstcltk
 
+Changes for  0.0-15
+-------------------
+
+* fix bug in gfile regarding initialfilename
+* fix to eliminate extra column in gtree if single column
+
 Changes for  0.0-14
 -------------------
 

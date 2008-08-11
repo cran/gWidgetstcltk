@@ -26,10 +26,8 @@ setMethod(".gfile",
             args = list(...)
             
             type = match.arg(type)
-            if(is.null(initialfilename)) initialfilename = ""
 
             ## different things depending on type
-
             if(type == "open") {
 
               
@@ -52,9 +50,11 @@ setMethod(".gfile",
                 theFilter = "{{All files} *}"
               }
 
-              
-              val = tkgetOpenFile(initialfile=initialfilename, title=text,
-                filetypes=theFilter)
+              if(!is.null(initialfilename))
+                val = tkgetOpenFile(initialfile=initialfilename, title=text,
+                  filetypes=theFilter)
+              else
+                val <- tkgetOpenFile(title=text, filetypes=theFilter)
 
             } else if(type == "save") {
 

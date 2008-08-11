@@ -73,22 +73,25 @@ setMethod(".gtree",
                                  command=function(...)tkxview(tr,...))
             yscr <- ttkscrollbar(gp, 
                                  command=function(...)tkyview(tr,...))
-##             if(n >= 2)
-##               columns <- colnames(os)[2:n]
-##             else
-##               columns <- colnames(os)
 
-            tr <- ttktreeview(gp, columns = 1:n,
-                              ## this works, but the above is
-                              ##cleaner. It gives one extra column
-                              ##when n = 1
-                              ## columns = as.tclObj(columns, drop=FALSE),
-                              ## but the following fails -- extra columns
-                              ## columns = columns,
-                              displaycolumns="#all",
-                              selectmode=selectmode,
-                              xscrollcommand=function(...)tkset(xscr,...),
-                              yscrollcommand=function(...)tkset(yscr,...))
+            if(n >= 2) 
+              tr <- ttktreeview(gp, columns = 2:n,
+                                ## this works, but the above is
+                                ##cleaner. It gives one extra column
+                                ##when n = 1
+                                ## columns = as.tclObj(columns, drop=FALSE),
+                                ## but the following fails -- extra columns
+                                ## columns = columns,
+                                displaycolumns="#all",
+                                selectmode=selectmode,
+                                xscrollcommand=function(...)tkset(xscr,...),
+                                yscrollcommand=function(...)tkset(yscr,...))
+            else                        # no columns argument
+              tr <- ttktreeview(gp,   
+                                displaycolumns="#all",
+                                selectmode=selectmode,
+                                xscrollcommand=function(...)tkset(xscr,...),
+                                yscrollcommand=function(...)tkset(yscr,...))
 
             tkgrid(tr,row=0,column=0, sticky="news")
             tkgrid(yscr,row=0,column=1, sticky="ns")
@@ -196,7 +199,7 @@ setMethod(".gtree",
   } else if(parent == "" && n == 1) {
     tcl(tr,"heading","#0", text=nms[1])
     tcl(tr,"column","#0", "-width", max(nchar(c(nms[1],os[,1,drop=TRUE]))) * 8 + 15)
-    tcl(tr,"column",0,"-width",0)
+#    tcl(tr,"column",0,"-width",0)
   }
   
   sapply(1:m, function(i) {
