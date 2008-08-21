@@ -64,7 +64,7 @@ setReplaceMethod(".svalue",
             ## value is pixels
             gp <- getWidget(obj)
 #            tkcofigure(gp,padx=value,pady=value)
-            tkcofigure(gp,padding = value)            
+            tkconfigure(gp,padding = value)            
 
             return(obj)
           })
