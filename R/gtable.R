@@ -78,29 +78,32 @@ setClass("gTabletcltk",
   if(n >=2) {
     for(j in 2:n) {
       tcl(tr,"column",j-2, width=widths[j]*12, stretch=TRUE, anchor="e")
-      tcl(tr,"heading", j-2, text=nms[2])
+      tcl(tr,"heading", j-2, text=nms[j])
     }
     tcl(tr,"column",n-2, width=1, stretch=TRUE) #  extra column
   }
 
   ## add values
+  cat("DEBUG\n")
+  print(dim(items))
+  print(items)
   if(m > 0) {
     sapply(1:m, function(i) {
       icon <- findTkIcon(icons[i])
       icon <- tcl("image","create","photo",file=icon)
       if(n > 1) {
-        values = unlist(items[i,-1])
+        values = as.character(unlist(items[i,-1]))
         ## hack -- with only 1 column tcltk splits across spaces
         if(length(values) == 1) values = c(values,"") 
         tcl(tr,"insert","","end",
-            text= items[i,1],
+            text= as.character(items[i,1]),
             values = values,
             image=icon,
             tags = .Tcl.args(list(background="red"))
             )
       } else {
         tcl(tr,"insert","","end",
-            text=items[i,1],
+            text=as.character(items[i,1]),
             image = icon)
       }
     })
@@ -116,7 +119,7 @@ setClass("gTabletcltk",
   d <- as.data.frame(d)
   nms <- names(d)
   n <- dim(d)[2]
-  sapply(1:n, function(j) max(10,sapply(c(nms[j],d[,j,drop=TRUE]), nchar)))
+  sapply(1:n, function(j) max(10,sapply(c(nms[j],as.character(d[,j,drop=TRUE])), nchar)))
 }
 
 
@@ -190,7 +193,7 @@ setMethod(".gtable",
             ## set up widget, tr, with scrollbars
             xscr <- ttkscrollbar(gp, orient="horizontal",
                                  command=function(...)tkxview(tr,...))
-            yscr <- ttkscrollbar(gp, 
+            yscr <- ttkscrollbar(gp,  orient="vertical",
                                  command=function(...)tkyview(tr,...))
             
             tr <- ttktreeview(gp, columns = 1:n, displaycolumns="#all",
