@@ -58,7 +58,7 @@ setClass("gTabletcltk",
   
   ## does this fix size? -- yes XXX
   ## 0:n for 1 extra row (0-based)
-#  tcl(tr,"configure",columns=0:n) #(n+as.numeric(n>1))) # extra fudge if n>1
+#  tcl(tr,"configure",columns=1:n) #(n+as.numeric(n>1))) # extra fudge if n>1
   
   if(is.null(icons))
     icons <- rep(icons,length=m)
@@ -67,8 +67,8 @@ setClass("gTabletcltk",
 
   ## first column
 ##XX  tcl(tr,"column","#0",width=widths[1], stretch=TRUE)
-  if(fresh)
-    tcl(tr,"configure",column=0)
+#  if(fresh)
+#    tcl(tr,"configure",column=0)
   tcl(tr,"column","#0",width=widths[1], stretch=TRUE)
   if(fresh)
     tcl(tr,"column",0,width=1, stretch=FALSE) # override below if needed
@@ -77,16 +77,13 @@ setClass("gTabletcltk",
   ## set widths/names of other columns if present
   if(n >=2) {
     for(j in 2:n) {
-      tcl(tr,"column",j-2, width=widths[j]*12, stretch=TRUE, anchor="e")
-      tcl(tr,"heading", j-2, text=nms[j])
+      tcl(tr,"column",j-1, width=widths[j]*12, stretch=TRUE, anchor="e")
+      tcl(tr,"heading", j-1, text=nms[j])
     }
-    tcl(tr,"column",n-2, width=1, stretch=TRUE) #  extra column
+#    tcl(tr,"column",n-2, width=1, stretch=TRUE) #  extra column
   }
 
   ## add values
-  cat("DEBUG\n")
-  print(dim(items))
-  print(items)
   if(m > 0) {
     sapply(1:m, function(i) {
       icon <- findTkIcon(icons[i])
@@ -196,7 +193,7 @@ setMethod(".gtable",
             yscr <- ttkscrollbar(gp,  orient="vertical",
                                  command=function(...)tkyview(tr,...))
             
-            tr <- ttktreeview(gp, columns = 1:n, displaycolumns="#all",
+            tr <- ttktreeview(gp, columns = 1:max(1,(n-1)), displaycolumns="#all",
                               selectmode = selectmode,
                               xscrollcommand=function(...)tkset(xscr,...),
                               yscrollcommand=function(...)tkset(yscr,...))
