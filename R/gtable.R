@@ -187,17 +187,17 @@ setMethod(".gtable",
             gp = ttkframe(tt)
 
             
-            ## set up widget, tr, with scrollbars
+            ## set up widget, tr, with scrollbars 
             xscr <- ttkscrollbar(gp, orient="horizontal",
                                  command=function(...)tkxview(tr,...))
             yscr <- ttkscrollbar(gp,  orient="vertical",
                                  command=function(...)tkyview(tr,...))
             
+           
             tr <- ttktreeview(gp, columns = 1:max(1,(n-1)), displaycolumns="#all",
                               selectmode = selectmode,
                               xscrollcommand=function(...)tkset(xscr,...),
                               yscrollcommand=function(...)tkset(yscr,...))
-            
             
           
 
@@ -256,7 +256,8 @@ setMethod(".svalue",
 
             sel <- unlist(strsplit(tclvalue(tcl(widget,"selection"))," "))
             theChildren <- .allChildren(widget)
-            indices <- which(sel == theChildren)
+            indices <- sapply(sel, function(i) match(i, theChildren))
+            ##which(sel == theChildren)
 
             if(!is.null(index) && index == TRUE)
               return(indices)

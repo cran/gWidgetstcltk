@@ -2,6 +2,10 @@ Dear Emacs, please make this -*-Text-*- mode!
 
 NEWS for gWidgetstcltk
 
+Changes for  0.0-19
+-------------------
+* fixed bug with gtable and multiple selection
+
 Changes for  0.0-18
 -------------------
 * fixed another issue with gtable: debugging info, extra columns,
