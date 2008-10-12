@@ -67,12 +67,17 @@ setMethod(".gframe",
               horizontal=horizontal,
               ID=getNewID(), e = new.env())
 
+            tag(obj,"title") <- text
             
             return(obj)
           })
 
-### methods -- inherited from ggroup
+## methods
+## should be same as from ggroup:
+## svalue<- padding
+## names<- name
 
+## sets the padding. Same as ggroup
 setReplaceMethod(".svalue",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gFrametcltk"),
           function(obj, toolkit, index=NULL, drop=NULL, ..., value) {
@@ -84,3 +89,21 @@ setReplaceMethod(".svalue",
           })
 
 ## should put in a names argument to change label value
+## return label name
+setMethod(".names",signature(toolkit="guiWidgetsToolkittcltk",
+                             x="gFrametcltk"),
+          function(x, toolkit) {
+            tag(x,"title")
+          })
+
+
+setReplaceMethod(".names",
+                 signature(toolkit="guiWidgetsToolkittcltk",x = "gFrametcltk"),
+                 function(x,toolkit,value) {
+
+                   f <- x@widget
+                   tkconfigure(f,"XXX") <- value
+                   tag(x,"title") <- value
+                   return(x)
+                 })
+

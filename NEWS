@@ -1,6 +1,10 @@
 Dear Emacs, please make this -*-Text-*- mode!
 
 NEWS for gWidgetstcltk
+Changes for  0.0-20
+-------------------
+
+* fixed handler code in gcheckbox, gcheckboxgrioup
 
 Changes for  0.0-19
 -------------------

@@ -154,7 +154,7 @@ setMethod(".length",
 setMethod(".addhandlerchanged",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gCheckboxgrouptcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
-            sapply(tag(obj,"itemlist"),function(i) {
+            IDs <- lapply(tag(obj,"itemlist"),function(i) {
               changeHandler = handler
               ## need to pause to let the click catch up
               addhandler(i,toolkit, signal="<Button-1>",
@@ -165,4 +165,43 @@ setMethod(".addhandlerchanged",
                                changeHandler(h,...))
                          })
             })
+            return(IDs)
           })
+## clicked is changed
+setMethod(".addhandlerclicked",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gCheckboxgrouptcltk"),
+          function(obj, toolkit, handler, action=NULL, ...) {
+            .addhandlerchanged(obj, toolkit, handler, action, ...)
+          })
+
+
+setMethod(".removehandler",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gCheckboxgrouptcltk"),
+          function(obj, toolkit, ID=NULL, ...) {
+            tag(obj,"handlerList") <- NULL
+            lst <- tag(obj,"itemlist")
+            sapply(1:length(lst), function(i)
+                   removehandler(lst[[i]], ID[[i]])
+                 )
+          })
+
+setMethod(".blockhandler",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gCheckboxgrouptcltk"),
+          function(obj, toolkit, ID=NULL, ...) {
+
+            lst <- tag(obj,"itemlist")
+            sapply(1:length(lst), function(i)
+                   blockhandler(lst[[i]], ID[[i]])
+                   )
+          })
+
+setMethod(".unblockhandler",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gCheckboxgrouptcltk"),
+          function(obj, toolkit, ID=NULL, ...) {
+
+            lst <- tag(obj,"itemlist")
+            sapply(1:length(lst), function(i)
+              unblockhandler(lst[[i]], ID[[i]])
+            )
+          })
+

@@ -77,7 +77,7 @@ setMethod(".gtext",
 
             ## add handler
             if (!is.null(handler)) {
-              id = addhandler(obj, "changed", handler, action)
+              id = addhandlerkeystrok(obj, handler, action)
             }
             return(obj)
           })
@@ -262,12 +262,6 @@ setReplaceMethod(".font",
 
 
 
-setMethod(".addhandlerkeystroke",
-          signature(toolkit="guiWidgetsToolkittcltk",obj="gTexttcltk"),
-          function(obj,toolkit, handler=NULL, action=NULL,...) {
-            
-            .addHandler(obj,toolkit,"<Key>",handler,action)
-          })
 setMethod(".addhandlerchanged",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gTexttcltk"),
           function(obj,toolkit, handler=NULL, action=NULL,...) {

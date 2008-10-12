@@ -104,7 +104,14 @@ setReplaceMethod(".font",
           })
 
 
-## value refers to label
+## Should make
+## a) svalure refer to padding, ala ggroup padding
+## b) names refer to label
+## c) font refer to font of label
+## d) visible refer to state
+
+## value refers to padding
+## FOr svalue<- we still accept non-numeric for setting lable
 setMethod(".svalue",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gExpandgrouptcltk"),
           function(obj, toolkit, index=NULL, drop=NULL, ...) {
@@ -112,12 +119,23 @@ setMethod(".svalue",
           })
 
 setReplaceMethod(".svalue",
+                 signature(toolkit="guiWidgetsToolkittcltk",obj="gExpandgrouptcltk",
+                           value = "numeric"),
+                 function(obj, toolkit, index=NULL, ..., value) {
+                   svalue(obj@widget, value)
+                   return(obj)
+                 })
+## set name, but is deprecated
+setReplaceMethod(".svalue",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gExpandgrouptcltk"),
                  function(obj, toolkit, index=NULL, ..., value) {
+                   gwcat("Using names<- to set label value")
                    svalue(tag(obj,"label")) <- as.character(value)
                    return(obj)
                  })
 
+
+## visible method
 setMethod(".visible",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gExpandgrouptcltk"),
           function(obj, toolkit, set=TRUE,...) {

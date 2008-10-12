@@ -146,9 +146,3 @@ setMethod(".addhandlerchanged",
             .addHandler(obj, toolkit, signal="<Return>", handler, action)
           })
 
-setMethod(".addhandlerkeystroke",
-          signature(toolkit="guiWidgetsToolkittcltk",obj="gEdittcltk"),
-          function(obj,toolkit, handler=NULL, action=NULL,...) {
-            .addHandler(obj, toolkit, signal="<Key>", handler, action)
-          })
-

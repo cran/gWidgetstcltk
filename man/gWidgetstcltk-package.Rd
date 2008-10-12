@@ -199,6 +199,8 @@ widget is specified by each column. We proportionally allocate the
 specified width to each column based on the current width of the
 column. As such, there is no guarantee that setting the size, then
 querying for the size will produce the same values.
+
+Unfortunately, the \code{visible} and \code{visible<-} methods do not work.
 \cr
 
 \code{gtext()} The \code{size<-} method can be used to resize the

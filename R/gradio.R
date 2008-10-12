@@ -19,6 +19,9 @@ setMethod(".gradio",
                    ) {
             force(toolkit)
 
+            if(is.data.frame(items))
+              items <- items[,1, drop=TRUE]
+
             n = length(items)
 
             if (n<2)
@@ -120,13 +123,17 @@ setReplaceMethod(".svalue",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gRadiotcltk"),
                  function(obj, toolkit, index=NULL, ..., value) {
 
+                   if(is.data.frame(value))
+                     value <- value[,1, drop=TRUE]
+
+                   
                    items = obj[]
                    
                    if(!is.null(index) && index==TRUE) {
                      ind = value
                    } else {
                      if(value %in% items) {
-                       ind = mathc(value,items)
+                       ind = match(value,items)
                      } else {
                        ind = -1
                      }
@@ -211,7 +218,7 @@ setMethod(".length",
 ## handlers
 
 
-## This handler isn't right. It reacts toa click on the box containing
+## This handler isn't right. It reacts ta click on the box containing
 ## the widget, not the radio buttons
 
 setMethod(".addhandlerchanged",

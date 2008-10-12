@@ -85,7 +85,8 @@ setMethod(".gbutton",
 setMethod(".svalue",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gButtontcltk"),
           function(obj, toolkit, index=NULL, drop=NULL, ...) {
-            val = paste(as.character(tkcget(getWidget(obj),"-text")))
+            val = paste(as.character(tkcget(getWidget(obj),"-text")),
+              sep=" ",collapse=" ")
             return(val)
           })
 

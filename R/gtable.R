@@ -45,7 +45,7 @@ setClass("gTabletcltk",
 }
 
 
-.populateTable <- function(tr, items, icons=NULL, nms=names(items),
+.populateTable <- function(tr, items, visible, icons=NULL, nms=names(items),
                            fresh=TRUE) {
 
   ## we load things row by row -- not by column like others
@@ -53,7 +53,7 @@ setClass("gTabletcltk",
   ## How to adjust width?
   d <- dim(items); m <- d[1]; n <- d[2]
   widths <- .computeWidths(items)
-
+  sizePerChar <- 7
   
   
   ## does this fix size? -- yes XXX
@@ -63,7 +63,7 @@ setClass("gTabletcltk",
   if(is.null(icons))
     icons <- rep(icons,length=m)
   else
-    widths[1] <- 12*widths[1] + 35         # add space for icons
+    widths[1] <- sizePerChar*widths[1] + 35         # add space for icons
 
   ## first column
 ##XX  tcl(tr,"column","#0",width=widths[1], stretch=TRUE)
@@ -77,13 +77,18 @@ setClass("gTabletcltk",
   ## set widths/names of other columns if present
   if(n >=2) {
     for(j in 2:n) {
-      tcl(tr,"column",j-1, width=widths[j]*12, stretch=TRUE, anchor="e")
+      tcl(tr,"column",j-1, width=sizePerChar*widths[j], stretch=TRUE, anchor="e")
       tcl(tr,"heading", j-1, text=nms[j])
     }
 #    tcl(tr,"column",n-2, width=1, stretch=TRUE) #  extra column
   }
 
   ## add values
+  ## deal with visible
+  visible <- rep(visible, length=m)
+  items <- items[visible,,drop=FALSE]
+  m <- dim(items)[1]
+  
   if(m > 0) {
     sapply(1:m, function(i) {
       icon <- findTkIcon(icons[i])
@@ -161,9 +166,12 @@ setMethod(".gtable",
             ## icon.FUN -- NULL means no icon
             if(is.null(icon.FUN))
               icon.FUN <- function(items) rep("",dim(items)[1])
-            
+
             ## if filtering we call a different constructor
-            if(!is.null(filter.column) || !is.null(filter.FUN)) {
+            ## we are filtering if filter.FUN or filter.column is
+            ## not null *UNLESS* filter.FUN = "manual"
+            if((!is.null(filter.FUN) && is.function(filter.FUN ))
+              || (is.null(filter.FUN) && !is.null(filter.column))) {
               obj <-
                 .gtableWithFilter(toolkit,
                                   items,
@@ -215,11 +223,11 @@ setMethod(".gtable",
               theArgs$colnamesColor
             else
               "red"
-
+            tag(obj,"visible") <- NULL
             
             ## load data
             tag(obj,"items") <- items
-            .populateTable(tr,items,icon.FUN(items),names(items))
+            .populateTable(tr,items, TRUE, icon.FUN(items),names(items))
 
 
             ## pack together
@@ -259,8 +267,11 @@ setMethod(".svalue",
             indices <- sapply(sel, function(i) match(i, theChildren))
             ##which(sel == theChildren)
 
-            if(!is.null(index) && index == TRUE)
-              return(indices)
+            inds <- which(visible(obj))[indices]
+            if(!is.null(index) && index == TRUE) {
+              return(index)
+            }
+
             
             ## Now a value
             if(missing(drop) || is.null(drop))
@@ -269,9 +280,9 @@ setMethod(".svalue",
             chosencol <- tag(obj,"chosencol")
 
             if(drop)
-              return(obj[indices, chosencol,drop=drop])
+              return(obj[inds, chosencol,drop=drop])
             else
-              return(obj[indices, ])
+              return(obj[inds, ])
           })
 
 
@@ -331,6 +342,10 @@ setReplaceMethod(".leftBracket",
             items <- tag(x,"items")
             icon.FUN <- tag(x,"icon.FUN")
 
+            theArgs <- list(...)
+            if(is.null(theArgs$doVisible))
+              tag(x,"visible") <- NULL
+            
             ## what to do
             ## main case [,] -- populate
             if(missing(i) && missing(j)) {
@@ -338,7 +353,8 @@ setReplaceMethod(".leftBracket",
               .clearColumns(widget)
               items <- as.data.frame(value, stringsAsFactors=FALSE)
               tag(x,"items") <- items
-              .populateTable(widget, .toCharacter(items),
+
+              .populateTable(widget, .toCharacter(items),visible(x),
                              icon.FUN(items), names(items),fresh=FALSE)
               return(x)
             }
@@ -396,17 +412,21 @@ setMethod(".length",
 setMethod(".visible",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gTabletcltk"),
           function(obj, toolkit, set=TRUE, ...) {
-            tag(obj,"visible")
+            visible <- tag(obj,"visible")
+            if(is.null(visible))
+              visible <- rep(TRUE, dim(obj)[1])
+            return(visible)
           })
 
 setReplaceMethod(".visible",
-                 signature(obj="gTabletcltk"),
+                 signature(toolkit="guiWidgetsToolkittcltk",obj="gTabletcltk"),
                  function(obj,toolkit, ..., value) {
                    d <- dim(obj)
                    value <- rep(value, length=d[1]) # recycle!
                    tag(obj,"visible") <- value
+
                    ## now redraw
-                   obj[] <- tag(obj,"items")
+                   obj[,,doVisible=TRUE] <- tag(obj,"items")
                    return(obj)
                  })
 

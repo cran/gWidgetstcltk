@@ -27,6 +27,8 @@
 
 \alias{.delete,gNotebooktcltk,guiWidgetsToolkittcltk,ANY-method}
 \alias{.delete,gToolbartcltk,guiWidgetsToolkittcltk,ANY-method}
+\alias{.svalue<-,gExpandgrouptcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
+\alias{.svalue<-,gExpandgrouptcltk,guiWidgetsToolkittcltk,ANY,numeric-method}
 \alias{.svalue<-,gNotebooktcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
 \alias{.svalue<-,gRadiotcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
 \alias{.svalue<-,gSlidertcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
@@ -531,6 +533,7 @@
 \alias{.visible<-,gGridtcltk,guiWidgetsToolkittcltk-method}
 \alias{.visible<-,gLayouttcltk,guiWidgetsToolkittcltk-method}
 \alias{.visible<-,gTabletcltk,ANY-method}
+\alias{.visible<-,gTabletcltk,guiWidgetsToolkittcltk-method}
 \alias{.visible<-,gWindowtcltk,guiWidgetsToolkittcltk-method}
 \alias{.visible<-,tkwin,guiWidgetsToolkittcltk-method} 
 %%
@@ -616,6 +619,34 @@
 \alias{.focus<-,gWidgettcltk,guiWidgetsToolkittcltk-method}
 \alias{.focus<-,GtkWindow,guiWidgetsToolkittcltk-method}
 \alias{.focus<-,tcltkObject,guiWidgetsToolkittcltk-method} 
+%%
+%% --  defaultWidget --
+%%
+\alias{defaultWidget-methods}
+\alias{defaultWidget,guiWidget-method}
+\alias{defaultWidget,gWidgettcltk-method} 
+%%
+%% --  .defaultWidget --
+%%
+\alias{.defaultWidget-methods}
+\alias{.defaultWidget,gWidgettcltk,guiWidgetsToolkittcltk-method} 
+%%
+%% --  defaultWidget<- --
+%%
+\alias{defaultWidget<--methods}
+\alias{defaultWidget<-,guiWidget-method}
+\alias{defaultWidget<-,gWidgettcltk-method} 
+\alias{defaultWidget<-,tcltkObject-method} 
+%%
+%% --  .defaultWidget<- --
+%%
+\alias{.defaultWidget<--methods}
+\alias{.defaultWidget<-,gWidgettcltk,guiWidgetsToolkittcltk-method}
+\alias{.defaultWidget<-,GtkWindow,guiWidgetsToolkittcltk-method}
+\alias{.defaultWidget<-,tcltkObject,guiWidgetsToolkittcltk-method} 
+
+
+
 %%
 %% --  font --
 %%
@@ -712,7 +743,8 @@
 %%
 \alias{.removehandler-methods}
 \alias{.removehandler,gWidgettcltk,guiWidgetsToolkittcltk-method}
-\alias{.removehandler,tcltkObject,guiWidgetsToolkittcltk-method} 
+\alias{.removehandler,tcltkObject,guiWidgetsToolkittcltk-method}
+ \alias{.removehandler,gCheckboxgrouptcltk,guiWidgetsToolkittcltk-method} 
 
 
 %%
@@ -744,6 +776,7 @@
 \alias{.blockhandler-methods}
 \alias{.blockhandler,gWidgettcltk,guiWidgetsToolkittcltk-method}
 \alias{.blockhandler,tcltkObject,guiWidgetsToolkittcltk-method} 
+\alias{.blockhandler,gCheckboxgrouptcltk,guiWidgetsToolkittcltk-method} 
 
 %% --  unblockhandler --
 %%
@@ -758,6 +791,7 @@
 \alias{.unblockhandler-methods}
 \alias{.unblockhandler,gWidgettcltk,guiWidgetsToolkittcltk-method}
 \alias{.unblockhandler,tcltkObject,guiWidgetsToolkittcltk-method} 
+\alias{.unblockhandler,gCheckboxgrouptcltk,guiWidgetsToolkittcltk-method} 
 
 %%
 %% --  addhandlerchanged --
@@ -822,6 +856,7 @@
 \alias{.addhandlerclicked-methods}
 \alias{.addhandlerclicked,gWidgettcltk,guiWidgetsToolkittcltk-method}
 \alias{.addhandlerclicked,gButtontcltk,guiWidgetsToolkittcltk-method}
+\alias{.addhandlerclicked,gCheckboxgrouptcltk,guiWidgetsToolkittcltk-method}
 \alias{.addhandlerclicked,gDroplisttcltk,guiWidgetsToolkittcltk-method}
 \alias{.addhandlerclicked,gGraphicstcltk,guiWidgetsToolkittcltk-method}
 \alias{.addhandlerclicked,gGridtcltk,guiWidgetsToolkittcltk-method}
@@ -901,6 +936,30 @@
 \alias{.addhandlerunrealize-methods}
 \alias{.addhandlerunrealize,gWidgettcltk,guiWidgetsToolkittcltk-method}
 \alias{.addhandlerunrealize,gWindowtcltk,guiWidgetsToolkittcltk-method} 
+%%
+%% --  addhandlerblur --
+%%
+\alias{addhandlerblur-methods}
+\alias{addhandlerblur,guiWidget-method}
+\alias{addhandlerblur,gWidgettcltk-method}
+\alias{addhandlerblur,tcltkObject-method} 
+%%
+%% --  .addhandlerblur --
+%%
+\alias{.addhandlerblur-methods}
+\alias{.addhandlerblur,gWidgettcltk,guiWidgetsToolkittcltk-method}
+%%
+%% --  addhandlerfocus --
+%%
+\alias{addhandlerfocus-methods}
+\alias{addhandlerfocus,guiWidget-method}
+\alias{addhandlerfocus,gWidgettcltk-method}
+\alias{addhandlerfocus,tcltkObject-method} 
+%%
+%% --  .addhandlerfocus --
+%%
+\alias{.addhandlerfocus-methods}
+\alias{.addhandlerfocus,gWidgettcltk,guiWidgetsToolkittcltk-method}
 %%
 %% --  addhandleridle --
 %%
@@ -1084,6 +1143,7 @@
 %%
 \alias{.names-methods}
 \alias{.names,gExpandgrouptcltk,guiWidgetsToolkittcltk-method}
+\alias{.names,gFrametcltk,guiWidgetsToolkittcltk-method}
 \alias{.names,gGridtcltk,guiWidgetsToolkittcltk-method}
 \alias{.names,gNotebooktcltk,guiWidgetsToolkittcltk-method}
 \alias{.names,gTabletcltk,guiWidgetsToolkittcltk-method}
@@ -1099,9 +1159,10 @@
 %% --  .names<- --
 %%
 \alias{.names<--methods}
+\alias{.names<-,gExpandgrouptcltk,guiWidgetsToolkittcltk-method}
+\alias{.names<-,gFrametcltk,guiWidgetsToolkittcltk-method}
 \alias{.names<-,gGridtcltk,guiWidgetsToolkittcltk-method}
 \alias{.names<-,gNotebooktcltk,guiWidgetsToolkittcltk-method}
-\alias{.names<-,gExpandgrouptcltk,guiWidgetsToolkittcltk-method}
 \alias{.names<-,gTabletcltk,ANY-method}
 \alias{.names<-,gTableWithFiltertcltk,ANY-method} 
 %%

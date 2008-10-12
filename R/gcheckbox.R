@@ -106,10 +106,11 @@ setMethod(".addhandlerchanged",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gCheckboxtcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
             changeHandler = handler
-            addhandler(tag(obj,"check"),toolkit, signal="<Button-1>",
+##            addhandler(tag(obj,"check"),toolkit, signal="<Button-1>",
+            addhandler(obj,toolkit, signal="<Button-1>",
                        action=action, actualobj=obj,
                        handler = function(h,...) {
-                           tcl("after",5,function(...) {
+                           tcl("after",150,function(...) {
                              changeHandler(h,...) ## need to pause
                            })
                          })

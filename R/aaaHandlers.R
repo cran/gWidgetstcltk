@@ -5,6 +5,9 @@
 
 ## use actualobj to pass something different to h$obj in handlers
 
+## see addHandkerKeystroke for example where FUN is passed in so that
+## arguments such as %K can be realized (for KeyRelease events)
+
 ### This stores the handlers
 ### it will be hash keyed by ID and then handlerID.
 ### The ID allows for garbage collection (sometime)
@@ -21,18 +24,24 @@ setMethod(".addHandler",
             ID = as.character(obj@ID)
 
             theArgs = list(...)
-            
+            ## theArgs may have an extra with name=key, value
+            FUN <- theArgs$FUN
             handler <- force(handler)
-            tkbind(getWidget(obj),signal,
-              function(...) {
-                h = list(
-                  obj=if(!is.null(theArgs$actualobj)) {
-                    theArgs$actualobj
-                  } else {
-                    obj
-                  },  action=action)
-                handler(h,...)
-              })
+            if(is.null(FUN)) {
+              tkbind(getWidget(obj),signal,
+                     function(...) {
+                       h = list(
+                         obj=if(!is.null(theArgs$actualobj)) {
+                           theArgs$actualobj
+                         } else {
+                           obj
+                         },
+                         action=action)
+                       handler(h,...)
+                     })
+            } else {
+              tkbind(getWidget(obj), signal,FUN)
+            }
 
             allHandlers = getFromNamespace("allHandlers",ns="gWidgetstcltk")
 

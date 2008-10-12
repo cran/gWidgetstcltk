@@ -282,9 +282,11 @@ setReplaceMethod(".enabled",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
                  function(obj, toolkit, ..., value) {
                    if(as.logical(value))
-                     tkconfigure(getWidget(obj),state="normal")
+                     tcl(getWidget(obj),"state","!disabled")
+#                     tkconfigure(getWidget(obj),state="normal")
                    else
-                     tkconfigure(getWidget(obj),state="disabled")
+                     tcl(getWidget(obj),"state","disabled")
+#                     tkconfigure(getWidget(obj),state="disabled")
                    return(obj)
                  })
 
@@ -322,6 +324,50 @@ setReplaceMethod(".focus",
             if(as.logical(value))
               tkfocus(getBlock(obj))
 
+            return(obj)
+          })
+
+## default Widget is initially focused
+## defaultWidget
+setMethod("defaultWidget",signature(obj="gWidgettcltk"),
+          function(obj, ...) {
+            .defaultWidget(obj, obj@toolkit,...)
+          })
+
+setMethod(".defaultWidget",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
+          function(obj, toolkit, ...)
+          focus(obj)
+          )
+
+## defaultWidget<-
+setReplaceMethod("defaultWidget",signature(obj="gWidgettcltk"),
+                 function(obj, ..., value) {
+                   .defaultWidget(obj, obj@toolkit,...) <- value
+                   return(obj)
+                 })
+
+setReplaceMethod("defaultWidget",signature(obj="tcltkObject"),
+          function(obj, ..., value) {
+            .defaultWidget(obj, toolkit=guiToolkit("tcltk"),...) <- value
+            return(obj)
+          })
+
+
+setReplaceMethod(".defaultWidget",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
+          function(obj, toolkit, ..., value) {
+            widget <- getWidget(obj)
+            .defaultWidget(widget, toolkit, ...) <- value
+            return(obj)
+          })
+
+setReplaceMethod(".defaultWidget",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="tcltkObject"),
+          function(obj, toolkit, ..., value) {
+            value = as.logical(value)
+            if(value)
+              tkfocus(obj)
             return(obj)
           })
 
@@ -1108,9 +1154,61 @@ setMethod(".addhandlerrightclick",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
           function(obj, toolkit,
                    handler, action=NULL, ...) {
+            f = function(h,...) {
              .addHandler(obj, toolkit, signal="<Button-3>",
                         handler=handler, action=action, ...)
+           }
           })
+
+## for gedit, gtext
+## %K
+##    The keysym corresponding to the event, substituted as a textual string. Valid only for KeyPress and KeyRelease events. 
+setMethod(".addhandlerkeystroke",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
+          function(obj,toolkit, handler=NULL, action=NULL,...) {
+            .addHandler(obj,toolkit,"<KeyRelease>",handler,action,
+                        FUN = function(K) {
+                          h = list(obj = obj, action = action, key=K)
+                          handler(h)
+                        })
+          })
+
+
+## focus
+setMethod("addhandlerfocus",signature(obj="gWidgettcltk"),
+          function(obj, handler=NULL, action=NULL, ...) {
+            .addhandlerfocus(obj,obj@toolkit,handler, action, ...)
+          })
+setMethod("addhandlerfocus",signature(obj="tcltkObject"),
+          function(obj, handler=NULL, action=NULL, ...) {
+            .addhandlerfocus(obj,guiToolkit("tcltk"),handler, action, ...)
+          })
+
+setMethod(".addhandlerfocus",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
+          function(obj, toolkit,
+                   handler, action=NULL, ...) {
+            .addHandler(obj, toolkit, signal="<FocusIn>",
+                        handler=handler, action=action, ...)
+          })
+## blur
+setMethod("addhandlerblur",signature(obj="gWidgettcltk"),
+          function(obj, handler=NULL, action=NULL, ...) {
+            .addhandlerblur(obj,obj@toolkit,handler, action, ...)
+          })
+setMethod("addhandlerblur",signature(obj="tcltkObject"),
+          function(obj, handler=NULL, action=NULL, ...) {
+            .addhandlerblur(obj,guiToolkit("tcltk"),handler, action, ...)
+          })
+
+setMethod(".addhandlerblur",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
+          function(obj, toolkit,
+                   handler, action=NULL, ...) {
+            .addHandler(obj, toolkit, signal="<FocusOut>",
+                        handler=handler, action=action, ...)
+          })
+
 
 
 ## mousemotion
