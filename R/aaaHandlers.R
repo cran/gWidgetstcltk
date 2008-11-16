@@ -24,6 +24,9 @@ setMethod(".addHandler",
             ID = as.character(obj@ID)
 
             theArgs = list(...)
+            actualobj <- obj
+            if(!is.null(theArgs$actualobj))
+              actualobj <- theArgs$actualobj
             ## theArgs may have an extra with name=key, value
             FUN <- theArgs$FUN
             handler <- force(handler)
@@ -31,11 +34,7 @@ setMethod(".addHandler",
               tkbind(getWidget(obj),signal,
                      function(...) {
                        h = list(
-                         obj=if(!is.null(theArgs$actualobj)) {
-                           theArgs$actualobj
-                         } else {
-                           obj
-                         },
+                         obj=actualobj,
                          action=action)
                        handler(h,...)
                      })

@@ -77,7 +77,7 @@ setMethod(".gtext",
 
             ## add handler
             if (!is.null(handler)) {
-              id = addhandlerkeystrok(obj, handler, action)
+              id = addhandlerkeystroke(obj, handler, action)
             }
             return(obj)
           })
@@ -200,7 +200,7 @@ setMethod(".add",
               
               if(!is.null(markup$size))
                 if(is.numeric(markup$size))
-                  fontList = c(fontListm, size=markup$size)
+                  fontList = c(fontList, size=markup$size)
                 else
                   fontList = c(fontList,size = switch(markup$size,
                                           "xxx-large"=24,

@@ -128,8 +128,9 @@ setMethod(".add",
             mapListToMenuBar(value, mb)
           })
 
-###  This is for adding a gmenu to a container. In rjava, menus must
-### be added to the toplevel frame. We 
+##  This is for adding a gmenu to a container.
+## We want this to be a top-level window to be DOM familiar
+## in RGtk2, this isn't imposed.
 setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk",
                     obj="gWindowtcltk", value="gMenutcltk"),
@@ -142,7 +143,7 @@ setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk",
                     obj="gContainertcltk", value="gMenutcltk"),
           function(obj, toolkit,  value, ...) {
-            tkconfigure(getBlock(value), menu=getWidget(value))
+            tkconfigure(getWidget(obj), menu=getBlock(value))
           })
 
 
@@ -230,26 +231,60 @@ makeSubMenu = function(lst, label, parentMenu) {
   subMenu = tkmenu(parentMenu, tearoff = FALSE)
   tkadd(parentMenu,"cascade",label=label, menu = subMenu)
 
-  sapply(names(lst),function(i)
-         if(!is.null(lst[[i]]$handler)) {
-           ## add item, what to do with $icon term>
-           tkadd(subMenu,"command",label=i,command = function() {
-             l = force(lst[[i]])
-             h = list()
-             h$action = l$action
-             l$handler(h)
-           })
-         } else if(!is.null(lst[[i]]$separator)) {
-           tkadd(subMenu,"separator")
-         } else {
-           ## a submenu
-           makeSubMenu(lst[[i]], i, subMenu)
-         }
+  sapply(names(lst),function(i) {
+    
+    tmp. <- lst[[i]]
+    label <- i
+    if(.isgAction(tmp.)) {
+      tmp. <- getToolkitWidget(tmp.)
+      label <- tmp.$label
+    }
+
+    f <- function() {
+      l <- force(tmp.)
+      h <- list()
+      h$action = l$action
+      l$handler(h)
+    }   ## is it a gaction?
+    
+
+    if(!is.null(tmp.$handler)) {
+      item <- tkadd(subMenu,"command",label=label,command = f)
+      if(.isgAction(lst[[i]])) {
+        if(is(lst[[i]],"gActiontcltk"))
+          e <- lst[[i]]@e
+        else
+          e <- lst[[i]]@widget@e
+        l <- e$menuitems
+        l[[length(l) + 1]] <- subMenu
+        e$menuitems <- l
+      }
+    } else if(!is.null(tmp.$separator)) {
+      tkadd(subMenu,"separator")
+    } else {
+      ## a submenu
+      makeSubMenu(tmp., label, subMenu)
+    }
+  }
          )
 }
 
+## some helper functions for this
+.isLeaf = function(lst) {
+  if(.isgAction(lst) ||
+     (is.list(lst) & (!is.null(lst$handler) | !is.null(lst$separator)))
+     ) {
+    return(TRUE)
+  } else {
+    return(FALSE)
+  }
+}
+
+
 mapListToMenuBar = function(menulist, topMenu) {
-  if(is.null(menulist[[1]]$handler)) {
+  ## determine if a top-level menu
+#  if(is.null(menulist[[1]]$handler)) {
+    if(!.isLeaf(menulist[[1]])) {
     sapply(names(menulist), function(i) 
            makeSubMenu(menulist[[i]],label=i,topMenu))
   } else {

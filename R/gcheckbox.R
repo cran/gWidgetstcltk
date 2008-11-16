@@ -22,7 +22,7 @@ setMethod(".gcheckbox",
               return()
             }
             
-            tt = container@widget@block
+            tt = getBlock(container)
             gp = ttkframe(tt)
 
             ## widget
@@ -42,6 +42,7 @@ setMethod(".gcheckbox",
             tag(obj,"check") <- check
             tag(obj,"tclVar") <- tclVar
             tag(obj,"label") <- theLabel
+            tag(obj,"labelText") <- text
             
             ## add to container
             add(container, obj,...)
@@ -73,9 +74,8 @@ setReplaceMethod(".svalue",
 setMethod(".leftBracket",
           signature(toolkit="guiWidgetsToolkittcltk",x="gCheckboxtcltk"),
           function(x, toolkit, i, j, ..., drop=TRUE) {
-            theLabel <- tag(obj,"label")
-            val <- tclvalue(tcl(theLabel,"configure","-text"))
-            return(var)
+            theLabel <- tag(x,"labelText")
+            return(theLabel)
           })
             
 setMethod("[",
@@ -87,6 +87,7 @@ setMethod("[",
 setReplaceMethod(".leftBracket",
           signature(toolkit="guiWidgetsToolkittcltk",x="gCheckboxtcltk"),
           function(x, toolkit, i, j, ..., value) {
+            tag(x,"labelText") <- as.character(value[1])
             label = tag(x,"label")
             tkconfigure(label, text=as.character(value[1]))
             return(x)
@@ -105,15 +106,19 @@ setReplaceMethod("[",
 setMethod(".addhandlerchanged",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gCheckboxtcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
-            changeHandler = handler
-##            addhandler(tag(obj,"check"),toolkit, signal="<Button-1>",
-            addhandler(obj,toolkit, signal="<Button-1>",
-                       action=action, actualobj=obj,
-                       handler = function(h,...) {
-                           tcl("after",150,function(...) {
-                             changeHandler(h,...) ## need to pause
-                           })
-                         })
+            changeHandler <- handler
+
+            theArgs <- list(...); actualobj <- theArgs$actualobj
+            if(is.null(actualobj))
+              actualobj <- obj
+            
+             addhandler(obj,toolkit, signal="<Button-1>",
+                        action=action, actualobj=actualobj,
+                        handler = function(h,...) {
+                            tcl("after",150,function(...) {
+                              changeHandler(h,...) ## need to pause
+                            })
+                          })
           })
 
 setMethod(".addhandlerclicked",

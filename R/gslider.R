@@ -42,6 +42,13 @@ setMethod(".gslider",
             tt = getBlock(container)
             gp = ttkframe(tt)
             SliderValue <- tclVar(as.character(value))
+
+            ## missing?
+##             ttkscale <- function(parent, ...) tkwidget(parent,"ttk::scale", ...) 
+##             slider <- ttkscale(gp, from=from, to=to,
+##                                variable = SliderValue,
+##                                orient = orientation)
+            ## use old school
             slider <- tkscale(gp, from=from, to=to,
                               showvalue=TRUE, variable=SliderValue,
                               resolution=by, orient=orientation)
@@ -82,5 +89,5 @@ setReplaceMethod(".svalue",
 setMethod(".addhandlerchanged",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gSlidertcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
-            .addHandler(obj,toolkit, signal="<Button-1>",handler,action)
+            .addHandler(obj,toolkit, signal="<ButtonRelease-1>",handler,action)
           })

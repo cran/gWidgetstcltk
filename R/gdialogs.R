@@ -25,6 +25,7 @@ tcltkDialog = function(
 
   if(!is.null(parent)) {
     parent <- getBlock(parent) ## needs to be top level window
+    parent <- getTopParent(parent)
     curgeo <- tclvalue(tkwm.geometry(parent))
     ## widthXheight+xpos+ypos
     pos <- unlist(strsplit(curgeo, "\\+"))
@@ -37,7 +38,16 @@ tcltkDialog = function(
   }
 
       
+ 
   
+  ## set up dlg window
+  tkwm.deiconify(dlg)
+#  tkgrab.set(dlg) ## was giving errors
+  tkfocus(dlg)
+  tkwm.title(dlg,title)
+
+
+   
   ## set up icon
   icon = match.arg(icon)
   allIcons = getStockIcons()
@@ -50,18 +60,14 @@ tcltkDialog = function(
   imageID = paste("gdialogs",as.character(runif(1)),sep="")
   tcl("image","create","photo",imageID,file=iconFile)  
   icon = ttklabel(dlg,image=imageID)
-  
-  ## set up dlg window
-  tkwm.deiconify(dlg)
-  tkgrab.set(dlg)
-  tkfocus(dlg)
-  tkwm.title(dlg,title)
-
-
-  
   tkgrid(icon,row=0,column=0)
-  tkgrid(ttklabel(dlg,text=message,justify="left"),
-         row=0,column=1,padx=5,pady=5, stick="w")
+
+  ## set up label
+  if(missing(message) || is.null(message))
+    message <- ""
+  l <- ttklabel(dlg, text = as.character(message))
+  tkgrid(l, row=0, column = 1, stick ="nw", padx=25, pady=5)
+
 
   
   ## entry widget for input
@@ -71,7 +77,7 @@ tcltkDialog = function(
       ttkentry(dlg,
               width=max(25,as.integer(1.3*nchar(text))),
               textvariable=textEntryVarTcl)
-    tkgrid(textEntryWidget,column=1,stick="nw", padx=5,pady=5)
+    tkgrid(textEntryWidget,row = 1, column=1,stick="nw", padx=5,pady=5)
   }
   
   ## what to return? TRUE or FALSE or string for ginput

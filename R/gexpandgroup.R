@@ -129,7 +129,7 @@ setReplaceMethod(".svalue",
 setReplaceMethod(".svalue",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gExpandgrouptcltk"),
                  function(obj, toolkit, index=NULL, ..., value) {
-                   gwcat("Using names<- to set label value")
+                   gwCat("Using names<- to set label value")
                    svalue(tag(obj,"label")) <- as.character(value)
                    return(obj)
                  })

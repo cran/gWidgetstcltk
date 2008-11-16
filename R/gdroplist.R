@@ -27,8 +27,11 @@ setMethod(".gdroplist",
               return()
             }
 
-            ## items could be a data frame, in which case
-            ## row 1 has the data, row 2 the icon name
+            ## items can be vector of items or data frame with
+            ## one col: items
+            ## two cols: items, icons
+            ## three cols: items, icons, tooltip
+            ## four or more cols: toolkit specific
 
             if(inherits(items,"data.frame")) {
               items <- items[,1, drop=TRUE]
@@ -55,13 +58,13 @@ setMethod(".gdroplist",
             if(!is.null(theArgs$width))
               width <- theArgs$width
             else
-              width <- max(sapply(items,nchar)) + 5
+              width <- max(sapply(items,nchar))  + 5
             
             tt <- getBlock(container)
             gp <- ttkframe(tt)
             cbVar <- tclVar()
             cb <- ttkcombobox(gp,
-                              values = items,
+                              values = as.character(items),
                               textvariable = cbVar,
                               width = width,
                               state = state)
@@ -76,12 +79,15 @@ setMethod(".gdroplist",
             tag(obj,"tclVar") <- cbVar
             tag(obj,"items") <- items
 
-            
             addDropTarget(obj, handler = function(h,...)
                            svalue(obj) <- h$dropdata)
 
             
             add(container, obj, ...)
+
+            if(!is.null(theArgs$width))
+              size(obj) <- c(theArgs$width,0)
+            
             
             if (!is.null(handler)) {
               id <- addhandlerchanged(obj, handler, action)
@@ -142,6 +148,10 @@ setMethod(".svalue",
 setReplaceMethod(".svalue",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gDroplisttcltk"),
                  function(obj, toolkit, index=NULL, ..., value) {
+                   ## we can only handle vectors for value -- not data frame
+                   ## with value, label, icon info
+
+
                    theArgs = list(...)
 
                    widget <- getWidget(obj)
@@ -160,12 +170,12 @@ setReplaceMethod(".svalue",
                    } else {
                      if(!is.null(editable) && editable) {
                        ## editable
-                       tclvalue(tcl(widget,"set",value))
+                       tclvalue(tcl(widget,"set",as.character(value)))
                      } else {
                        ## not editable, check its there
                        vals <- tag(obj,"items")
                        if(value %in% vals) {
-                         tclvalue(tcl(widget,"set",value))
+                         tclvalue(tcl(widget,"set",as.character(value)))
                        } else {
                          cat(sprintf("%s is not a valid item",value),"\n")
                        }
@@ -226,6 +236,8 @@ setReplaceMethod("[",
 setReplaceMethod(".leftBracket",
           signature(toolkit="guiWidgetsToolkittcltk",x="gDroplisttcltk"),
           function(x, toolkit, i, j, ..., value) {
+            if(is.data.frame(value))
+              value <- value[,1,drop=TRUE]
 
             widget <- getWidget(x)
             ind <- svalue(x, index=TRUE)

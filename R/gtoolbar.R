@@ -55,7 +55,7 @@ setMethod(".gtoolbar",
 
 
 ## helpers
-.addToolbarButton <- function(tb, style, text=NULL, icon=NULL,handler=NULL, action=NULL) {
+.addToolbarButton <- function(tb, style, label=NULL, icon=NULL,handler=NULL, action=NULL) {
 
   ## get icon
   if(!is.null(icon)) {
@@ -64,7 +64,7 @@ setMethod(".gtoolbar",
   }
   
   ## make a button put in icon if there
-  b <- ttkbutton(tb, image=icon, text=text, compound=style)
+  b <- ttkbutton(tb, image=icon, text=label, compound=style)
 
   ## add in handler
   handler = force(handler)              # need to force so scoping works in this call
@@ -81,19 +81,38 @@ setMethod(".gtoolbar",
   tkgrid(b, row=0, column=n, sticky="ns")
   
 #  tkpack(b, side="left",anchor="w",expand=TRUE,fill="y")
-
+  return(b)
 }
 
 
 .mapListToToolBar = function(tb, lst, style) {
   ## list is simple compared to menubar
   for(i in names(lst)) {
-    if(!is.null(lst[[i]]$separator)) {
+    tmp <- lst[[i]]
+    label <- i
+    ## is it a gaction?
+    if(.isgAction(tmp)) {
+      tmp <- getToolkitWidget(tmp)
+      label <- tmp$label
+    }
+    
+    
+    if(!is.null(tmp$separator)) {
       ## add separator
       gseparator(horizontal=FALSE, cont=tb)
-    } else if(!is.null(lst[[i]]$handler)) {
+    } else if(!is.null(tmp$handler)) {
       ## how to decide there are no text parts?
-      .addToolbarButton(tb, style, i, lst[[i]]$icon, lst[[i]]$handler, lst[[i]]$action)
+      b <- .addToolbarButton(tb, style, label, tmp$icon, tmp$handler, tmp$action)
+      if(.isgAction(lst[[i]])) {
+        if(is(lst[[i]],"gActiontcltk"))
+          e <- lst[[i]]@e
+        else
+          e <- lst[[i]]@widget@e
+        l <- e$toolbaritems
+        l[[length(l) + 1]] <- b
+        e$toolbaritems <- l
+      }
+      
     }
   }
 }

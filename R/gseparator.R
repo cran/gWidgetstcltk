@@ -59,6 +59,14 @@ setMethod(".gseparator",
             
           })
 
+## no size method
+setReplaceMethod(".size", 
+                 signature(toolkit="guiWidgetsToolkittcltk",obj="gSeparatortcltk"),
+                 function(obj, toolkit, ..., value) {
+                   gwCat("No size<- method for separators")
+                   return(obj)
+                 })
+
 
 ## setMethod(".add",
 ##           signature(toolkit="guiWidgetsToolkittcltk", obj="gLayouttcltk",

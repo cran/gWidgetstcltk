@@ -80,7 +80,42 @@ setMethod(".gbutton",
             
             invisible(obj)
           })
-          
+
+
+## handle gaction
+## constructor for action=gaction_instance
+setMethod(".gbutton",signature(action="guiComponent", toolkit="guiWidgetsToolkittcltk"),
+          function(toolkit,
+                   text="", border = TRUE, handler=NULL, action=NULL, container=NULL,...
+                   ) {
+            .gbutton(toolkit,
+                     text = text, border=border, handler = handler,
+                     action = action@widget,
+                     container = container, ...)
+          })
+
+## constructor for action=gaction_instance
+setMethod(".gbutton",signature(action="gActiontcltk", toolkit="guiWidgetsToolkittcltk"),
+          function(toolkit,
+                   text="", border = TRUE, handler=NULL, action=NULL, container=NULL,...
+                   ) {
+
+            alst <- action@widget
+            obj <- .gbutton(toolkit,
+                     text = alst$label,
+                     border = border,
+                     handler = alst$handler,
+                     action = alst$action,
+                     container = container, ...)
+
+            if(!is.null(alst$tooltip))
+              .tooltip(obj,toolkit) <- alst$tooltip
+            
+            action@e$buttons <- c(action@e$buttons,obj)
+            return(obj)
+          })
+
+
 ### methods
 setMethod(".svalue",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gButtontcltk"),
@@ -98,7 +133,7 @@ setReplaceMethod(".svalue",
                    iconFile = gWidgetstcltkIcons[[text]]
                    if(!is.null(iconFile) && iconFile != "" ) {
                      ## put icon and text
-                     imageID = paste("gimage",gp$ID,sep="")
+                     imageID = paste("gimage",obj@ID,sep="")
                      x = try(tcl("image","create","photo",imageID,file=iconFile),
                        silent=TRUE)
                      if(inherits(x,"try-error")) {
@@ -112,6 +147,15 @@ setReplaceMethod(".svalue",
                    } else {
                      tkconfigure(obj@widget, text=as.character(value))
                    }
+                   return(obj)
+                 })
+
+## size has no height
+setReplaceMethod(".size", 
+                 signature(toolkit="guiWidgetsToolkittcltk",obj="gButtontcltk"),
+                 function(obj, toolkit, ..., value) {
+                   width <- ceiling(value[1]/widthOfChar)
+                   tkconfigure(getWidget(obj), width=width)
                    return(obj)
                  })
 

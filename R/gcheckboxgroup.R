@@ -155,15 +155,8 @@ setMethod(".addhandlerchanged",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gCheckboxgrouptcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
             IDs <- lapply(tag(obj,"itemlist"),function(i) {
-              changeHandler = handler
-              ## need to pause to let the click catch up
-              addhandler(i,toolkit, signal="<Button-1>",
-                         actualobj=obj,
-                         action=action,
-                         handler = function(h,...) {
-                           tcl("after",150,function(...)
-                               changeHandler(h,...))
-                         })
+              ## pass in obj to actualobj
+              addHandlerChanged(i,handler=handler,action=action, actualobj = obj)
             })
             return(IDs)
           })

@@ -10,6 +10,7 @@ if(as.numeric(.Tcl("info tclversion")) >= 8.5) {
   
   
   for(unitTest in files) {
+    print(unitTest)
     source(unitTest)
   }
 }

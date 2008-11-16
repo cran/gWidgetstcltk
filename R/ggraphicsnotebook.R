@@ -19,7 +19,6 @@ setMethod(".ggraphicsnotebook",
             force(toolkit)
             
             return(glabel("No ggraphics available in gWidgetstcltk", cont=container)@widget)
-            return(obj)
             
           })
           

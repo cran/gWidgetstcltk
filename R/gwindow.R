@@ -36,7 +36,7 @@ setMethod(".gwindow",
 
                 tkwm.transient(win, location) # set transient
                 tkbind(location,"<Destroy>",function(...) tkdestroy(win))
-              } else if(is.numeric(location) && length(location=2)) {
+              } else if(is.numeric(location) && length(location) == 2) {
                 tkwm.geometry(win, location[1], location[2])
               }
 

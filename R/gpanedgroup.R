@@ -58,7 +58,8 @@ setMethod(".add",
           function(obj, toolkit, value, ...) {
 
             theArgs = list(...)
-            argList = list(getWidget(obj),"add",getBlock(value))
+#            argList = list(getWidget(obj),"add",getBlock(value))
+            argList = list(getWidget(obj),"insert","end",getBlock(value))
 
             ## args to position
             sticky = "n"

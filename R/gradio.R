@@ -34,7 +34,7 @@ setMethod(".gradio",
               return()
             }
 
-            tt = container@widget@block
+            tt = getBlock(container)
             gp = ttkframe(tt)
             
             theRBs = list(); theLabels = list()

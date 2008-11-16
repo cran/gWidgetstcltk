@@ -263,6 +263,9 @@ setMethod(".svalue",
             widget = getWidget(obj)
 
             sel <- unlist(strsplit(tclvalue(tcl(widget,"selection"))," "))
+            if(length(sel) == 0) {
+              return(NA)                # check proper return
+            }
             theChildren <- .allChildren(widget)
             indices <- sapply(sel, function(i) match(i, theChildren))
             ##which(sel == theChildren)
@@ -476,7 +479,7 @@ setReplaceMethod(".size",
                    
                    ## set height
                    height=value[2]
-                   tk(getWidget(obj),"configure", height = floor(height/16))
+                   tkconfigure(getWidget(obj), height = floor(height/16))
 
                    return(obj)
                  })

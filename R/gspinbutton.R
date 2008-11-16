@@ -61,11 +61,51 @@ setReplaceMethod(".svalue",
                    return(obj)
                  })
 
+## enabled -- use tkconfigure, not tcl
+setReplaceMethod(".enabled",
+                 signature(toolkit="guiWidgetsToolkittcltk",obj="gSpinbuttontcltk"),
+                 function(obj, toolkit, ..., value) {
+                   if(as.logical(value))
+#                     tcl(getWidget(obj),"state","!disabled")
+                     tkconfigure(getWidget(obj),state="normal")
+                   else
+#                     tcl(getWidget(obj),"state","disabled")
+                     tkconfigure(getWidget(obj),state="disabled")
+                   return(obj)
+                 })
+
+## size has no height
+setReplaceMethod(".size", 
+                 signature(toolkit="guiWidgetsToolkittcltk",obj="gSpinbuttontcltk"),
+                 function(obj, toolkit, ..., value) {
+                   width <- ceiling(value[1]/widthOfChar)
+                   tkconfigure(getWidget(obj), width=width)
+                   return(obj)
+                 })
+
 ### handlers
 setMethod(".addhandlerchanged",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gSpinbuttontcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
-            .addhandlerclicked(obj, toolkit, handler, action,...)
-            .addHandler(obj, toolkit, signal="<Return>",
-                        handler=handler, action=action, ...)
+            #.addhandlerclicked(obj, toolkit, handler, action,...)
+
+            changeHandler <- handler
+
+            ## need a pause
+            addhandler(obj,toolkit, signal="<Button-1>",
+                       action=action, 
+                       handler = function(h,...) {
+                           tcl("after",150,function(...) {
+                             changeHandler(h,...) ## need to pause
+                           })
+                         })
+
+            addhandler(obj,toolkit, signal="<Return>",
+                       action=action, 
+                       handler = function(h,...) {
+                         tcl("after",150,function(...) {
+                           changeHandler(h,...) ## need to pause
+                         })
+                       })
+
           })

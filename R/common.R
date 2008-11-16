@@ -1,6 +1,9 @@
 ## Common functions
 #Paste = function(x,...) paste(x,...,sep="",collapse="")
 
+## CONSTANTS
+widthOfChar <- 6                        # pixels per char for a letter
+heightOfChar <- 15                      # heighto f a character in pixels
 xyToAnchor = function(anchor) {
   m = rbind(
     c("nw","n","ne"),
@@ -16,6 +19,8 @@ DEBUG = function(...) {
   if(0)
     cat(paste(...,sep=" ",collapse=" "),"\n")
 }
+
+## paste() helpers
 Paste = function(..., sep="", collapse="") {
   x = unlist(list(...))
   x = x[!is.na(x)]
@@ -27,6 +32,8 @@ PasteWithComma = function(...) {
   args = args[!is.na(args)]
   paste(args, sep="", collapse=", ")
 }
+
+## from regex man page
 stripWhiteSpace = function(str) {
   sub('[[:space:]]+$', '', str) ## from ?gsub
   sub('^[[:space:]]+', '', str) ## from ?gsub

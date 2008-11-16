@@ -181,7 +181,15 @@ setReplaceMethod("size",signature(obj="gWidgettcltk"),
 setReplaceMethod(".size", 
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
                  function(obj, toolkit, ..., value) {
-                   tkconfigure(getWidget(obj), width=value[1], height=value[2])
+                   width <- value[1]
+                   if(length(value) > 1)
+                     height <- value[2]
+                   else
+                     height <- 0
+                   if(height > 0)
+                     tkconfigure(getWidget(obj), width=width, height=height)
+                   else
+                     tkconfigure(getWidget(obj), width=width)
                    return(obj)
                  })
 
@@ -192,8 +200,17 @@ setReplaceMethod(".size",
                  function(obj, toolkit, ..., value) {
                    ## width in characters, height in lines
                    ## convert Pixels to each
-                   value = floor(value/c(5,15))
-                   tkconfigure(getWidget(obj), width=value[1], height=value[2])
+                   width <- ceiling(value[1]/widthOfChar)
+                   if(length(value) > 1)
+                     height <- ceiling(value[2]/heightOfChar)
+                   else
+                     height <- 0
+
+                   if(height > 0)
+                     tkconfigure(getWidget(obj), width=width, height=height)
+                   else
+                     tkconfigure(getWidget(obj), width=width)
+
                    return(obj)
                  })
 
@@ -202,7 +219,16 @@ setReplaceMethod(".size",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gContainertcltk"),
                  function(obj, toolkit, ..., value) {
                    ## pixels for tkframe etc
-                   tkconfigure(getWidget(obj), width=value[1], height=value[2])
+                   width <- value[1]
+                   if(length(value) > 1)
+                     height <- value[2]
+                   else
+                     height <- 0
+                   if(height > 0)
+                     tkconfigure(getWidget(obj), width=width, height=height)
+                   else
+                     tkconfigure(getWidget(obj), width=width)
+
                    return(obj)
                  })
 
@@ -370,6 +396,30 @@ setReplaceMethod(".defaultWidget",
               tkfocus(obj)
             return(obj)
           })
+
+## tooltip<-
+setReplaceMethod("tooltip",signature(obj="gWidgettcltk"),
+          function(obj, ..., value) {
+            .tooltip(obj, obj@toolkit,...) <- value
+            return(obj)
+          })
+
+setReplaceMethod(".tooltip",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
+          function(obj, toolkit, ..., value) {
+            tooltip(obj@widget, toolkit, ...) <- value
+            return(obj)
+          })
+
+setReplaceMethod("tooltip",signature(obj="tcltkObject"),
+          function(obj, ..., value) {
+            ## set the tip.
+            ## no tooltips without add on package tooltip
+            return(obj)
+          })
+
+
+
 
 ## font
 ## The .font method is not imported from gWidgets, or exported from gWidgetstcltk. Add this bac if you are going to use this method
@@ -702,7 +752,7 @@ setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk",
                     obj="gWidgettcltk", value="try-error"),
           function(obj, toolkit, value, ...) {
-            gmessage(paste("Error:",x))
+            gmessage(paste("Error:",obj))
           })
 ## pushdonw
 setMethod(".add",

@@ -27,7 +27,9 @@ getTopParent = function(tkobj) {
   ans <- NULL
   
   while(is.null(ans)) {
-    if(tkobj$env$parent$ID=="")
+    e <- tkobj$env$parent
+    if(is.list(e)  &&
+       e[['ID']] =="")
       ans <- tkobj
     else tkobj <- tkobj$env$parent
   }

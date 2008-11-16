@@ -19,7 +19,10 @@ setMethod(".ggraphics",
 
             force(toolkit)
 
-            return(glabel("No embeddable graphics device available", container=container)@widget)
+            msg <- "No embeddable\ngraphics device\navailable"
+            ## take@widget to get glabel instance after going through gWidgets
+            out <- glabel(msg, container=container)@widget
+            return(out)
           })
 
 

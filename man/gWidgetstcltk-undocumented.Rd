@@ -55,6 +55,9 @@
 %%
 \alias{.gbutton-methods}
 \alias{.gbutton,guiWidgetsToolkittcltk-method} 
+\alias{.gbutton,guiWidgetsToolkittcltk,ANY,ANY,ANY,ANY-method}
+\alias{.gbutton,guiWidgetsToolkittcltk,ANY,ANY,ANY,gActiontcltk-method}	
+\alias{.gbutton,guiWidgetsToolkittcltk,ANY,ANY,ANY,guiComponent-method}	
 %%
 %% --  .gcheckbox --
 %%
@@ -259,6 +262,8 @@
 \alias{.svalue-methods}
 \alias{.svalue,ANY-method}
 \alias{.svalue,character,ANY,ANY,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gActiontcltk,ANY,ANY,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gActiontcltk,guiWidgetsToolkittcltk-method}
 \alias{.svalue,gButtontcltk,ANY,ANY,guiWidgetsToolkittcltk-method}
 \alias{.svalue,gCheckboxtcltk,ANY,ANY,guiWidgetsToolkittcltk-method}
 \alias{.svalue,gCheckboxgrouptcltk,ANY,ANY,guiWidgetsToolkittcltk-method}
@@ -332,6 +337,7 @@
 %% --  .svalue<- --
 %%
 \alias{.svalue<--methods}
+\alias{.svalue<-,gActiontcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
 \alias{.svalue<-,gButtontcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
 \alias{.svalue<-,gCheckboxtcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
 \alias{.svalue<-,gCheckboxgrouptcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
@@ -559,6 +565,8 @@
 \alias{.enabled<--methods}
 \alias{.enabled<-,gWidgettcltk,guiWidgetsToolkittcltk-method}
 \alias{.enabled<-,tcltkObject,guiWidgetsToolkittcltk-method} 
+\alias{.enabled<-,gActiontcltk,guiWidgetsToolkittcltk-method} 
+\alias{.enabled<-,gSpinbuttontcltk,guiWidgetsToolkittcltk-method} 
 %%
 %% --  size --
 %%
@@ -585,10 +593,13 @@
 \alias{.size<-,gWindowtcltk,guiWidgetsToolkittcltk-method}
 \alias{.size<-,gComponenttcltk,guiWidgetsToolkittcltk-method}
 \alias{.size<-,gContainertcltk,guiWidgetsToolkittcltk-method}
+\alias{.size<-,gButtontcltk,guiWidgetsToolkittcltk-method}
 \alias{.size<-,gEdittcltk,guiWidgetsToolkittcltk-method}
 \alias{.size<-,gGridtcltk,guiWidgetsToolkittcltk-method}
 \alias{.size<-,gImagetcltk,guiWidgetsToolkittcltk-method}
 \alias{.size<-,gNotebooktcltk,guiWidgetsToolkittcltk-method}
+\alias{.size<-,gSeparatortcltk,guiWidgetsToolkittcltk-method}
+\alias{.size<-,gSpinbuttontcltk,guiWidgetsToolkittcltk-method}
 \alias{.size<-,gTabletcltk,guiWidgetsToolkittcltk-method}
 \alias{.size<-,gTableWithFiltertcltk,guiWidgetsToolkittcltk-method}
 \alias{.size<-,gTreetcltk,guiWidgetsToolkittcltk-method}
@@ -1169,6 +1180,7 @@
 %%
 %% -- .getToolkitWidget --
 \alias{.getToolkitWidget,gWidgettcltk,guiWidgetsToolkittcltk-method}
+\alias{.getToolkitWidget,gActiontcltk,guiWidgetsToolkittcltk-method}
 %%
 %% -- [<-
 \alias{[<-,gWidgettcltk-method}

@@ -73,6 +73,8 @@ horizontal layouts are towards the top, and vertical layouts towards the
 left.
 
 The \code{use.scrollwindows} feature is lacking.
+
+The \code{addSpring} method is not working as desired.
 \cr
 
 
@@ -169,7 +171,16 @@ tcltk widget only uses these by default.
 
 \code{gmenu()} adds only to the top window, not any container. This is a tcltk
 limitation. Use a popupmenu instead. 
+
+For some reason, gmenu does not work under Mac OS X (for me). Your mileage may vary.
 \cr
+
+\code{gtoolbar()} A hack made from a \code{ggroup} object that packs in \code{gbutton} instances. The buttons take up alot of screen real estate, on the default Aqua them of OS X the buttons are rounded, so the toolbar looks odd, ... 
+\cr
+
+
+\code{gaction()} is implemented for buttons, menubars and
+toolbars. The \code{key.accel} component is ignored. \cr
 
 \code{gradio()} has an extra argument \code{coerce.with=}, as otherwise
 it would treat everything as a character vector. It tries to guess when
@@ -212,8 +223,6 @@ selected text are returned or \code{drop=TRUE} in which case only the
 selected text is returned.
 \cr
 
-\code{gtoolbar()} A hack. The buttons take up alot of screen real estate.
-\cr
 
 \code{gtree()} Implemented using ttktreeview. It is slow however, so use
 on smaller trees only.

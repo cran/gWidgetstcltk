@@ -102,7 +102,8 @@ setReplaceMethod(".names",
                  function(x,toolkit,value) {
 
                    f <- x@widget
-                   tkconfigure(f,"XXX") <- value
+                   ## XXX What to put here?
+                   tkconfigure(f,text=as.character(value))
                    tag(x,"title") <- value
                    return(x)
                  })
