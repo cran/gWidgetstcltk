@@ -25,7 +25,7 @@ setMethod(".gspinbutton",
             }
             
 
-            tt = getBlock(container)
+            tt = getWidget(container)
             gp = ttkframe(tt)
             
             sb = tkwidget(gp, "spinbox", from=from, to=to, increment=by)

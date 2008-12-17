@@ -17,6 +17,15 @@ setMethod(".gseparator",
 
             force(toolkit)
 
+            ## if null, we return a stub. Useful for gmenu, gtoolbar
+            if(is.null(container)) {
+              gp <- ttkframe(.TkRoot)   # empty
+              obj <- new("gSeparatortcltk", block=gp, widget=gp,
+                toolkit=toolkit, ID=getNewID(), e = new.env())
+              return(obj)
+            }
+
+            
             if(is(container,"logical") && container)
               container = gwindow()
             if(!is(container,"guiWidget")) {
@@ -31,7 +40,7 @@ setMethod(".gseparator",
             else
               col = "black"
 
-            tt <- getBlock(container)
+            tt <- getWidget(container)
             gp <- ttkframe(tt)
 
             if(horizontal)
@@ -73,6 +82,11 @@ setReplaceMethod(".size",
 ##                     value="gSeparatortcltk"),
 ##           function(obj, toolkit, value, ...) {
 ##           })
+
+.isgSeparator <- function(obj) {
+  (is(obj,"guiComponent") && is(obj@widget,"gSeparatortcltk") ) ||
+    is(obj,"gSeparatortcltk")
+}
 
 
 

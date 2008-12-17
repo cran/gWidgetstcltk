@@ -415,6 +415,8 @@
 \alias{.add-methods}
 \alias{.add,guiWidget,guiWidgetsToolkittcltk,ANY-method}
 \alias{.add,guiWidget,guiWidgetsToolkittcltk,guiWidgetORgWidgettcltkORtcltkObject-method}
+\alias{.add,gBasicDialogNoParenttcltk,guiWidgetsToolkittcltk,guiWidget-method}
+\alias{.add,gBasicDialogNoParenttcltk,guiWidgetsToolkittcltk,gWidgettcltk-method}
 \alias{.add,gContainertcltk,guiWidgetsToolkittcltk,guiWidget-method}
 \alias{.add,gContainertcltk,guiWidgetsToolkittcltk,gWidgettcltk-method}
 \alias{.add,gContainertcltk,guiWidgetsToolkittcltk,gGraphicstcltk-method}
@@ -507,6 +509,11 @@
 \alias{.dispose,gHelptcltk,guiWidgetsToolkittcltk-method}
 \alias{.dispose,gWindowtcltk,guiWidgetsToolkittcltk-method}
 
+%% --  .insert --
+%%
+\alias{.insert-methods}
+\alias{.insert,gTexttcltk,guiWidgetsToolkittcltk-method}
+%%
 %%
 %% --  visible --
 %%
@@ -518,6 +525,7 @@
 %%
 \alias{.visible-methods}
 \alias{.visible,gWidgettcltk,guiWidgetsToolkittcltk-method}
+\alias{.visible,gBasicDialogNoParenttcltk,guiWidgetsToolkittcltk-method}
 \alias{.visible,gGridtcltk,guiWidgetsToolkittcltk-method}
 \alias{.visible,gExpandgrouptcltk,guiWidgetsToolkittcltk-method}
 \alias{.visible,gLayouttcltk,guiWidgetsToolkittcltk-method}
@@ -1088,6 +1096,11 @@
 \alias{.gbasicdialog-methods}
 \alias{.gbasicdialog,guiWidgetsToolkittcltk-method} 
 %%
+%% --  .gbasicdialognoparent --
+%%
+\alias{.gbasicdialognoparent-methods}
+\alias{.gbasicdialognoparent,guiWidgetsToolkittcltk-method} 
+%%
 %% --  update --
 %%
 \alias{update-methods}
@@ -1181,6 +1194,7 @@
 %% -- .getToolkitWidget --
 \alias{.getToolkitWidget,gWidgettcltk,guiWidgetsToolkittcltk-method}
 \alias{.getToolkitWidget,gActiontcltk,guiWidgetsToolkittcltk-method}
+\alias{.getToolkitWidget,gWindowtcltk,guiWidgetsToolkittcltk-method}
 %%
 %% -- [<-
 \alias{[<-,gWidgettcltk-method}

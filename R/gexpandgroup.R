@@ -15,19 +15,31 @@ setMethod(".gexpandgroup",
 
             force(toolkit)
 
-            theArgs = list(...)
-            groupArgs = list()
-            for(i in c("spacing","use.scrollwindow")) {
-              if(!is.null(theArgs[[i]])) {
-                groupArgs[[i]] = theArgs[[i]]
-                theArgs[[i]] = NULL
-              }
-            }
 
-            theArgs$horizontal=horizontal
-            theArgs$container = container
+            ## the ... arguments get passed as follows
+            ## expand, container, anchor go for outergroup
+            ## horizontal, spacing, use.scrollwindow pass to inner group
 
-            cg = do.call("ggroup",theArgs)
+            oggroup <- function(container,spacing, user.scrollwindow, ...)
+              ggroup(container=container, horizontal=FALSE, ...)
+            iggroup <- function(container, horizontal, expand, anchor, ...)
+              ggroup(container=container, horizontal=horizontal, ...)
+
+            
+##             theArgs = list(...)
+##             groupArgs = list()
+##             for(i in c("spacing","use.scrollwindow")) {
+##               if(!is.null(theArgs[[i]])) {
+##                 groupArgs[[i]] = theArgs[[i]]
+##                 theArgs[[i]] = NULL
+##               }
+##             }
+
+##             theArgs$horizontal = FALSE
+##             theArgs$container = container
+
+            cg = oggroup(container, ...)
+#            cg = do.call("ggroup",theArgs)
 
             labelGroup = ggroup(horizontal=TRUE, cont=cg)
 
@@ -38,12 +50,16 @@ setMethod(".gexpandgroup",
             label = glabel(text, cont=labelGroup)
 
             ## we need this so that getBlock doesn't find cg's block
-            eg1 = ggroup(cont=cg, expand=TRUE)
+            eg1 = ggroup(cont=cg, expand=TRUE,horizontal)
 
-            groupArgs$container=eg1
-            eg = do.call("ggroup", groupArgs)
+##             groupArgs$container=eg1
+##             groupArgs$expand=TRUE
+##            eg = do.call("ggroup", groupArgs)
+            eg <- iggroup(container=eg1, horizontal=horizontal, ...)
 
-            obj = new("gExpandgrouptcltk",block = eg1, widget = eg,
+#            obj = new("gExpandgrouptcltk",block = eg1, widget = eg,
+
+            obj = new("gExpandgrouptcltk",block = cg, widget = eg,
               toolkit = toolkit, ID = getNewID(), e = new.env())
 
 
@@ -62,11 +78,13 @@ setMethod(".gexpandgroup",
                 visible(obj) <- TRUE
               }
             }
-            addHandlerClicked(icon, handler=changeState)
 
+            addHandlerClicked(icon, handler=changeState)
+            addHandlerClicked(label, handler=changeState)
+
+            ## must take care of closing/opening
             if(!is.null(handler)) {
-              addhandlerchanged(icon, handler, action)
-              addhandlerchanged(label, handler, action)
+              addHandlerChanged(obj, handler=handler, action=action)
             }
 
 
@@ -183,4 +201,5 @@ setMethod(".addhandlerchanged",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gExpandgrouptcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
             addHandlerChanged(tag(obj,"icon"), handler, action,...)
+            addHandlerChanged(tag(obj,"label"), handler, action,...)
           })

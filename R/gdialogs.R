@@ -259,41 +259,144 @@ setMethod(".gbasicdialog",
 
             
             icon = match.arg(icon)
-
-            w = gwindow(title=title)
-            tt <- getBlock(w)
-            
-            g = ggroup(horizontal=FALSE,container=w)
-            add(g,widget)
-
-            buttonGroup = ggroup(cont=g)
-            ans <- 0
-            OKbutton = gbutton("OK",cont=buttonGroup,handler=function(h,...) {
-              ans <<- 1
-              tkgrab.release(tt)
-            })
-            Cancelbutton = gbutton("OK",cont=buttonGroup,handler=function(h,...) {
-              ans <<- 0
-              tkgrab.release(tt)
-            })
-
-            ## make modal
-            tkgrab.set(tt)
-
-            if(ans == 1) {
-              ## yes
-              if(!is.null(handler)) {
-                handler(list(ref=widget,widget=widget,action=action, ...))
-              }
-              return(TRUE)
-            } else {
-              ## no
-              return(FALSE)
-            }
-
-              
-              tkdestroy(tt)
-              
-            return(ans)
           })
 
+## with no paret
+setClass("gBasicDialogNoParenttcltk",
+         contains="gContainertcltk",
+         prototype=prototype(new("gContainertcltk"))
+         )
+
+setMethod(".gbasicdialognoparent",
+          signature(toolkit="guiWidgetsToolkittcltk"),
+          function(toolkit,
+                   title = "Dialog",
+                   parent=NULL,                   
+                   handler = NULL,
+                   action = NULL,
+                   ...
+                   ) {
+            
+            dlg = gwindow(title, parent=parent, visible=FALSE)
+            tt <- dlg@widget@widget
+            
+            g = ggroup(cont = dlg, horizontal=FALSE, expand=TRUE)
+            
+            obj <- new("gBasicDialogNoParenttcltk",
+                       block=dlg, widget=g, toolkit=guiToolkit("tcltk"))
+            tag(obj,"handler") <- handler
+            tag(obj,"action") <- action
+            tag(obj,"tt") <- tt
+
+            tkbind(tt, "<Destroy>", function() {
+              tkgrab.release(tt)
+            })
+
+            return(obj) 
+          })
+
+
+setMethod(".add",
+          signature(toolkit="guiWidgetsToolkittcltk",
+                    obj="gBasicDialogNoParenttcltk", value="guiWidget"),
+          function(obj, toolkit, value, ...) {
+            .add(obj, toolkit, value@widget, ...)
+          })
+
+setMethod(".add",
+          signature(toolkit="guiWidgetsToolkittcltk",
+                    obj="gBasicDialogNoParenttcltk", value="gWidgettcltk"),
+           function(obj, toolkit, value, ...) {
+             add(obj@widget, value, ...)
+             ## keep these around
+             tag(obj,"widget") <- value
+          })
+
+setMethod(".visible",
+                 signature(toolkit="guiWidgetsToolkittcltk",
+                           obj="gBasicDialogNoParenttcltk"),
+                 function(obj, toolkit, set=NULL, ...) {
+
+                   if(as.logical(set)) {
+
+                     handler <- tag(obj,"handler")
+                     action <- tag(obj,"action")
+                     widget <- tag(obj,"widget")
+                     tt <- tag(obj,"tt")
+
+                     dlg <- obj@block
+                     g <- obj@widget
+
+                     ## we use tclwait.variable, rather than window
+                     ## with window, we need to destroy widget before returning loop
+                     ## and then widget is destroyed before we can use it.
+                     flag <- tclVar("")
+                     
+                     buttonGroup = ggroup(cont=g, expand=TRUE, fill="x") ## just x XXX
+                     addSpring(buttonGroup)
+                     ans <- FALSE
+                     OKbutton = gbutton("OK",cont=buttonGroup,action = tt,
+                       handler=function(h,...) {
+                         ans <<- TRUE
+                         tkgrab.release(h$action)
+                         tclvalue(flag) <- "destroy"
+                       })
+                     addSpace(buttonGroup, 10)
+                     Cancelbutton = gbutton("Cancel",cont=buttonGroup, action=tt,
+                       handler=function(h,...) {
+                         ans <<- FALSE
+                         tkgrab.release(h$action)
+                         tclvalue(flag) <- "destroy"
+                       })
+
+                     ## make window visible
+                     visible(dlg) <- TRUE
+                     ## make modal
+                     tkwait.variable(flag)
+
+                     ## process response
+                     if(ans) {
+                       ## yes
+                       if(!is.null(handler)) {
+                         handler(list(obj=widget,action=action))
+                       }
+                       dispose(dlg)
+                       return(ans)
+                     } else {
+                       ## no
+                       dispose(dlg)
+                       return(ans)
+                     }
+                   } else {
+                     ## nothing
+                     dispose(dlg)                     
+                     return(NA)
+                   }
+                 })
+
+
+
+
+## alert
+setMethod(".galert",
+          signature(toolkit="guiWidgetsToolkittcltk"),
+          function(toolkit,
+                   message,
+                   title = "message",
+                   delay = 3,
+                   parent=NULL,
+                   ...
+                   ) {
+            force(toolkit)
+            
+            w <- gwindow(title, width=250, height=50, parent = parent)
+            g <- ggroup(cont = w)
+            l <- glabel("  ", cont = g)
+            label <- glabel(message, cont = g, expand=TRUE)
+            font(label) <- c("weight"="bold")
+            gimage(file="dismiss",dir="stock", cont = g, handler = function(h,...) dispose(w))
+            
+            addHandlerMouseMotion(label, handler = function(h,...) dispose(w))
+            
+            w
+          })

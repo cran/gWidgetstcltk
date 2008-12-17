@@ -46,43 +46,51 @@ setClass("gTabletcltk",
 
 
 .populateTable <- function(tr, items, visible, icons=NULL, nms=names(items),
-                           fresh=TRUE) {
+                           fresh=TRUE, doWidths=TRUE, getSizeFrom) {
 
   ## we load things row by row -- not by column like others
   ## we leave text value empty, saving spot for icon.
   ## How to adjust width?
   d <- dim(items); m <- d[1]; n <- d[2]
-  widths <- .computeWidths(items)
-  sizePerChar <- 7
-  
-  
-  ## does this fix size? -- yes XXX
-  ## 0:n for 1 extra row (0-based)
-#  tcl(tr,"configure",columns=1:n) #(n+as.numeric(n>1))) # extra fudge if n>1
-  
-  if(is.null(icons))
-    icons <- rep(icons,length=m)
-  else
-    widths[1] <- sizePerChar*widths[1] + 35         # add space for icons
 
-  ## first column
-##XX  tcl(tr,"column","#0",width=widths[1], stretch=TRUE)
-#  if(fresh)
-#    tcl(tr,"configure",column=0)
-  tcl(tr,"column","#0",width=widths[1], stretch=TRUE)
-  if(fresh)
-    tcl(tr,"column",0,width=1, stretch=FALSE) # override below if needed
-  tcl(tr, "heading","#0",text=nms[1])
 
-  ## set widths/names of other columns if present
-  if(n >=2) {
-    for(j in 2:n) {
-      tcl(tr,"column",j-1, width=sizePerChar*widths[j], stretch=TRUE, anchor="e")
-      tcl(tr,"heading", j-1, text=nms[j])
+  ## Compute widths
+  if(doWidths) {
+    ## supposed to set widths based on widget, but isn't working?
+    width <- as.integer(tclvalue(tkwinfo("width",getSizeFrom)))
+    widths <- widthOfChar * .computeWidths(items)
+    if(width > 10)
+      widths <- as.integer( widths/sum(widths) * width)
+
+    
+    
+    ## does this fix size? -- yes XXX
+    ## 0:n for 1 extra row (0-based)
+    ##  tcl(tr,"configure",columns=1:n) #(n+as.numeric(n>1))) # extra fudge if n>1
+    
+    if(is.null(icons))
+      icons <- rep(icons,length=m)
+    else
+      widths[1] <- widths[1] + 35         # add space for icons
+    
+    ## first column
+    ##XX  tcl(tr,"column","#0",width=widths[1], stretch=TRUE)
+    ##  if(fresh)
+    ##    tcl(tr,"configure",column=0)
+    tcl(tr,"column","#0",width=widths[1], stretch=TRUE)
+    if(fresh)
+      tcl(tr,"column",0,width=1, stretch=FALSE) # override below if needed
+    tcl(tr, "heading","#0",text=nms[1])
+    
+    ## set widths/names of other columns if present
+    if(n >=2) {
+      for(j in 2:n) {
+        tcl(tr,"column",j-1, width=widths[j], stretch=TRUE, anchor="e")
+        tcl(tr,"heading", j-1, text=nms[j])
+      }
+                                        #    tcl(tr,"column",n-2, width=1, stretch=TRUE) #  extra column
     }
-#    tcl(tr,"column",n-2, width=1, stretch=TRUE) #  extra column
   }
-
   ## add values
   ## deal with visible
   visible <- rep(visible, length=m)
@@ -98,7 +106,7 @@ setClass("gTabletcltk",
         ## hack -- with only 1 column tcltk splits across spaces
         if(length(values) == 1) values = c(values,"") 
         tcl(tr,"insert","","end",
-            text= as.character(items[i,1]),
+              text= as.character(items[i,1]),
             values = values,
             image=icon,
             tags = .Tcl.args(list(background="red"))
@@ -191,7 +199,7 @@ setMethod(".gtable",
             selectmode = if(multiple) "extended" else "browse"
 
             ## setup widget
-            tt = getBlock(container)
+            tt = getWidget(container)
             gp = ttkframe(tt)
 
             
@@ -225,19 +233,20 @@ setMethod(".gtable",
               "red"
             tag(obj,"visible") <- NULL
             
-            ## load data
-            tag(obj,"items") <- items
-            .populateTable(tr,items, TRUE, icon.FUN(items),names(items))
 
-
-            ## pack together
+            ## pack into grid
+            ## see tkFAQ 10.1 -- makes for automatic resizing
             tkgrid(tr,row=0,column=0, sticky="news")
             tkgrid(yscr,row=0,column=1, sticky="ns")
             tkgrid(xscr, row=1, column=0, sticky="ew")
-            ## see tkFAQ 10.1 -- makes for automatic resizing
             tkgrid.columnconfigure(gp, 0, weight=1)
             tkgrid.rowconfigure(gp, 0, weight=1)
 
+            ## call in autoscroll
+            tcl("autoscroll", xscr)
+            tcl("autoscroll", yscr)
+
+            
             ## font -- fixed unless overridden
 #            tkconfigure(tr, font="courier") # fixed
             
@@ -250,6 +259,13 @@ setMethod(".gtable",
             ## add to container
             add(container, obj,...)
 
+            ## load data last to get size after adding
+            tag(obj,"items") <- items
+            .populateTable(tr,items, TRUE, icon.FUN(items),names(items),
+                           getSizeFrom=gp)
+
+
+            
             return(obj)
             
           })
@@ -357,8 +373,10 @@ setReplaceMethod(".leftBracket",
               items <- as.data.frame(value, stringsAsFactors=FALSE)
               tag(x,"items") <- items
 
+              width <- as.integer(tclvalue(tkwinfo("width",widget)))
               .populateTable(widget, .toCharacter(items),visible(x),
-                             icon.FUN(items), names(items),fresh=FALSE)
+                             icon.FUN(items), names(items),fresh=FALSE, doWidths=FALSE,
+                             getSizeFrom=x@block)
               return(x)
             }
 

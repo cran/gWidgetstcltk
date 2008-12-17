@@ -7,7 +7,7 @@
 
 ## see addHandkerKeystroke for example where FUN is passed in so that
 ## arguments such as %K can be realized (for KeyRelease events)
-
+## see bind man for key codes
 ### This stores the handlers
 ### it will be hash keyed by ID and then handlerID.
 ### The ID allows for garbage collection (sometime)
@@ -42,17 +42,19 @@ setMethod(".addHandler",
               tkbind(getWidget(obj), signal,FUN)
             }
 
-            allHandlers = getFromNamespace("allHandlers",ns="gWidgetstcltk")
-
+            ## We use store the handlers. In this case, we only use the signal
+            ## for remove handler. No block,unblock
+            allHandlers <- getFromNamespace("allHandlers",ns="gWidgetstcltk")
+            
             if(length(allHandlers[[ID]][[signal]]) == 0)
-              handlerID = "1"
+              handlerID <- "1"
             else
-              handlerID = as.character(length(allHandlers[[ID]][[signal]]) + 1)
-
+              handlerID <- as.character(length(allHandlers[[ID]][[signal]]) + 1)
+            
             
             allHandlers[[ID]][[signal]][[handlerID]]$flag <- TRUE
             assignInNamespace("allHandlers",allHandlers,ns="gWidgetstcltk")
-
+            
             ## ID
             invisible(list(type=signal,handlerID=handlerID))
           })

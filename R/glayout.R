@@ -25,7 +25,7 @@ setMethod(".glayout",
               return()
             }
             
-            tt <- getBlock(container)
+            tt <- getWidget(container)
             gp <- ttkframe(tt)
             tkpack(gp, expand=TRUE, fill="both")
 
@@ -52,6 +52,16 @@ setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk", obj="gLayouttcltk",
                     value="gWidgettcltk"),
           function(obj, toolkit, value, ...) {
+            ## add parent, children
+            childComponents <- obj@e$childComponents
+            if(is.null(childComponents))
+              childComponents <- list()
+            obj@e$childComponents <- c(childComponents, value)
+            value@e$parentContainer <- obj
+            
+            ## inherit enabled from parent
+            try(enabled(value) <- enabled(obj),silent=TRUE)
+
             theArgs = list(...)
 ##            tkpack(getBlock(value), side="left")
           })
@@ -70,7 +80,7 @@ setReplaceMethod(".leftBracket",
           function(x, toolkit, i, j, ..., value) {
             ## check that all is good
             if(is.character(value)) {
-              value = ttklabel(getBlock(x),text=value)
+              value = ttklabel(getWidget(x),text=value)
             }
 
             spacing <- tag(x,"spacing")

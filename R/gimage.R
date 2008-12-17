@@ -24,13 +24,13 @@ setMethod(".gimage",
             if(is(container,"logical") && container)
               container = gwindow()
             if(!is(container,"guiWidget")) {
-              warning("Container is not correct. No NULL containers possible\n" )
+              warning(gettext("Container argument is not correct: No NULL containers possible in gWidgetstcltk\n"))
               return()
             }
 
 
             
-            if (size != "") cat(gettext("gimage: size is currently ignored\n"))
+            if (size != "") cat(gettext("gimage: size argument is currently ignored\n"))
 
             
             ## get filename
@@ -44,7 +44,7 @@ setMethod(".gimage",
               } else {
                 gWidgetstcltkIcons = getStockIcons()
                 iconFile = gWidgetstcltkIcons[[filename,exact=TRUE]]
-                if(!file.exists(iconFile)) {
+                if(!is.null(iconFile) && !file.exists(iconFile)) {
                   iconFile <- gWidgetstcltkIcons[["clear"]]
                 }
               }
@@ -54,7 +54,7 @@ setMethod(".gimage",
               iconFile = filename
             }
 
-            tt <- getBlock(container)
+            tt <- getWidget(container)
             gp <- ttkframe(tt)
 
             imageID = paste("gimage",gp$ID,sep="")

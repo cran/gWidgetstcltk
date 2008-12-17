@@ -1,6 +1,39 @@
 Dear Emacs, please make this -*-Text-*- mode!
 
 NEWS for gWidgetstcltk
+
+Changes for  0.0-22
+-------------------
+
+* added gbasicdialog. Three step process: create ocntainer, add
+  widget, call visible with set=TRUE.
+
+* fixes to gtable -- working on column width issues, but still not
+  great
+
+* fixed several issues with how containers are used, some were not
+  expanding properly: gnotebook, gexpandgroup
+
+* changed layout of gexpandgroup so that group is always below the
+  label and trigger icon, instead of adjacent. Code was cleaned up.
+
+* changed how statusbars and toolbars are handled by gwindow. Also use
+ttkframe within gwindow to offer theme support to window.
+
+* added use.scrollwindow argument for ggroup. Not quite perfect, as
+the frame doesn't scroll to follow recently added children.
+
+* new(ish) constructor gformlayout coming from gWidgets
+
+* new(ish) gaction for menus, toolbars, buttons. This is now
+  recommened means to implement menus and toolbars
+
+* new galert dialog. This is like gmessage only non obtrusive. Can be
+  improved.
+
+* added autoscroll bar feature to gtree, gtable, gtext.
+
+
 Changes for  0.0-20
 -------------------
 

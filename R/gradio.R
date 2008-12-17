@@ -25,16 +25,16 @@ setMethod(".gradio",
             n = length(items)
 
             if (n<2)
-              stop("Radio button group makes sense only with at least two items.")
+              stop(gettext("Radio button group makes sense only with at least two items."))
 
             if(is(container,"logical") && container)
               container = gwindow()
             if(!is(container,"guiWidget")) {
-              warning("Container is not correct. No NULL containers possible\n" )
+              warning(gettext("Container is not correct. No NULL containers possible\n" ))
               return()
             }
 
-            tt = getBlock(container)
+            tt = getWidget(container)
             gp = ttkframe(tt)
             
             theRBs = list(); theLabels = list()
@@ -173,12 +173,14 @@ setReplaceMethod(".leftBracket",
           function(x, toolkit, i, j, ..., value) {
 
             curVal = svalue(x, index=TRUE)
-            
+            n <- length(x)
+
             ## check
             if(missing(i))
               i = 1:n
+            
             if(length(value) != length(i)) {
-              cat(gettext("value has the wrong length. Can not alter length."))
+              cat(gettext("value has the wrong length. Can not alter length using this toolkit\n"))
               return(x)
             }
 

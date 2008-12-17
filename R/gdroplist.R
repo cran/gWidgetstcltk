@@ -60,7 +60,7 @@ setMethod(".gdroplist",
             else
               width <- max(sapply(items,nchar))  + 5
             
-            tt <- getBlock(container)
+            tt <- getWidget(container)
             gp <- ttkframe(tt)
             cbVar <- tclVar()
             cb <- ttkcombobox(gp,
@@ -69,7 +69,8 @@ setMethod(".gdroplist",
                               width = width,
                               state = state)
 
-            tkpack(cb)
+            tkgrid(cb,row=0, column=0, sticky="news")
+            tkgrid.columnconfigure(gp,0, weight=1)
             
             obj = new("gDroplisttcltk",block=gp,widget=cb,
               toolkit=toolkit,ID=getNewID(), e = new.env())
@@ -88,6 +89,10 @@ setMethod(".gdroplist",
             if(!is.null(theArgs$width))
               size(obj) <- c(theArgs$width,0)
             
+
+            svalue(obj, index=TRUE) <- as.numeric(selected)
+            
+
             
             if (!is.null(handler)) {
               id <- addhandlerchanged(obj, handler, action)
@@ -157,16 +162,20 @@ setReplaceMethod(".svalue",
                    widget <- getWidget(obj)
                    
                    n = length(obj)
-                   if(is.null(index)) index = FALSE
+                   if(n <= 1) return(obj)
+                   
+                   if(is.null(index))
+                     index <- FALSE
                    index = as.logical(index)
 
                    ##  if editable do differently
                    ## editable not implented
-                   editable = tag(obj,"editable")
+                   editable <- tag(obj,"editable")
 
                    ## if index, set
                    if(index) {
-                     tclvalue(tcl(widget,"current", as.numeric(value) - 1))
+                     if(value > 0 && value <= n)
+                       tclvalue(tcl(widget,"current", as.numeric(value) - 1))
                    } else {
                      if(!is.null(editable) && editable) {
                        ## editable

@@ -82,11 +82,27 @@ setMethod(".svalue",
 setReplaceMethod(".svalue",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gCheckboxgrouptcltk"),
                  function(obj, toolkit, index=NULL, ..., value) {
-                   items = tag(obj,"items")
-                   lst = tag(obj,"itemlist")
-                   values = rep(value, length.out=length(items))
 
-                   sapply(1:length(items), function(i) svalue(lst[[i]]) <- values[i])
+                   lst = tag(obj,"itemlist")
+                   n <- length(obj)
+                   
+                   ## compute values -- logical vector with length n
+                   if(!is.null(index) && index) {
+                     ## indices
+                     values <- rep(FALSE, n)
+                     values[value] <- TRUE
+                   } else if(!is.logical(value)) {
+                     ## characters
+                    ind <- match(value, obj[])
+                    ind <- ind[!is.na(ind)]
+                    values <- rep(FALSE,length=n)
+                    values[ind] <- TRUE
+                   } else {
+                     ## logical vector, we recycle
+                     values = rep(value, length.out=n) ## recycle
+                   }
+
+                   sapply(1:n, function(i) svalue(lst[[i]]) <- values[i])
                    
                    return(obj)
                  })

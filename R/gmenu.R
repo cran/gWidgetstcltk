@@ -31,9 +31,9 @@ setMethod(".gmenu",
             
             ##
             if(popup)
-              tt <- getBlock(container)
+              tt <- getWidget(container)
             else
-              tt = getTopParent(getBlock(container))
+              tt = getTopParent(getWidget(container))
 
             topMenu <- tkmenu(tt, tearoff=FALSE)
             
@@ -135,7 +135,7 @@ setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk",
                     obj="gWindowtcltk", value="gMenutcltk"),
           function(obj, toolkit,  value, ...) {
-            tkconfigure(getWidget(obj), menu=getBlock(value))
+            tkconfigure(getBlock(obj), menu=getBlock(value))
           })
 
 
@@ -233,22 +233,27 @@ makeSubMenu = function(lst, label, parentMenu) {
 
   sapply(names(lst),function(i) {
     
-    tmp. <- lst[[i]]
+    tmp <- lst[[i]]
     label <- i
-    if(.isgAction(tmp.)) {
-      tmp. <- getToolkitWidget(tmp.)
-      label <- tmp.$label
+
+    if(.isgSeparator(tmp))
+      tmp <- list(separator=TRUE)
+    
+    if(.isgAction(tmp)) {
+      tmp <- getToolkitWidget(tmp)
+      label <- tmp$label
     }
 
     f <- function() {
-      l <- force(tmp.)
+      l <- force(tmp)
       h <- list()
       h$action = l$action
       l$handler(h)
     }   ## is it a gaction?
     
-
-    if(!is.null(tmp.$handler)) {
+    if(!is.list(tmp)) return()
+    
+    if(!is.null(tmp$handler)) {
       item <- tkadd(subMenu,"command",label=label,command = f)
       if(.isgAction(lst[[i]])) {
         if(is(lst[[i]],"gActiontcltk"))
@@ -259,11 +264,11 @@ makeSubMenu = function(lst, label, parentMenu) {
         l[[length(l) + 1]] <- subMenu
         e$menuitems <- l
       }
-    } else if(!is.null(tmp.$separator)) {
+    } else if(!is.null(tmp$separator)) {
       tkadd(subMenu,"separator")
     } else {
       ## a submenu
-      makeSubMenu(tmp., label, subMenu)
+      makeSubMenu(tmp, label, subMenu)
     }
   }
          )
@@ -294,6 +299,8 @@ mapListToMenuBar = function(menulist, topMenu) {
       tkadd(topMenu,"command",label=label,
             command = function() {
               l = force(menulist[[i]])
+              if(.isgAction(l))
+                l <- getToolkitWidget(l)
               h = list()
               h$action = l$action
               l$handler(h)

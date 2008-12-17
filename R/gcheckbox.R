@@ -22,7 +22,7 @@ setMethod(".gcheckbox",
               return()
             }
             
-            tt = getBlock(container)
+            tt = getWidget(container)
             gp = ttkframe(tt)
 
             ## widget

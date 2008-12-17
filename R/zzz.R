@@ -13,6 +13,13 @@
     setOldClass(i)
     setIs(i,"tcltkObject")
   })
+
+
+  ## load in tcl packages
+  tcl("source",system.file("tcl","autoscroll.tcl",package="gWidgetstcltk"))
+  tclRequire("autoscroll")
+  tcl("namespace","import","::autoscroll::autoscroll")
+
 }
          
 

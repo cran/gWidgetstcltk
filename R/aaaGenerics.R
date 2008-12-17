@@ -290,11 +290,11 @@ setMethod("enabled",signature(obj="gWidgettcltk"),
 setMethod(".enabled",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
           function(obj, toolkit, ...) {
-            state = as.character(tkcget(getWidget(obj),"-state"))
-            if(state == "normal")
-              return(TRUE)
-            else
+            state = as.character(tcl(getWidget(obj),"state"))
+            if(length(state) > 0 && state == "disabled")
               return(FALSE)
+            else
+              return(TRUE)
           })
 
 ## enabled<-
@@ -313,6 +313,12 @@ setReplaceMethod(".enabled",
                    else
                      tcl(getWidget(obj),"state","disabled")
 #                     tkconfigure(getWidget(obj),state="disabled")
+
+                   ## recurse into childComponents
+                   childComponents <- obj@e$childComponents
+                   if(!is.null(childComponents))
+                     sapply(childComponents,function(i) enabled(i) <- value)
+                            
                    return(obj)
                  })
 
@@ -774,14 +780,28 @@ setMethod(".add",
 setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk", obj="gContainertcltk",value="gWidgettcltk"),
           function(obj, toolkit, value, ...) {
+
+            ## add parent, children
+            childComponents <- obj@e$childComponents
+            if(is.null(childComponents))
+              childComponents <- list()
+            obj@e$childComponents <- c(childComponents, value)
+            value@e$parentContainer <- obj
+
+            ## inherit enabled from parent
+            try(.enabled(value,toolkit) <- .enabled(obj,toolkit),silent=TRUE)
+            
             theArgs = list(...)
 
+
+            
             argList = list(getBlock(value))
 
             ## expand. use fill, expand didn't
             if(!is.null(theArgs$expand) && theArgs$expand) {
               argList$expand = TRUE
-              argList$fill = "both"
+              if(is.null(argList$fill))
+                argList$fill = "both"
             }
 
             ## anchor
@@ -799,6 +819,15 @@ setMethod(".add",
 
             ## call tkpack
             do.call("tkpack",argList)
+
+            tcl("update","idletasks")
+
+            if(!is.null(widget <- .tag(value,toolkit,"scrollable.widget"))) {
+              ## get scrollbars to add to end etc.
+              tcl("event","generate",getWidget(value),"<Configure>")
+              tkxview.moveto(widget,1)
+              tkyview.moveto(widget,1)
+            }
           })
 
 ## setMethod(".add",
@@ -820,13 +849,13 @@ setMethod(".addSpring",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gContainertcltk"),
           function(obj, toolkit, ...) {
 
-
             tt <- getBlock(obj)
+            blankLabel <- ttklabel(tt,text=" ")
 
             if(obj@horizontal)
-              tkpack(ttklabel(tt,text=" "),expand=TRUE,fill="x",side="left")
+              tkpack(blankLabel,expand=TRUE,fill="x",side="left",anchor="w")
             else
-              tkpack(ttklabel(tt,text=" "),expand=TRUE,fill="y",side="top")
+              tkpack(blankLabel,expand=TRUE,fill="y",side="top", anchor="n")
             invisible()
           })
 
@@ -1146,13 +1175,27 @@ setMethod("addhandlerkeystroke",signature(obj="tcltkObject"),
             .addhandlerkeystroke(obj, guiToolkit("tcltk"),handler, action, ...)
           })
 
+## setMethod(".addhandlerkeystroke",
+##           signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
+##           function(obj, toolkit,
+##                    handler, action=NULL, ...) {
+##             .addHandler(obj, toolkit, signal="<KeyPress>",
+##                         handler=handler, action=action, ...)
+##           })
+
+## for gedit, gtext
+## %K
+##    The keysym corresponding to the event, substituted as a textual string. Valid only for KeyPress and KeyRelease events. 
 setMethod(".addhandlerkeystroke",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
-          function(obj, toolkit,
-                   handler, action=NULL, ...) {
-            .addHandler(obj, toolkit, signal="<KeyPress>",
-                        handler=handler, action=action, ...)
+          function(obj,toolkit, handler=NULL, action=NULL,...) {
+            .addHandler(obj,toolkit,"<KeyRelease>",handler,action,
+                        FUN = function(K) {
+                          h = list(obj = obj, action = action, key=K)
+                          handler(h)
+                        })
           })
+
 
 ## clicked: clicked
 setMethod("addhandlerclicked",signature(obj="gWidgettcltk"),
@@ -1208,19 +1251,6 @@ setMethod(".addhandlerrightclick",
              .addHandler(obj, toolkit, signal="<Button-3>",
                         handler=handler, action=action, ...)
            }
-          })
-
-## for gedit, gtext
-## %K
-##    The keysym corresponding to the event, substituted as a textual string. Valid only for KeyPress and KeyRelease events. 
-setMethod(".addhandlerkeystroke",
-          signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
-          function(obj,toolkit, handler=NULL, action=NULL,...) {
-            .addHandler(obj,toolkit,"<KeyRelease>",handler,action,
-                        FUN = function(K) {
-                          h = list(obj = obj, action = action, key=K)
-                          handler(h)
-                        })
           })
 
 

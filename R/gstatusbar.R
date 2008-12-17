@@ -12,12 +12,21 @@ setMethod(".gstatusbar",
             
             force(toolkit)            
 
-            tt <- getBlock(container)
+
+            if(is(container,"logical") && container)
+              container = gwindow()
+
+            ## container must be a gwindow
+            if(!(is(container,"gWindowtcltk") || is(container@widget,"gWindowtcltk"))) {
+              cat(gettext("gstatusbar: container must be gwindow instance\n"))
+            }
+##            tt <- getBlock(container)
+            tt <- tag(container,"sb")
             gp <- ttkframe(tt)
             
             sb <- tklabel(gp, text=text)
-            tkgrid(sb, row=0,column=0, sticky="w")
-#            tkpack(sb, side="left",anchor="w", expand=TRUE, fill="x")
+#            tkgrid(sb, row=0,column=0, sticky="w")
+            tkpack(sb, side="left",anchor="w", expand=TRUE, fill="x")
             
             obj = new("gStatusbartcltk",block=gp, widget=sb,
               toolkit=toolkit, ID=getNewID(), e = new.env())

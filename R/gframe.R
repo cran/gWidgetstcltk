@@ -39,7 +39,7 @@ setMethod(".gframe",
               return()
             }
 
-            tt = getBlock(container)
+            tt = getWidget(container)
 #            f = tkwidget(tt, "labelframe", text=text, labelanchor=labAnchor)
             f = tkwidget(tt, "ttk::labelframe", text=text, labelanchor=labAnchor)
 

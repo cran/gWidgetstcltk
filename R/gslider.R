@@ -39,8 +39,8 @@ setMethod(".gslider",
             else
               orientation = "vertical"
 
-            tt = getBlock(container)
-            gp = ttkframe(tt)
+            tt <- getWidget(container)
+            gp <- ttkframe(tt)
             SliderValue <- tclVar(as.character(value))
 
             ## missing?
@@ -52,17 +52,18 @@ setMethod(".gslider",
             slider <- tkscale(gp, from=from, to=to,
                               showvalue=TRUE, variable=SliderValue,
                               resolution=by, orient=orientation)
-            tkgrid(slider)
-
             
-            obj = new("gSlidertcltk",block=gp, widget=slider,
+            tkgrid(slider,row=0, column=0, sticky="news")
+            tkgrid.columnconfigure(gp,0, weight=1)
+            
+            obj <- new("gSlidertcltk",block=gp, widget=slider,
               toolkit=toolkit, ID=getNewID(), e = new.env())
             tag(obj,"tclVar") <- SliderValue
             
             add(container, obj,...)
             
             if (!is.null(handler))  {
-              id = addhandlerchanged(obj, handler, action)
+              id <- addhandlerchanged(obj, handler, action)
             }
             
             invisible(obj)

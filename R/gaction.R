@@ -34,7 +34,6 @@ setMethod(".getToolkitWidget",
           signature(obj="gActiontcltk", toolkit="guiWidgetsToolkittcltk"),
           function(obj, toolkit) obj@widget)
 
-
 ## is this a gaction
 .isgAction <- function(obj) {
   is(obj,"guiComponent") && is(obj@widget,"gActiontcltk")
@@ -76,6 +75,17 @@ setMethod(".svalue",
 setReplaceMethod(".svalue",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gActiontcltk"),
                  function(obj, toolkit, index=NULL, ..., value) {
-                   ## no op
+                   e <- obj@e
+                   if(length(e$buttons) > 0)
+                     sapply(e$buttons, function(i) svalue(i) <- as.character(value))
+
+                   if(length(e$toolbaritems) > 0)
+                     sapply(e$toolbaritems, function(i) {
+                       tkconfigure(i, text=value)
+                     })
+                   if(length(e$menuitems) > 0)
+                     sapply(e$menuitems, function(i) {
+                       tcl(i,"entryconfigure",e$label,label=value)
+                     })
                    return(obj)
                  })

@@ -24,12 +24,12 @@ setMethod(".glabel",
             
             if(is(container,"logical") && container)
               container = gwindow()
-            if(!is(container,"guiWidget")) {
+            if(!(is(container,"guiWidget") || is(container,"gWidgettcltk"))) {
               warning("Container is not correct. No NULL containers possible\n" )
               return()
             }
 
-            tt = getBlock(container)
+            tt = getWidget(container)
             gp = ttkframe(tt)
 
             label = ttklabel(gp, text=text)

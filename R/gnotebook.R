@@ -15,10 +15,17 @@ setMethod(".gnotebook",
             
             force(toolkit)
 
-            tt <- getBlock(container)
+            if(is(container,"logical") && container)
+              container = gwindow()
+            if(!is(container,"guiWidget")) {
+              warning("Container is not correct. No NULL containers possible\n" )
+              return()
+            }
+            
+            tt <- getWidget(container)
             gp <- ttkframe(tt)
             nb <- ttknotebook(gp)
-            tkpack(nb)                  # pack into gp, gp packed during add(.)
+            tkpack(nb, expand=TRUE, fill="both")                  # pack into gp, gp packed during add(.)
             
             ## tabpos
             if(tab.pos !=3)
@@ -138,6 +145,15 @@ setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gNotebooktcltk",
                     value="gWidgettcltk"),
           function(obj, toolkit, value,  ...) {
+
+            ## add parent, children
+            childComponents <- obj@e$childComponents
+            if(is.null(childComponents))
+              childComponents <- list()
+            obj@e$childComponents <- c(childComponents, value)
+            value@e$parentContainer <- obj
+
+
             ## in ... we have many possibilies
             ## label -- for setting label  (also look for name)
             ## index for setting the index of page to add
@@ -162,22 +178,23 @@ setMethod(".add",
             index = if (is.null(theArgs$index)) NULL else theArgs$index
             if(!is.null(theArgs$pageno)) index = theArgs$pageno # also called paegno
             markup = if (is.null(theArgs$markup)) FALSE  else theArgs$markup
+
             override.closebutton =
               if (is.null(theArgs$override.closebutton))
                 FALSE
               else
                 as.logical(theArgs$override.closebutton)
 
+
             packingOptions = list()
-            packingOptions$anchor = if(is.null(theArgs$anchor))
-              c(0,0)
+            packingOptions$sticky = if(is.null(theArgs$anchor))
+              "nw"
             else
-              theArgs$anchor
+              xyToAnchor(theArgs$anchor)         
             
-            if(!is.null(theArgs$expand) && theArgs$expand) {
-              packingOptions$expand = TRUE
-              packingOptions$fill = "both"
-            }
+            if(!is.null(theArgs$expand) && theArgs$expand) 
+              packingOptions$sticky="news"
+
             
             ## label -- a string in tcltk
             if(!is.character(label))
@@ -205,18 +222,20 @@ setMethod(".add",
 
 
             ##
+            if(doCloseButton) {
+              packingOptions$image=closeb
+              packageOptions$compount = "right"
+            }
+            
             if(is.null(index)) {
-              if(doCloseButton)
-                tcl(nb,"add", widget, text=label,
-                    image=closeb, compound="right")
-              else
-                tcl(nb,"add", widget, text=label)
+              f <- function(...)
+                tcl(nb,"add", widget, text=label,...)
+              do.call(f,packingOptions)
             } else {
               if(doCloseButton)
-                tcl(nb,"insert",index-1, widget, text=label,
-                    image=closeb, compound="right")
-              else
-                tcl(nb,"add",index-1, widget, text=label)
+                f <- function(...) 
+                  tcl(nb,"add",index-1, widget, text=label,...)
+              do.call(f,packingOptions)
             }
           })
             

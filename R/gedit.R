@@ -39,7 +39,7 @@ setMethod(".gedit",
               }
             }
 
-           tt = getBlock(container)
+           tt = getWidget(container)
            gp = ttkframe(tt)
 
            entryValue = tclVar(text)

@@ -72,7 +72,7 @@ be used to move a value left or right. The default is c(-1,1) so that
 horizontal layouts are towards the top, and vertical layouts towards the
 left.
 
-The \code{use.scrollwindows} feature is lacking.
+The \code{use.scrollwindows} feature is now implemented.
 
 The \code{addSpring} method is not working as desired.
 \cr

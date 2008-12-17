@@ -31,13 +31,13 @@ setMethod(".gpanedgroup",
               orient = "vertical"
             
             
-            tt <- getBlock(container)
+            tt <- getWidget(container)
             ##            pg <- tkwidget(tt,"panedwindow", orient=orient)
             pg <- ttkpanedwindow(tt, orient=orient)
             tkpack(pg, expand=TRUE, fill="both")
             
             
-            ## make object -- not block is pg so that add works correctly
+            ## make object -- note block is pg so that add works correctly
             ## as it calls getBlock(container)
             obj = new("gPanedgrouptcltk", block=pg, widget=pg,
               toolkit=toolkit,ID=getNewID(), e = new.env())
@@ -56,6 +56,12 @@ setMethod(".gpanedgroup",
 setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gPanedgrouptcltk", value="gWidgettcltk"),
           function(obj, toolkit, value, ...) {
+            ## add parent, children
+            childComponents <- obj@e$childComponents
+            if(is.null(childComponents))
+              childComponents <- list()
+            obj@e$childComponents <- c(childComponents, value)
+            value@e$parentContainer <- obj
 
             theArgs = list(...)
 #            argList = list(getWidget(obj),"add",getBlock(value))

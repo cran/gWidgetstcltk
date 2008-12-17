@@ -34,7 +34,7 @@ setMethod(".gbutton",
               return()
             }
 
-            tt = getBlock(container)
+            tt = getWidget(container)
             gp = ttkframe(tt)
             
             gWidgetstcltkIcons = getStockIcons()

@@ -24,8 +24,8 @@ setClass("gWindowtcltk",
          )
 
 setClass("gNotebooktcltk",
-         representation = representation("gComponenttcltk",
+         representation = representation("gContainertcltk",
            closebuttons="logical",
            dontCloseThese="numeric"),
-         contains="gComponenttcltk"
+         contains="gContainertcltk"
          )

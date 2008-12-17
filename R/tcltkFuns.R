@@ -1,4 +1,5 @@
 ## return tk widget from obj
+## ** This should be a method **
 getWidget = function(obj) {
   if(is(obj,"tkwin")) return(obj)
 
@@ -40,6 +41,7 @@ getTopParent = function(tkobj) {
 setMethod(".getToolkitWidget",
           signature(obj="gWidgettcltk", toolkit="guiWidgetsToolkittcltk"),
           function(obj, toolkit) getWidget(obj))
+
 
 
 

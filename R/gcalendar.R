@@ -25,13 +25,29 @@ setMethod(".gcalendar",
             text = as.character(text)
             
             ## use a text widget
-            if(format == "") {
-              obj = gedit(text, cont=container, ...)
-            } else {
-              obj = gedit(text,container=container, coerce.with = function(x) format(as.Date(x,format=format)),
-                ...)
-            }
+            ## format is ignored -- it sets the text when selected via a GUI, but
+            ## tcltk has not such GUI
+            obj = gedit(text, cont=container, ...)
+
+            theArgs <- list(...)
+            tag(obj,"format") <- format
+            tag(obj,"coerce.with") <- theArgs$coerce.with
+            
             return(obj@widget)          # drop down to tcltk widget
           })
 
-## gcalendar is a gedit instance. It inherits those methods.
+## ## gcalendar is a gedit instance. It inherits those methods.
+## setMethod(".svalue",
+##           signature(toolkit="guiWidgetsToolkittcltk",obj="gCalendartcltk"),
+##           function(obj, toolkit, index=NULL, drop=NULL, ...) {
+##             val = tclvalue(tag(obj,"tclVar"))
+
+##             val <- try(as.Date(val, format=tag(obj,"format")), silent=TRUE)
+##             if(inherits(val,"try-error")) return(NA)
+            
+##             coercewith = tag(obj,"coercewith")
+##             if(!is.null(coercewith))
+##               val = do.call(coercewith, list(val))
+
+##             return(val)
+##           })

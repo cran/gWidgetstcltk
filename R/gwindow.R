@@ -11,6 +11,8 @@ setMethod(".gwindow",
             force(toolkit)
             
             win <- tktoplevel()
+            if(!visible)
+              tkwm.state(win,"withdrawn")
             tktitle(win) <- title
             ## enable autoresizing
             tkwm.geometry(win,"")
@@ -20,19 +22,20 @@ setMethod(".gwindow",
               tkwm.minsize(win, width, height)
             }
 
+            
             ## how to set location???
             location <- parent          # renamed
             if(!is.null(location)) {
               if(is(location,"guiWidget") ||
                  is(location, "gWindowtcltk") ||
                  is(location, "tkwin")) {
-                location <- getWidget(location)
+                location <- getToolkitWidget(location)
                 curgeo <- tclvalue(tkwm.geometry(location))
                 ## widthXheight+xpos+ypos
                 pos <- unlist(strsplit(curgeo, "\\+"))
                 sz <- unlist(strsplit(pos[1],"x"))
                 xpos = as.numeric(pos[2]); ypos=as.numeric(pos[3])
-                tkwm.geometry(win,paste("+",xpos+10,"+",ypos+10,sep="")) # shift
+                tkwm.geometry(win,paste("+",xpos+30,"+",ypos+30,sep="")) # shift
 
                 tkwm.transient(win, location) # set transient
                 tkbind(location,"<Destroy>",function(...) tkdestroy(win))
@@ -41,25 +44,54 @@ setMethod(".gwindow",
               }
 
             }
+
+            ## pack a frame inside for theme issues:
+            ## tkdocs.com:
+
+##             Strictly speaking, we could just put the other parts of
+##             our interface directly into the main root window, without
+##             the intervening content frame. However, the main window
+##             isn't itself part of the "themed" widgets, so its background color wouldn't
+##             match the themed widgets we will put inside it. Using a
+##             "themed" frame widget to hold the content ensures that the
+##             background is correct.
             
-            obj = new("gWindowtcltk",block=win, widget=win, toolkit=toolkit,
+            ## pack in frame for adding to
+            contentPane <- ttkframe(win)
+            tkgrid(contentPane, row=1, column = 0, sticky="nwes")
+            tkgrid.columnconfigure(win, 0, weight = 1)
+            tkgrid.rowconfigure(win, 1, weight = 1)
+
+            ## pack in toolbar
+            tb <- ttkframe(win)
+            tkgrid(tb, row=0, column = 0, sticky = "nswe")
+
+            ## pack in statusbar
+            sb <- ttkframe(win)
+            tkconfigure(sb, borderwidth = 1, relief="sunken")
+            tkgrid(sb, row=2, column = 0, sticky="we")
+            
+            ## debugging code
+            ## just to see the frame
+            ## tkconfigure(contentPane, borderwidth=4, relief="solid")
+            ## tkconfigure(tb, borderwidth=4, relief="solid")
+            
+            obj <- new("gWindowtcltk",block=win, widget=contentPane, toolkit=toolkit,
               ID=getNewID(),e=new.env())
 
-
+            tag(obj,"tb") <- tb
+            tag(obj,"sb") <- sb
             
             
             if (!is.null(handler)) {
               id <- addhandlerdestroy(obj, handler=handler, action=action)
             }
 
-            if(visible)
-              visible(obj) <- visible
-
             return(obj)
           })
 ##################################################
 ## Methods 
-
+## getToolkitWidget returns window -- not frame
 
 
 ## general add
@@ -67,18 +99,9 @@ setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWindowtcltk", value="gWidgettcltk"),
           function(obj, toolkit, value, ...) {
 
-            ## where to put
-            if(!is.null(tag(obj,"toolbar")))
-              tkpack(getBlock(value),
-                     after=tag(obj,"toolbar"),
-                     expand=TRUE, fill="both")
-            else if(!is.null(tag(obj,"statusbar")))
-              tkpack(getBlock(value),
-                     before=tag(obj,"statusbar"),
-                     expand=TRUE, fill="both")
-            else
-              tkpack(getBlock(value),
-                     expand=TRUE, fill="both")
+            ## pack into frame
+            tkpack(getBlock(value),
+                   expand=TRUE, fill="both")
             return(TRUE)
             
             ## adding widget to window means pack
@@ -110,6 +133,10 @@ setMethod(".add",
             do.call("tkgrid", packArgs)
           })
 
+## return window -- not frame
+setMethod(".getToolkitWidget",
+          signature(obj="gWindowtcltk", toolkit="guiWidgetsToolkittcltk"),
+          function(obj, toolkit) obj@block)
 
 ## add toolbar, menubar, statusbar
 ## menubar -- in gmenu
@@ -118,34 +145,40 @@ setMethod(".add",
 setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWindowtcltk", value="gToolbartcltk"),
           function(obj, toolkit, value, ...) {
-            ## put before all others.
-            ## get children, check then put in. XXX
-            ## XXX  -- not working
-            g <- getWidget(obj)
-            slaves <- unlist(strsplit(tclvalue(tkpack("slaves",g))," "))
-            args <- list(getBlock(value),
-                         side="top",anchor="w",expand=FALSE, fill="x")
-            if(length(slaves))
-              args$before = slaves[1]
-            do.call("tkpack",args)
 
-            tag(obj,"toolbar") <- getBlock(value)
+            tkpack(getBlock(value), anchor="w")
+
+            ##             ## put before all others.
+##             ## get children, check then put in. XXX
+##             ## XXX  -- not working
+##             g <- getWidget(obj)
+##             slaves <- unlist(strsplit(tclvalue(tkpack("slaves",g))," "))
+##             args <- list(getBlock(value),
+##                          side="top",anchor="w",expand=FALSE, fill="x")
+##             if(length(slaves))
+##               args$before = slaves[1]
+##             do.call("tkpack",args)
+
+##            tag(obj,"toolbar") <- getBlock(value)
           })
 ## statusbar
 setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWindowtcltk", value="gStatusbartcltk"),
           function(obj, toolkit, value, ...) {
-            ## put after all others
-            ## XXX Get children, put last -- NOT WORKING!!
-            g = getWidget(obj)
-            slaves = unlist(strsplit(tclvalue(tkpack("slaves",g))," "))
-            args <- list(getBlock(value),
-                         side="top",anchor="w",expand=FALSE, fill="x")
-            if(length(slaves))
-              args$after <- slaves[length(slaves)]
-            do.call("tkpack",args)
 
-            tag(obj,"statusbar") <- getBlock(value)
+            tkpack(getBlock(value), anchor="w")
+
+            ##            ## put after all others
+##            ## XXX Get children, put last -- NOT WORKING!!
+##             g = getWidget(obj)
+##             slaves = unlist(strsplit(tclvalue(tkpack("slaves",g))," "))
+##             args <- list(getBlock(value),
+##                          side="top",anchor="w",expand=FALSE, fill="x")
+##             if(length(slaves))
+##               args$after <- slaves[length(slaves)]
+##             do.call("tkpack",args)
+
+##             tag(obj,"statusbar") <- getBlock(value)
             
           })
 
@@ -157,7 +190,7 @@ setMethod(".svalue",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWindowtcltk"),
           function(obj, toolkit, index=NULL, drop=NULL, ..) {
             ## return title
-            val <- tcl("wm","title",getWidget(obj))
+            val <- tcl("wm","title",getBlock(obj))
             tclvalue(val)
           })
 
@@ -165,31 +198,24 @@ setMethod(".svalue<-",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWindowtcltk"),
           function(obj, toolkit, index=NULL,..., value) {
             ## set the title
-            tcl("wm","title",getWidget(obj), as.character(value))
-            return(obj)
-          })
-
-## no visible() method
-setMethod(".visible<-",
-          signature(toolkit="guiWidgetsToolkittcltk",obj="gWindowtcltk"),
-          function(obj, toolkit, ..., value) {
-            value = as.logical(value)
-#            cat("gwindow: implement visible<-\n")
+            tcl("wm","title",getBlock(obj), as.character(value))
             return(obj)
           })
 
 
-setMethod(".size",
+setMethod(".size", 
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWindowtcltk"),
           function(obj, toolkit, ...) {
-            missingMsg(".size,gwindow")
-            return()
+            widget <- getBlock(obj)
+            width <- tclvalue(tkwinfo("width",widget))
+            height <- tclvalue(tkwinfo("height",widget))
+            return(as.numeric(c(width=width, height=height)))
           })
 
 setReplaceMethod(".size",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWindowtcltk"),
           function(obj, toolkit, ...,value) {
-            tkwm.minsize(obj@widget, value[1], value[2])
+            tkwm.minsize(getBlock(obj), value[1], value[2])
             return(obj)
           })
 
@@ -201,6 +227,16 @@ setMethod(".dispose",
             })
           })
 
+setReplaceMethod(".visible",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gWindowtcltk"),
+          function(obj, toolkit, ...,value) {
+            if(as.logical(value))
+              tkwm.state(obj@block,"normal")
+            else
+              tkwm.state(obj@block,"withdrawn")
+            return(obj)
+            })
+          
 
 ##################################################
 ## handlers
@@ -209,7 +245,7 @@ setMethod(".dispose",
 setMethod(".addhandlerunrealize",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWindowtcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
-            win <- getWidget(obj)
+            win <- getBlock(obj)
             h <- list(obj = obj, action=action,...)
             tkwm.protocol(win, "WM_DELETE_WINDOW",
                           function(...) {

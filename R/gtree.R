@@ -66,7 +66,7 @@ setMethod(".gtree",
             if(is.logical(container) && container)
               container <- gwindow(visible=TRUE)
             
-            tt <- getBlock(container)
+            tt <- getWidget(container)
             gp <- ttkframe(tt, width=20*n) # default width
 
             xscr <- ttkscrollbar(gp, orient="horizontal",
@@ -99,10 +99,13 @@ setMethod(".gtree",
             ## see tkFAQ 10.1 -- makes for automatic resizing
             tkgrid.columnconfigure(gp, 0, weight=1)
             tkgrid.rowconfigure(gp, 0, weight=1)
-            tkpack(gp)
+            tkpack(gp, expand=TRUE, fill="both")
 
             
-            
+            ## call in autoscroll
+            tcl("autoscroll", xscr)
+            tcl("autoscroll", yscr)
+
             ## turn on alternating shading if more than 1 column
             ## XXX 
 
@@ -260,7 +263,7 @@ setMethod(".gtree",
     offspring <- hasOffspring(children)
   } else {
     ## if second column is logical, we use that
-    if(is.logical(children[,2])) {
+    if(dim(children)[2] > 2 && is.logical(children[,2])) {
       offspring <- children[,2]
       children <- children[,-2, drop=FALSE]
     } else {

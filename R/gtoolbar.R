@@ -34,21 +34,31 @@ setMethod(".gtoolbar",
                          "text"="text",
                          "both-horiz"="left")
 
-            tt <- getBlock(container)
-            tb <- ttkframe(tt)
 
+            ## container must be a gwindow
+            if(!(is(container,"gWindowtcltk") || is(container@widget,"gWindowtcltk"))) {
+              cat(gettext("gstatusbar: container must be gwindow instance\n"))
+            }
+##            tt <- getBlock(container)
+            tt <- tag(container, "tb")
+            gp <- ttkframe(tt)
+            
+            tb <- ttkframe(gp)
+            tkpack(tb, side="left",anchor="w", expand=TRUE, fill="x")
 
             
             toolbar = ggroup(horizontal=TRUE, cont=container, expand=TRUE)
-            .mapListToToolBar(tb, toolbarlist, tkstyle[style])
 
-            obj = new("gToolbartcltk",block=tb, widget=tb,
+            obj = new("gToolbartcltk",block=gp, widget=tb,
               toolkit=toolkit, ID=getNewID(),e = new.env(),
               style=style)
 
             tag(obj,"toolbarlist") <- toolbarlist
 
             add(container, obj, ...)
+
+            .mapListToToolBar(tb, toolbarlist, tkstyle[style])
+
             invisible(obj)
   
           })
@@ -56,7 +66,7 @@ setMethod(".gtoolbar",
 
 ## helpers
 .addToolbarButton <- function(tb, style, label=NULL, icon=NULL,handler=NULL, action=NULL) {
-
+  cat("nmake button",label,"\n")
   ## get icon
   if(!is.null(icon)) {
     file <- findTkIcon(icon)
@@ -75,12 +85,12 @@ setMethod(".gtoolbar",
     })
   }
 
-  slaves <- tclvalue(tcl("grid","slaves",tb))
-  slaves <- unlist(strsplit(slaves," "))
-  n <- length(slaves)
-  tkgrid(b, row=0, column=n, sticky="ns")
+##   slaves <- tclvalue(tcl("grid","slaves",tb))
+##   slaves <- unlist(strsplit(slaves," "))
+##   n <- length(slaves)
+##   tkgrid(b, row=0, column=n, sticky="ns")
   
-#  tkpack(b, side="left",anchor="w",expand=TRUE,fill="y")
+  tkpack(b, side="left",anchor="w",expand=TRUE,fill="y")
   return(b)
 }
 
@@ -90,6 +100,9 @@ setMethod(".gtoolbar",
   for(i in names(lst)) {
     tmp <- lst[[i]]
     label <- i
+
+    if(.isgSeparator(tmp))
+      tmp <- list(separator=TRUE)
     ## is it a gaction?
     if(.isgAction(tmp)) {
       tmp <- getToolkitWidget(tmp)
