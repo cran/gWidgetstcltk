@@ -57,7 +57,7 @@ setMethod(".gwindow",
 ##             background is correct.
             
             ## pack in frame for adding to
-            contentPane <- ttkframe(win)
+            contentPane <- ttkframe(win, padding=c(3,3,12,12))
             tkgrid(contentPane, row=1, column = 0, sticky="nwes")
             tkgrid.columnconfigure(win, 0, weight = 1)
             tkgrid.rowconfigure(win, 1, weight = 1)

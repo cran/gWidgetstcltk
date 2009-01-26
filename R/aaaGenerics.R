@@ -245,7 +245,8 @@ setMethod(".visible",
           function(obj, toolkit, set=TRUE, ...) {
             widget = obj@widget
 
-            missingMsg(".visible")
+            .visible(obj) <- set
+#            missingMsg(".visible")
             return()
             
             if(as.logical(set))

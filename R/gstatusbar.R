@@ -24,7 +24,7 @@ setMethod(".gstatusbar",
             tt <- tag(container,"sb")
             gp <- ttkframe(tt)
             
-            sb <- tklabel(gp, text=text)
+            sb <- ttklabel(gp, text=text)
 #            tkgrid(sb, row=0,column=0, sticky="w")
             tkpack(sb, side="left",anchor="w", expand=TRUE, fill="x")
             
