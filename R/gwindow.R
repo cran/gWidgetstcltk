@@ -79,6 +79,7 @@ setMethod(".gwindow",
             obj <- new("gWindowtcltk",block=win, widget=contentPane, toolkit=toolkit,
               ID=getNewID(),e=new.env())
 
+            obj@e$parentContainer <- NULL
             tag(obj,"tb") <- tb
             tag(obj,"sb") <- sb
             
@@ -99,11 +100,20 @@ setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWindowtcltk", value="gWidgettcltk"),
           function(obj, toolkit, value, ...) {
 
+            ## add parent, children
+            childComponents <- obj@e$childComponents
+            if(is.null(childComponents))
+              childComponents <- list()
+            obj@e$childComponents <- c(childComponents, value)
+            value@e$parentContainer <- obj
+
+            
             ## pack into frame
             tkpack(getBlock(value),
                    expand=TRUE, fill="both")
             return(TRUE)
-            
+
+            ## --- IGNORED --
             ## adding widget to window means pack
             theArgs = list(...)
             packArgs = list(getBlock(value))

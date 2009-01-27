@@ -143,7 +143,10 @@ setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk",
                     obj="gContainertcltk", value="gMenutcltk"),
           function(obj, toolkit,  value, ...) {
-            tkconfigure(getWidget(obj), menu=getBlock(value))
+            cont <- getBlock(obj)
+            toplevel <- tkwinfo("toplevel", cont)
+            tkconfigure(toplevel, menu=getBlock(value))
+            ## tkconfigure(cont, menu=getBlock(value))
           })
 
 

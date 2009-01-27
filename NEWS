@@ -2,6 +2,11 @@ Dear Emacs, please make this -*-Text-*- mode!
 
 NEWS for gWidgetstcltk
 
+Changes for  0.0-24
+-------------------
+
+* fix to gmenu to get working with gbasicdialog
+
 Changes for  0.0-23
 -------------------
 

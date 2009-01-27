@@ -37,6 +37,15 @@ getTopParent = function(tkobj) {
   return(ans)
 }
 
+getTopLevel <- function(obj) {
+  if(is(obj, "guiWidget")) {
+    return(getTopLevel(obj@widget))
+  } else if(!is.null(obj@e$parentContainer)) {
+    return(getTopLevel(obj@e$parentContainer)) 
+  } else {
+    return(obj)
+  }
+}
 
 setMethod(".getToolkitWidget",
           signature(obj="gWidgettcltk", toolkit="guiWidgetsToolkittcltk"),
