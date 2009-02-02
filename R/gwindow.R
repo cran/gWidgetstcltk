@@ -9,18 +9,18 @@ setMethod(".gwindow",
                    ) {
 
             force(toolkit)
-            
+
+            ## don't draw until asked
+            tclServiceMode(FALSE)
+
             win <- tktoplevel()
-            if(!visible)
-              tkwm.state(win,"withdrawn")
             tktitle(win) <- title
+            tkwm.state(win,"withdrawn") # was at beginneing
+            tclServiceMode(TRUE)
+            
             ## enable autoresizing
             tkwm.geometry(win,"")
-            ## set default size? only minsize here
-            if(!is.null(width)) {
-              if(is.null(height)) height = .7*width
-              tkwm.minsize(win, width, height)
-            }
+
 
             
             ## how to set location???
@@ -75,6 +75,15 @@ setMethod(".gwindow",
             ## just to see the frame
             ## tkconfigure(contentPane, borderwidth=4, relief="solid")
             ## tkconfigure(tb, borderwidth=4, relief="solid")
+
+            ## size the frame object
+            ## set default size? only minsize here
+            if(!is.null(width)) {
+              if(is.null(height)) height = .7*width
+              tkconfigure(contentPane, width=as.integer(width), height=as.integer(height))
+              tkgrid.propagate(contentPane,FALSE) ## make frame size carry forward
+            }
+
             
             obj <- new("gWindowtcltk",block=win, widget=contentPane, toolkit=toolkit,
               ID=getNewID(),e=new.env())
@@ -86,6 +95,10 @@ setMethod(".gwindow",
             
             if (!is.null(handler)) {
               id <- addhandlerdestroy(obj, handler=handler, action=action)
+            }
+
+            if(visible) {
+              tkwm.state(win,"normal")
             }
 
             return(obj)
@@ -240,10 +253,11 @@ setMethod(".dispose",
 setReplaceMethod(".visible",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWindowtcltk"),
           function(obj, toolkit, ...,value) {
-            if(as.logical(value))
+            if(as.logical(value)) {
               tkwm.state(obj@block,"normal")
-            else
+            } else {
               tkwm.state(obj@block,"withdrawn")
+            }
             return(obj)
             })
           

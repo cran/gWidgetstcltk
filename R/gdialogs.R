@@ -263,7 +263,7 @@ setMethod(".gbasicdialog",
 
 ## with no paret
 setClass("gBasicDialogNoParenttcltk",
-         contains="gContainertcltk",
+         contains="gWindowtcltk",
          prototype=prototype(new("gContainertcltk"))
          )
 
@@ -295,6 +295,13 @@ setMethod(".gbasicdialognoparent",
             return(obj) 
           })
 
+## setReplaceMethod(".size",
+##          signature(toolkit="guiWidgetsToolkittcltk",
+##                    obj="gBasicDialogNoParenttcltk"),
+##          function(obj, toolkit, ...,value) {
+##            tkwm.minsize(getBlock(obj), value[1], value[2])
+##            return(obj)
+##          })
 
 setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk",

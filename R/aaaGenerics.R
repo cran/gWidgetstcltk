@@ -190,6 +190,7 @@ setReplaceMethod(".size",
                      tkconfigure(getWidget(obj), width=width, height=height)
                    else
                      tkconfigure(getWidget(obj), width=width)
+
                    return(obj)
                  })
 
