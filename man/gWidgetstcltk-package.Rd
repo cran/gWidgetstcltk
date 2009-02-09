@@ -137,8 +137,7 @@ the possible space for a widget, even if \code{expand=TRUE} is given.
 \code{gcheckboxgroup()} works as advertised
 \cr
 
-\code{gdf()} is not implemented. There is no underlying grid widget in
-the base tcltk.
+\code{gdf()} is implemented if the user has installed the \code{tktable} package in Tcl. This is an additional download from \url{tktable.sourceforge.net}.
 \cr
 
 \code{gdroplist()} Works as expected. 
@@ -172,7 +171,7 @@ tcltk widget only uses these by default.
 \code{gmenu()} adds only to the top window, not any container. This is a tcltk
 limitation. Use a popupmenu instead. 
 
-For some reason, gmenu does not work under Mac OS X (for me). Your mileage may vary.
+Under Mac OS X, menus display in the top menu bar area, not in the parent window.
 \cr
 
 \code{gtoolbar()} A hack made from a \code{ggroup} object that packs in \code{gbutton} instances. The buttons take up alot of screen real estate, on the default Aqua them of OS X the buttons are rounded, so the toolbar looks odd, ... 
@@ -255,7 +254,7 @@ workspace. Does not poll to update workspace. It does reread workspace
 when Filter by: value is changed.
 \cr
 
-\bold{Dialogs:} (These are modal, hence they have no methods.)
+\bold{Dialogs:} (These are modal, hence they have no methods (basically).)
 \cr
 \code{gfile()} works as advertised.
 \cr
@@ -269,8 +268,7 @@ when Filter by: value is changed.
 \code{ginput()} works.
 \cr 
 
-\code{gdialog()} Not implemented, as the widget needs to have a parent
-container.
+\code{gdialog()} is implemented. It it is a container. When the \code{visible(obj,TRUE)} command is issued, the container is shown and made modal.
 \cr
 
 
@@ -317,6 +315,8 @@ Maintainer: John Verzani <gwidgetsrgtk@gmail.com>
   Alexander, and Bowman's \pkg{rpanel} package:
   \url{http://www.jstatsoft.org/v17/i09/v17i09.pdf} or the \pkg{tkWidgets}
   package of Zhang \url{www.bioconductor.org}.
+
+  The \pkg{fgui} package provides a similar functionality as \code{ggenericwidget} in a standalone package.
   
 }
 \keyword{ package }

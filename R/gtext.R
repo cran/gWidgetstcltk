@@ -74,7 +74,8 @@ setMethod(".gtext",
             }
 
             ## set height if requested
-            if(!is.null(width)) 
+            if(!is.null(width))
+              ## width height in terms of characters
               size(obj) <- c(width,height)
             
 ##            adddropsource(obj)

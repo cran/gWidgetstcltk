@@ -46,6 +46,9 @@ tcltkDialog = function(
   tkfocus(dlg)
   tkwm.title(dlg,title)
 
+  dlgframe <- ttkframe(dlg, padding=c(3,3,12,12))
+  tkpack(dlgframe, expand=TRUE, fill=FALSE)
+                       
 
    
   ## set up icon
@@ -59,13 +62,13 @@ tcltkDialog = function(
     )
   imageID = paste("gdialogs",as.character(runif(1)),sep="")
   tcl("image","create","photo",imageID,file=iconFile)  
-  icon = ttklabel(dlg,image=imageID)
+  icon = ttklabel(dlgframe,image=imageID)
   tkgrid(icon,row=0,column=0)
 
   ## set up label
   if(missing(message) || is.null(message))
     message <- ""
-  l <- ttklabel(dlg, text = as.character(message))
+  l <- ttklabel(dlgframe, text = as.character(message))
   tkgrid(l, row=0, column = 1, stick ="nw", padx=25, pady=5)
 
 
@@ -74,7 +77,7 @@ tcltkDialog = function(
   if(type == "input") {
     textEntryVarTcl <- tclVar(text)
     textEntryWidget <-
-      ttkentry(dlg,
+      ttkentry(dlgframe,
               width=max(25,as.integer(1.3*nchar(text))),
               textvariable=textEntryVarTcl)
     tkgrid(textEntryWidget,row = 1, column=1,stick="nw", padx=5,pady=5)
@@ -143,6 +146,17 @@ setMethod(".gmessage",
                    ...
                    ) {
 
+            icon = match.arg(icon)
+            l <- list(icon=icon,
+                      message=gettext(message),
+                      title = title,
+                      type="ok")
+            if(!is.null(parent))
+              l$parent <- getWidget(parent)
+            out <- do.call("tkmessageBox",l)
+            return(out)
+            
+            ## old
             return(tcltkDialog(
                                message,
                                title=title,
@@ -177,7 +191,20 @@ setMethod(".gconfirm",
                    action = NULL,
                    ...
                    ) {
-            
+            icon = match.arg(icon)
+            l <- list(icon=icon,
+                      message=gettext(message),
+                      title = title,
+                      type="yesno")
+            if(!is.null(parent))
+              l$parent <- getWidget(parent)
+            out <- do.call("tkmessageBox",l)
+            val <- switch(as.character(out),
+                          "yes"=TRUE,
+                          "no" = FALSE,
+                          FALSE)
+            return(val)
+
             return(tcltkDialog(
                                message,
                                title=title,
@@ -243,6 +270,7 @@ setMethod(".ginput",
           })
 
 ## add a widget to the dialog. This is modal
+## see next one for one that gets called here
 setMethod(".gbasicdialog",
           signature(toolkit="guiWidgetsToolkittcltk"),
           function(toolkit,
@@ -253,12 +281,8 @@ setMethod(".gbasicdialog",
                    action = NULL,
                    ...
                    ) {
-
             cat(gettext("gbasiddialog isn't implemented in tcltk"),"\n")
             return()
-
-            
-            icon = match.arg(icon)
           })
 
 ## with no paret
@@ -277,7 +301,7 @@ setMethod(".gbasicdialognoparent",
                    ...
                    ) {
             
-            dlg = gwindow(title, parent=parent, visible=FALSE)
+            dlg <- gwindow(title, parent=parent, visible=FALSE)
             tt <- dlg@widget@widget
             
             g = ggroup(cont = dlg, horizontal=FALSE, expand=TRUE)
@@ -295,13 +319,6 @@ setMethod(".gbasicdialognoparent",
             return(obj) 
           })
 
-## setReplaceMethod(".size",
-##          signature(toolkit="guiWidgetsToolkittcltk",
-##                    obj="gBasicDialogNoParenttcltk"),
-##          function(obj, toolkit, ...,value) {
-##            tkwm.minsize(getBlock(obj), value[1], value[2])
-##            return(obj)
-##          })
 
 setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk",

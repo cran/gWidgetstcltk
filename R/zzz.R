@@ -14,6 +14,8 @@
     setIs(i,"tcltkObject")
   })
 
+  ## some configuration
+  .Tcl("option add *tearOff 0")         # disable tearoff menus
 
   ## load in tcl packages
   tcl("source",system.file("tcl","autoscroll.tcl",package="gWidgetstcltk"))

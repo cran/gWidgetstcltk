@@ -2,6 +2,14 @@ Dear Emacs, please make this -*-Text-*- mode!
 
 NEWS for gWidgetstcltk
 
+Changes for  0.0-26
+-------------------
+
+* added gdf() constructor if user has tktable package installed for
+  tcl
+
+* fixes to gmessasge gconfirm to use tkmessagebox
+
 Changes for  0.0-25
 -------------------
 

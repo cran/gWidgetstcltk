@@ -26,7 +26,7 @@ setMethod(".gbutton",
               compound = theArgs$compound
 
             
-
+            
             if(is(container,"logical") && container)
               container = gwindow()
             if(!is(container,"guiWidget")) {
