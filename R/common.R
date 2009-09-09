@@ -2,8 +2,8 @@
 #Paste = function(x,...) paste(x,...,sep="",collapse="")
 
 ## CONSTANTS
-widthOfChar <- 6                        # pixels per char for a letter
-heightOfChar <- 15                      # heighto f a character in pixels
+widthOfChar <- ceiling(as.numeric(tclvalue(tcl("font","measure","TkTextFont","0123456789")))/10)
+heightOfChar <-  as.numeric(as.character(tcl("font","metrics","TkTextFont"))[6])
 xyToAnchor = function(anchor) {
   m = rbind(
     c("nw","n","ne"),
@@ -14,7 +14,9 @@ xyToAnchor = function(anchor) {
   return(anchor)
 }
 
-
+isMac <- function() {
+  as.character(tcl("tk","windowingsystem")) == "aqua"
+}
 DEBUG = function(...) {
   if(0)
     cat(paste(...,sep=" ",collapse=" "),"\n")
@@ -437,7 +439,76 @@ Timestamp = function(obj,k=1) {
 ## functions to deal with icons
 ## class to icon translation -- return stock name
 ## with prefix
+
+## This is called on package load
+## no chance that icons aren't yet there
+tcltkStockIcons <- list()
+assignInNamespace("tcltkStockIcons", list(), ns="gWidgetstcltk")
+
+## return string for tk functions based on stock icon nmae
+## eg: findIcon("quit") -> "::stockicon::quit.gif" else ""
+findIcon <- function(stockname) {
+  tcltkStockIcons <- getStockIcons()
+  if(!is.null(tcltkStockIcons[[stockname, exact=TRUE]])) {
+    iconName <- paste("::stockicon::", stockname, sep="")
+    return(iconName)
+  } else {
+    return("")
+  }
+}
+  
+
+loadGWidgetIcons <- function() {
+  tcltkStockIcons <- getFromNamespace("tcltkStockIcons", ns="gWidgetstcltk")
+  dir <- system.file("images", package = "gWidgets")
+  x <- list.files(dir, pattern="gif$", full.names=TRUE)
+  nms <- basename(x)
+  nms <- gsub("\\.gif$","",nms)
+  sapply(1:length(x), function(i) {
+    iconName <- paste("::stockicon::",nms[i], sep="")
+    out <- try(tcl("image","create","photo",
+        iconName,
+        file=x[i]), silent=TRUE)
+    if(!inherits(out,"try-error"))
+      tcltkStockIcons[[nms[i]]] <<- x[i]
+  })
+ assignInNamespace("tcltkStockIcons", tcltkStockIcons, ns="gWidgetstcltk") 
+}
+
 allIcons = getStockIcons()
+
+
+## find the stock icons. This includes those added bia loadGWidgetIcons()
+setMethod(".getStockIcons",
+          signature(toolkit="guiWidgetsToolkittcltk"),
+          function(toolkit) {
+            getFromNamespace("tcltkStockIcons", ns="gWidgetstcltk")
+          })
+
+## add stock icons from files
+setMethod(".addStockIcons",
+          signature(toolkit="guiWidgetsToolkittcltk"),
+          function(toolkit, iconNames, iconFiles, ...) {
+            .addToStockIcons(iconNames, iconFiles)
+          })
+
+.addToStockIcons <- function(iconNames, iconFiles) {
+  ## for each: check if there, create, add to hash, store hash
+  tcltkStockIcons <- getStockIcons()
+  m <- cbind(iconNames, iconFiles)
+  for(i in 1:nrow(m)) {
+    if(!is.null(tcltkStockIcons[[i, exact=TRUE]])) {
+      iconName <- paste("::stockicon::",m[i,1], sep="")
+      out <- try(tcl("image","create","photo",
+                     iconName,
+                     file=m[i,2]), silent=TRUE)
+      if(!inherits(out, "try-error"))
+        tcltkStockIcons[[m[i,1]]] <- m[i,2]
+    }
+  }
+  assignInNamespace("tcltkStockIcons", tcltkStockIcons, ns="gWidgetstcltk") 
+}
+
 getStockIconName = function(name) allIcons[[name,exact=TRUE]]
 ## stockIconFromClass = function(theClass=NULL) {
 ##   default = "symbol_star"

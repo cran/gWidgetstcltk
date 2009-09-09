@@ -30,7 +30,7 @@ setMethod(".gframe",
               labAnchor = "ne"
 
             
-            theArgs = list(...)
+            theArgs <- list(...)
 
             if(is(container,"logical") && container)
               container = gwindow()
@@ -39,12 +39,15 @@ setMethod(".gframe",
               return()
             }
 
-            tt = getWidget(container)
-#            f = tkwidget(tt, "labelframe", text=text, labelanchor=labAnchor)
-            f = tkwidget(tt, "ttk::labelframe", text=text, labelanchor=labAnchor)
+            tt <- getWidget(container)
+            f <- tkwidget(tt, "ttk::labelframe", text=text, labelanchor=labAnchor)
 
             ## put in some padding. Adjust with svalue
-            tcl(f,"configure","padding"=5)
+            if(!is.null(theArgs$spacing))
+              padding <- theArgs$spacing
+            else
+              padding <- 5
+            tcl(f,"configure","padding"=padding)
 
             
             ## handle expand and anchor arguments for packing frame

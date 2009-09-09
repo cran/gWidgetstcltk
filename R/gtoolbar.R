@@ -36,8 +36,10 @@ setMethod(".gtoolbar",
 
 
             ## container must be a gwindow
+            container <- getTopLevel(container)
+            
             if(!(is(container,"gWindowtcltk") || is(container@widget,"gWindowtcltk"))) {
-              cat(gettext("gstatusbar: container must be gwindow instance\n"))
+              cat(gettext("gtoolbar: container must be gwindow instance\n"))
             }
 ##            tt <- getBlock(container)
             tt <- tag(container, "tb")
@@ -66,16 +68,15 @@ setMethod(".gtoolbar",
 
 ## helpers
 .addToolbarButton <- function(tb, style, label=NULL, icon=NULL,handler=NULL, action=NULL) {
-  cat("nmake button",label,"\n")
   ## get icon
   if(!is.null(icon)) {
     file <- findTkIcon(icon)
     icon <- tcl("image","create","photo",file=file)
+    ## make a button with icon
+    b <- ttkbutton(tb, image=icon, text=label, compound=style)
+  } else {
+    b <- ttkbutton(tb, text=label)
   }
-  
-  ## make a button put in icon if there
-  b <- ttkbutton(tb, image=icon, text=label, compound=style)
-
   ## add in handler
   handler = force(handler)              # need to force so scoping works in this call
   if(!is.null(handler)) {

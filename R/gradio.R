@@ -216,6 +216,22 @@ setMethod(".length",
             length(tag(x,"items"))
           })
 
+## inherited enabled isn't workgin                
+setReplaceMethod(".enabled",
+                 signature(toolkit="guiWidgetsToolkittcltk",obj="gRadiotcltk"),
+                 function(obj, toolkit, ..., value) {
+
+                   theRbs <- tag(obj,"theRBs")
+                   sapply(theRbs, function(i) {
+                     if(as.logical(value))
+                       tcl(i,"state","!disabled")
+                     else
+                       tcl(i,"state","disabled")
+                   })
+                   return(obj)
+                 })
+
+
 ##################################################
 ## handlers
 

@@ -22,6 +22,8 @@
   tclRequire("autoscroll")
   tcl("namespace","import","::autoscroll::autoscroll")
 
+  ## genearte stock icons
+  loadGWidgetIcons()
 }
          
 

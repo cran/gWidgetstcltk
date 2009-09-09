@@ -22,7 +22,9 @@ tcltkDialog = function(
 
   ## top level widnow
   dlg <- tktoplevel()
-
+  f <- ttkframe(dlg, padding=3)
+  tkpack(f, expand=TRUE, fill="both")
+  
   if(!is.null(parent)) {
     parent <- getBlock(parent) ## needs to be top level window
     parent <- getTopParent(parent)
@@ -45,13 +47,15 @@ tcltkDialog = function(
 #  tkgrab.set(dlg) ## was giving errors
   tkfocus(dlg)
   tkwm.title(dlg,title)
+  tkwm.resizable(dlg, FALSE, FALSE)
 
-  dlgframe <- ttkframe(dlg, padding=c(3,3,12,12))
-  tkpack(dlgframe, expand=TRUE, fill=FALSE)
+  dlgframe <- ttkframe(f, padding=3)
+  tkpack(dlgframe, expand=TRUE, fill="both")
                        
 
    
   ## set up icon
+  ## These are stupid icons!!!
   icon = match.arg(icon)
   allIcons = getStockIcons()
   iconFile = switch(icon,
@@ -109,17 +113,17 @@ tcltkDialog = function(
     tkdestroy(dlg)
   }
   
-  gp <- ttkframe(dlg)
-  OK.but     <-ttkbutton(gp,text="   OK   ",command=onOK)
+  gp <- ttkframe(f)
+  OK.but     <-ttkbutton(gp,text="   OK   ",command=onOK, state="active")
   Cancel.but <-ttkbutton(gp,text=" Cancel ",command=onCancel)
-  
-  tkgrid(gp, column=1,padx=5,pady=5)
-  tkpack(OK.but,side="left")
+
+  tkpack(gp, fill="y")
   if(type == "confirm" || type == "input")
     tkpack(Cancel.but,side="left")
+  tkpack(OK.but,side="left")
   
   
-  tkfocus(dlg)
+  tkfocus(OK.but)
   tkbind(dlg, "<Destroy>", function() {
     tkgrab.release(dlg)
   })

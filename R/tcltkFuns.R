@@ -99,3 +99,5 @@ addScrollbarsToWidget <- function(widget, parent) {
   tkgrid.columnconfigure(parent, 0, weight=1)
   tkgrid.rowconfigure(parent, 0, weight=1)
 }
+
+

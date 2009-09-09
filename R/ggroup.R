@@ -81,6 +81,8 @@ setMethod(".ggroup",
               block <- gp
               widget <- NULL      # for later
             }
+
+            tkconfigure(gp, padding=spacing)
             
 
             if(!is.null(theArgs$debug))
@@ -89,6 +91,7 @@ setMethod(".ggroup",
             obj = new("gGrouptcltk",block=block, widget=gp, horizontal=horizontal,
               e = new.env())
 
+            
             ## to move widget when scrolling
             ## if(!is.null(widget <- tag(value,"scrollable.widget"))) {
             ##  tkxview.moveto(widget,1)
@@ -103,6 +106,10 @@ setMethod(".ggroup",
 
             ## raise if we drag across
             if(!is.null(theArgs$raise.on.dragmotion)) {
+#              tkbind(gp, "<Motion>", function(W) {
+#                tkfocus(W)
+#              })
+                     
             }
             return(obj)
           })

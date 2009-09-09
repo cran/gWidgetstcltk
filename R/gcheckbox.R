@@ -47,9 +47,8 @@ setMethod(".gcheckbox",
             ## add to container
             add(container, obj,...)
             
-            if (!is.null(handler)) {
-              id = addhandlerchanged(obj, handler, action=action)
-            }
+            if (!is.null(handler)) 
+              obj@e$handlerID <- addhandlerchanged(obj, handler, action=action)
   
             invisible(obj)
           })
@@ -98,6 +97,22 @@ setReplaceMethod("[",
                  function(x, i, j,..., value) {
                    .leftBracket(x, x@toolkit, i, j, ...) <- value
                    return(x)
+                 })
+
+## inherited enabled isn't workgin                
+setReplaceMethod(".enabled",
+                 signature(toolkit="guiWidgetsToolkittcltk",obj="gCheckboxtcltk"),
+                 function(obj, toolkit, ..., value) {
+
+                   ## change both widget and label
+                   sapply(list(tag(obj,"check"), tag(obj,"label")), function(i) {
+                   if(as.logical(value))
+                     tcl(i,"state","!disabled")
+                   else
+                     tcl(i,"state","disabled")
+                 })
+                   
+                   return(obj)
                  })
 
 ### no method to change the value of text???

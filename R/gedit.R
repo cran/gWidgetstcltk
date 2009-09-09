@@ -40,29 +40,45 @@ setMethod(".gedit",
             }
 
            tt = getWidget(container)
-           gp = ttkframe(tt)
 
            entryValue = tclVar(text)
-           entry = ttkentry(gp,width=as.character(width),
-             textvariable = entryValue)
+           entry = ttkentry(tt, width=as.character(width),
+             textvariable=entryValue)
            tkgrid(entry)
            
-            obj = new("gEdittcltk",block=gp, widget=entry,
-              toolkit=toolkit,ID=getNewID(),e = new.env(),
+            obj <- new("gEdittcltk",block=entry, widget=entry,
+              toolkit=toolkit,ID=getNewID(), e = new.env(),
               coercewith=coerce.with)
+
            tag(obj,"tclVar") <- entryValue
+           tag(obj,"typeAhead") <- c()
+
+           ## type ahead support
+           tkbind(entry, "<KeyRelease>", function(W, K) {
+             if(K == "BackSpace")
+               return()
+             eVar <- tag(obj,"tclVar")
+             x <- obj[]
+             cur <- tclvalue(eVar)
+             ind <- which(cur == substr(x, 1, nchar(cur)))
+             if(length(ind) == 1) {
+               ## replace
+               tclvalue(eVar) <- x[ind]
+               ## set selection
+               tcl(W,"selection","range", nchar(cur), nchar(x[ind]))
+             }
+           })
            
 
            ## Drag and drop
            ## addDropSource(obj)
            ## addDropTarget(obj)
            
-           ## add to container@widget@block
            add(container, obj,...)
            
-            if (!is.null(handler)) {
-              id = addhandlerchanged(obj,handler,action)
-            }
+            if (!is.null(handler)) 
+              tag(obj, "handler.id") <- addhandlerchanged(obj,handler,action)
+           
            
            invisible(obj)
             
@@ -96,19 +112,31 @@ setReplaceMethod(".svalue",
 setMethod(".leftBracket",
           signature(toolkit="guiWidgetsToolkittcltk",x="gEdittcltk"),
           function(x, toolkit, i, j, ..., drop=TRUE) {
-            gwCat(gettext("gedit: completion is not implemented\n"))
+            vals <- tag(x, "typeAhead")
+            if(missing(i))
+              vals
+            else
+              vals[i]
           })
             
 setMethod("[",
           signature(x="gEdittcltk"),
           function(x, i, j, ..., drop=TRUE) {
-            gwCat(gettext("gedit: completion is not implemented\n"))
+            if(missing(i))
+              .leftBracket(x,x@toolkit, ...)
+            else
+              .leftBracket(x,x@toolkit, i, ...)
           })
 
 setReplaceMethod(".leftBracket",
           signature(toolkit="guiWidgetsToolkittcltk",x="gEdittcltk"),
           function(x, toolkit, i, j, ..., value) {
-            gwCat(gettext("gedit: completion is not implemented\n"))
+            vals <- tag(x, "typeAhead")
+            if(missing(i))
+              vals <- value
+            else
+              vals[i] <- value
+            tag(x, "typeAhead") <- vals
             return(x)
           })
 

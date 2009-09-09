@@ -15,7 +15,8 @@ setMethod(".gslider",
                    container=NULL, ...) {
             force(toolkit)
 
-            ## JSlider is integer only (as far as I can tell
+
+            
             ## if by < 1, call gspinbutton
             if(by < .99) {
               cat(gettext("gslider in tcltk is integer only, using gspinbutton instead\n"))
@@ -84,6 +85,49 @@ setReplaceMethod(".svalue",
                    tclvalue(tag(obj,"tclVar")) <- as.character(value)
                    return(obj)
                  })
+
+
+
+## Method to replace values of spin button
+setReplaceMethod("[",
+                 signature(x="gSlidertcltk"),
+                 function(x, i, j,..., value) {
+                   .leftBracket(x, x@toolkit, i, j, ...) <- value
+                   return(x)
+                 })
+
+setReplaceMethod(".leftBracket",
+          signature(toolkit="guiWidgetsToolkittcltk",x="gSlidertcltk"),
+          function(x, toolkit, i, j, ..., value) {
+            obj <- x
+            widget <- getWidget(obj)
+
+            ## check that value is a regular sequence
+            if(length(value) <=1) {
+              warning("Can only assign a vector with equal steps, as produced by seq")
+              return(obj)
+            }
+            if(length(value) > 2 &&
+               !all.equal(diff(diff(value)), rep(0, length(value) - 2))) {
+              warning("Can only assign a vector with equal steps, as produced by seq")
+              return(obj)
+            }
+            ## get current value, increment
+            curValue <- svalue(obj)
+            inc <- head(diff(value), n=1)
+            tol <- sqrt(.Machine$double.eps) * 10
+            if(!all.equal(inc, as.integer(inc + tol))) {
+              warning("Increment must be an integer")
+            }
+            tkconfigure(widget, from=min(value), to =max(value), resolution=inc)
+            tcl(widget,"set", curValue)
+
+            ## all done
+            return(obj)
+          })
+
+
+
 
 
 ### handlers

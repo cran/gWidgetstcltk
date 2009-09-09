@@ -105,7 +105,7 @@ setMethod(".delete",
 setMethod(".svalue",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gPanedgrouptcltk"),
           function(obj, toolkit, index=NULL, drop=NULL, ...) {
-            sashpos <- tclvalue(tcl(getWidget(obj),"sashpos",0))
+            sashpos <- as.numeric(tclvalue(tcl(getWidget(obj),"sashpos",0)))
             theSize <- size(obj)
             
             if(tag(obj,"horizontal"))

@@ -80,7 +80,7 @@ setReplaceMethod(".leftBracket",
           function(x, toolkit, i, j, ..., value) {
             ## check that all is good
             if(is.character(value)) {
-              value = ttklabel(getWidget(x),text=value)
+              value <- glabel(value, cont = x)
             }
 
             spacing <- tag(x,"spacing")

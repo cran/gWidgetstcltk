@@ -1,7 +1,9 @@
 ## TODO:
 ## * issue with 1 col, space in values
 ## * use colnames to decide width
-## 
+##
+## NEED to make icons use #0 column, start with column 1 for others
+## adjust
 
 ## table for selecting values from a data frame
 ## uses tree to show table
@@ -36,7 +38,7 @@ setClass("gTabletcltk",
   if(missing(width)) width <- 7
   format(as.character(x), justify="centre", width=width)
 }
-.toCharacter.data.frame <- function(x,width,....) {
+.toCharacter.data.frame <- function(x,width,...) {
   nms <- names(x)
   df <- as.data.frame(lapply(x,function(i) .toCharacter(i)),
                       stringsAsFactors=FALSE)
@@ -64,31 +66,29 @@ setClass("gTabletcltk",
 
     
     
-    ## does this fix size? -- yes XXX
-    ## 0:n for 1 extra row (0-based)
-    ##  tcl(tr,"configure",columns=1:n) #(n+as.numeric(n>1))) # extra fudge if n>1
-    
-    if(is.null(icons))
-      icons <- rep(icons,length=m)
-    else
-      widths[1] <- widths[1] + 35         # add space for icons
     
     ## first column
     ##XX  tcl(tr,"column","#0",width=widths[1], stretch=TRUE)
     ##  if(fresh)
     ##    tcl(tr,"configure",column=0)
-    tcl(tr,"column","#0",width=widths[1], stretch=TRUE)
+
+    ## column #- is for icons
+
+    ## icon column
+    if(!is.null(icons)) 
+      tcl(tr,"column","#0",width=32, stretch=FALSE)
+    else
+      tcl(tr,"column","#0",width=0, stretch=FALSE)
+#    tcl(tr, "heading","#0",text="")
+    
     if(fresh)
       tcl(tr,"column",0,width=1, stretch=FALSE) # override below if needed
-    tcl(tr, "heading","#0",text=nms[1])
+
     
     ## set widths/names of other columns if present
-    if(n >=2) {
-      for(j in 2:n) {
-        tcl(tr,"column",j-1, width=widths[j], stretch=TRUE, anchor="e")
-        tcl(tr,"heading", j-1, text=nms[j])
-      }
-                                        #    tcl(tr,"column",n-2, width=1, stretch=TRUE) #  extra column
+    for(j in 1:n) {
+      tcl(tr,"column", j , width=widths[j], stretch=TRUE, anchor="w") 
+      tcl(tr,"heading", j, text=nms[j])
     }
   }
   ## add values
@@ -96,25 +96,27 @@ setClass("gTabletcltk",
   visible <- rep(visible, length=m)
   items <- items[visible,,drop=FALSE]
   m <- dim(items)[1]
-  
+
+  ## if icons, we create
+  if(!is.null(icons)) {
+    icons <- sapply(icons,findIcon)
+    if(length(icons) < m)
+      icons <- c(icons, rep("", m - length(icons)))
+  }
+
   if(m > 0) {
     sapply(1:m, function(i) {
-      icon <- findTkIcon(icons[i])
-      icon <- tcl("image","create","photo",file=icon)
-      if(n > 1) {
-        values = as.character(unlist(items[i,-1]))
-        ## hack -- with only 1 column tcltk splits across spaces
-        if(length(values) == 1) values = c(values,"") 
+      values <- as.character(unlist(items[i,]))
+#      values <- paste("{",values,"}", sep="")  ## JV 9/9/09 -- was needed, why not now?
+      if(!is.null(icons)) {
         tcl(tr,"insert","","end",
-              text= as.character(items[i,1]),
             values = values,
-            image=icon,
-            tags = .Tcl.args(list(background="red"))
+            image=icons[i] #, 
+#            tags = .Tcl.args(list(background="red"))
             )
       } else {
         tcl(tr,"insert","","end",
-            text=as.character(items[i,1]),
-            image = icon)
+            values = values)
       }
     })
   }
@@ -168,12 +170,9 @@ setMethod(".gtable",
             if(missing(items)) items <- data.frame(x=c(""),stringsAsFactors=FALSE)
             ## coerce items to a data frame
             if(!inherits(items,"matrix") || !inherits(items,"data.frame"))
-              items <- as.data.frame(items, stringsAsFactors=FALSE)
+              items <- data.frame(items=items, stringsAsFactors=FALSE)
             d <- dim(items); m <- d[1]; n <- d[2]
             
-            ## icon.FUN -- NULL means no icon
-            if(is.null(icon.FUN))
-              icon.FUN <- function(items) rep("",dim(items)[1])
 
             ## if filtering we call a different constructor
             ## we are filtering if filter.FUN or filter.column is
@@ -210,7 +209,9 @@ setMethod(".gtable",
                                  command=function(...)tkyview(tr,...))
             
            
-            tr <- ttktreeview(gp, columns = 1:max(1,(n-1)), displaycolumns="#all",
+            tr <- ttktreeview(gp, columns = 1:n,
+                              displaycolumns=if(is.null(icon.FUN)) 1:n else "#all",
+                              show = ifelse(is.null(icon.FUN), "headings", c("tree headings")),
                               selectmode = selectmode,
                               xscrollcommand=function(...)tkset(xscr,...),
                               yscrollcommand=function(...)tkset(yscr,...))
@@ -261,7 +262,12 @@ setMethod(".gtable",
 
             ## load data last to get size after adding
             tag(obj,"items") <- items
-            .populateTable(tr,items, TRUE, icon.FUN(items),names(items),
+            icons <- if(is.null(icon.FUN))
+              NULL
+            else
+              icon.FUN(items)
+
+            .populateTable(tr, .toCharacter(items), TRUE, icons,names(items),
                            getSizeFrom=gp)
 
 
@@ -360,7 +366,8 @@ setReplaceMethod(".leftBracket",
             widget <- getWidget(x)
             items <- tag(x,"items")
             icon.FUN <- tag(x,"icon.FUN")
-
+            if(is.null(icon.FUN))
+              icon.FUN <- function(x) NULL
             theArgs <- list(...)
             if(is.null(theArgs$doVisible))
               tag(x,"visible") <- NULL
@@ -374,7 +381,7 @@ setReplaceMethod(".leftBracket",
               tag(x,"items") <- items
 
               width <- as.integer(tclvalue(tkwinfo("width",widget)))
-              .populateTable(widget, .toCharacter(items),visible(x),
+              .populateTable(widget, .toCharacter(items), visible(x),
                              icon.FUN(items), names(items),fresh=FALSE, doWidths=FALSE,
                              getSizeFrom=x@block)
               return(x)

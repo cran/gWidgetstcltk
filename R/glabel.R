@@ -29,14 +29,11 @@ setMethod(".glabel",
               return()
             }
 
-            tt = getWidget(container)
-            gp = ttkframe(tt)
-
-            label = ttklabel(gp, text=text)
-            tkpack(label,expand=TRUE, fill="both")
-                   
-            obj = new("gLabeltcltk",
-              block=gp, widget=label, markup=markup,
+            tt <- getWidget(container)
+            label <- ttklabel(tt, text=text)
+            
+            obj <- new("gLabeltcltk",
+              block=label, widget=label, markup=markup,
               toolkit=toolkit,ID=getNewID(), e = new.env())
 
             ## add to container
@@ -44,7 +41,7 @@ setMethod(".glabel",
 
             
             if(editable) {
-              handler = function(h,...) {
+              handler <- function(h,...) {
                 val = ginput(message="Change label value:",text=svalue(h$obj),
                   title="Change text for label", icon="question")
                 if(!is.na(val))
@@ -53,7 +50,7 @@ setMethod(".glabel",
             }
             
             if(!is.null(handler)) {
-              id = addhandlerclicked(obj, handler=handler,action=action)
+              id <- addhandlerclicked(obj, handler=handler,action=action)
             }
             
             invisible(obj)

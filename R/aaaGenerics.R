@@ -307,8 +307,16 @@ setReplaceMethod("enabled",signature(obj="gWidgettcltk"),
           })
 
 setReplaceMethod(".enabled",
+                 signature(toolkit="guiWidgetsToolkit",obj="gWidgettcltk"),
+                 function(obj, toolkit, ..., value) {
+                   .enabled(obj,guiToolkit("tcltk"), ...) <- value
+                   return(obj)
+                 })
+                   
+setReplaceMethod(".enabled",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
                  function(obj, toolkit, ..., value) {
+
                    if(as.logical(value))
                      tcl(getWidget(obj),"state","!disabled")
 #                     tkconfigure(getWidget(obj),state="normal")
@@ -801,19 +809,18 @@ setMethod(".add",
 
             ## expand. use fill, expand didn't
             if(!is.null(theArgs$expand) && theArgs$expand) {
-              argList$expand = TRUE
+              argList$expand <- TRUE
               if(is.null(argList$fill))
                 argList$fill = "both"
             }
 
-            ## anchor
-            if(is.null(theArgs$anchor))
-              anchor = c(-1,1)          # low and inside!
-            else
-              anchor = theArgs$anchor ## anchor = c(a,b) a,b in {-1,0,1}
-
-            argList$anchor = xyToAnchor(anchor)
-
+            ## if anchor, then set expand=TRUE, no fill
+            if(!is.null(theArgs$anchor)) {
+              argList$expand <- TRUE
+              argList$fill <- NULL      # no fill
+              argList$anchor <- xyToAnchor(theArgs$anchor)
+            }
+            
             if(obj@horizontal)
               argList$side = "left"
             else
@@ -855,9 +862,9 @@ setMethod(".addSpring",
             blankLabel <- ttklabel(tt,text=" ")
 
             if(obj@horizontal)
-              tkpack(blankLabel,expand=TRUE,fill="x",side="left",anchor="w")
+              tkpack(blankLabel,expand=TRUE,fill="y",side="left")
             else
-              tkpack(blankLabel,expand=TRUE,fill="y",side="top", anchor="n")
+              tkpack(blankLabel,expand=TRUE,fill="x",side="top")
             invisible()
           })
 
@@ -1354,8 +1361,14 @@ setMethod("addhandleridle",signature(obj="tcltkObject"),
       xTxt <- as.integer(x)+rootx
       yTxt <- as.integer(y)+rooty
       tcl("tk_popup",editPopupMenu,xTxt,yTxt)
-              }
-  tkbind(getWidget(obj), "<Button-3>",RightClick)
+    }
+  W <- getWidget(obj)
+  if(isMac()) {
+    tkbind(W, "<Button-2>", RightClick)
+    tkbind(W, "<Control-1>", RightClick)
+  } else {
+    tkbind(W, "<Button-3>",RightClick)
+  }
 }
 
 setMethod("addpopupmenu",signature(obj="gWidgettcltk"),

@@ -12,7 +12,7 @@ setMethod(".gbutton",
 
             force(toolkit)
             
-            theArgs = list(...)
+            theArgs <- list(...)
             ## look like label if border=FALSE
             if(border == FALSE) {
               return(glabel(text,handler,action,container,...))
@@ -21,9 +21,9 @@ setMethod(".gbutton",
             ## top, left, right or bottom
             ## http://search.cpan.org/~ni-s/Tk-804.027/pod/Button.pod
             if(is.null(theArgs$compound))
-              compound = "left"
+              compound <- "left"
             else
-              compound = theArgs$compound
+              compound <- theArgs$compound
 
             
             
@@ -35,48 +35,28 @@ setMethod(".gbutton",
             }
 
             tt = getWidget(container)
-            gp = ttkframe(tt)
             
-            gWidgetstcltkIcons = getStockIcons()
-            
-            if(text %in% names(gWidgetstcltkIcons))
-              iconFile = gWidgetstcltkIcons[[text]]
-            else 
-              iconFile = NULL
-            if(!is.null(iconFile)) {
-              ## put icon and text
-              imageID = paste("gimage",gp$ID,sep="")
-              x = try(tcl("image","create","photo",imageID,file=iconFile),
-                silent=TRUE)
-              if(inherits(x,"try-error")) {
-                cat(gettext("gimage had issues. Only gif and pnm in gWidgetstcltk\n"))
-                button = ttkbutton(gp, text=text)
-              } else {
-                button = ttkbutton(gp, text=text, image=imageID,
-                  compound=compound)
-              }
+            icon <- findIcon(text)
+            if(icon == "") {
+              ## not stock
+              button <- ttkbutton(tt, text=text)
             } else {
-              button = ttkbutton(gp, text=text)
+              button = ttkbutton(tt, text=text, image=icon,
+                compound=compound)
             }
-            ## pack into gp.
-            if(!is.null(theArgs$expand) && theArgs$expand)
-              tkpack(button, expand=TRUE, fill="both")
-            else
-              tkpack(button)
-            
-            
-            obj = new("gButtontcltk",
-              block=gp, widget=button, toolkit=toolkit,ID=getNewID(),
-              e = new.env())
 
+            obj <- new("gButtontcltk",
+              block=button, widget=button, toolkit=toolkit,ID=getNewID(),
+              e = new.env())
+            
             ## add gp to container
             add(container, obj, ...)
 
             
             ## add handler
-            if (!is.null(handler)) {
-              id = addhandlerchanged(obj,handler,action)
-            }
+            if (!is.null(handler)) 
+              tag(obj,"handler.id") <- addhandlerchanged(obj,handler,action)
+
             
             invisible(obj)
           })
@@ -128,25 +108,16 @@ setMethod(".svalue",
 setReplaceMethod(".svalue",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gButtontcltk"),
                  function(obj, toolkit, index=NULL, ..., value) {
-                   text = value
-                   gWidgetstcltkIcons = getStockIcons()                   
-                   iconFile = gWidgetstcltkIcons[[text]]
-                   if(!is.null(iconFile) && iconFile != "" ) {
-                     ## put icon and text
-                     imageID = paste("gimage",obj@ID,sep="")
-                     x = try(tcl("image","create","photo",imageID,file=iconFile),
-                       silent=TRUE)
-                     if(inherits(x,"try-error")) {
-                       cat(gettext("gimage had issues. Only gif and pnm in gWidgetstcltk\n"))
-                       button = tkconfigure(obj@widget,
-                         text=as.character(text))
-                     } else {
-                       button = tkconfigure(obj@widget,
-                         text=text, image=imageID)
-                     }
-                   } else {
-                     tkconfigure(obj@widget, text=as.character(value))
-                   }
+                   widget <- getWidget(obj)
+                   text = as.character(value)
+
+                   tkconfigure(widget, text=text)
+
+                   imageID <- findIcon(text) ## "" if not stcok
+                   if(imageID != "")
+                     tkconfigure(widget, image=imageID)
+                   else
+                     tkconfigure(widget, image="")
                    return(obj)
                  })
 
@@ -163,7 +134,7 @@ setReplaceMethod(".size",
 setMethod(".addhandlerclicked",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gButtontcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
-            ID = .addHandler(obj,toolkit,"<Button-1>", handler, action)
+            ID <- .addHandler(obj,toolkit,"<Button-1>", handler, action)
             return(ID)
           })
 setMethod(".addhandlerchanged",

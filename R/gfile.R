@@ -110,7 +110,7 @@ setMethod(".gfilebrowse",
 
             
             group = ggroup(horizontal=TRUE, container=container)
-            entry = gedit(text=text, width=20, container=group, ...)
+            entry = gedit(text=text, container=group, ...)
             browseButton = gbutton("browse",container=group)
 
             file.cb = function(h,...) {

@@ -30,55 +30,89 @@ setMethod(".gimage",
 
 
             
-            if (size != "") cat(gettext("gimage: size argument is currently ignored\n"))
+##             ## get filename
+##             iconFile = NULL
+##             if(dirname == "stock") {
+##               ## check if in gWidgetstcltk
+##               isIcon <- system.file(paste("icons/",filename,".gif",sep=""),
+##                                     package="tcltk")
+##               if(file.exists(isIcon)) {
+##                 iconFile <- isIcon
+##               } else {
+##                 gWidgetstcltkIcons = getStockIcons()
+##                 iconFile = gWidgetstcltkIcons[[filename,exact=TRUE]]
+##                 if(!is.null(iconFile) && !file.exists(iconFile)) {
+##                   iconFile <- gWidgetstcltkIcons[["clear"]]
+##                 }
+##               }
+##             } else if(dirname != "") {
+##               iconFile = paste(dirname,filename,sep=.Platform$file.sep)
+##             } else {
+##               iconFile = filename
+##             }
 
-            
-            ## get filename
-            iconFile = NULL
+##             imageID = paste("gimage",gp$ID,sep="")
+
+##             ## base tk support gif, ppm and bitmap (ppm doesn't seem to though)
+##             if(!is.null(iconFile) && file.exists(iconFile)) {
+##               x = try(tcl("image","create","photo",imageID,file=iconFile),silent=TRUE)
+##               ## now try as bitmap
+##               if(inherits(x,"try-error")) {
+##                 x = try(tcl("image","create","bitmap",imageID,file=iconFile),silent=TRUE)
+##               }
+##               if(inherits(x,"try-error")) {
+##                 cat(gettext("gimage had issues. Only gif, ppm and xbm files  in gWidgetstcltk\n"))
+##                 lab <- ttklabel(gp,text="")
+##               } else {
+##                 lab <- ttklabel(gp, image=imageID)
+##               }
+##             } else {
+##               ##  uninitialized
+##               lab <- ttklabel(gp,text="")
+##             }
+##             tkpack(lab, expand=TRUE, fill="both")
+
+
+            ## we need the imageID (tcl name for image)
+            ## for stockicons we have that ::stockicon::quit.fig
+            ## returned by findIcon()
+            ## for non stock, we need to make. For this we need iconFile -- path
+            ## and make a image id
+            iconFile <- NULL
+            imageID <- ""
             if(dirname == "stock") {
-              ## check if in gWidgetstcltk
-              isIcon <- system.file(paste("icons/",filename,".gif",sep=""),
-                                    package="tcltk")
-              if(file.exists(isIcon)) {
-                iconFile <- isIcon
+              imageID <- findIcon(filename)
+            } else {
+              if(dirname != "") {
+                iconFile = paste(dirname,filename,sep=.Platform$file.sep)
               } else {
-                gWidgetstcltkIcons = getStockIcons()
-                iconFile = gWidgetstcltkIcons[[filename,exact=TRUE]]
-                if(!is.null(iconFile) && !file.exists(iconFile)) {
-                  iconFile <- gWidgetstcltkIcons[["clear"]]
+                iconFile = filename
+              }
+              imageID = paste("::gimage::",filename,sep="")
+              if(!is.null(iconFile) && file.exists(iconFile)) {
+                x = try(tcl("image","create","photo",imageID,file=iconFile),silent=TRUE)
+                ## now try as bitmap
+                if(inherits(x,"try-error")) {
+                  x = try(tcl("image","create","bitmap",imageID,file=iconFile),silent=TRUE)
+                }
+                if(inherits(x,"try-error")) {
+                  cat(gettext("gimage had issues. Only gif, ppm and xbm files  in gWidgetstcltk\n"))
+                  imageID <- ""
                 }
               }
-            } else if(dirname != "") {
-              iconFile = paste(dirname,filename,sep=.Platform$file.sep)
-            } else {
-              iconFile = filename
             }
+            
+            ## implement size -- photo has width, height
+            if (size != "") cat(gettext("gimage: size argument is currently ignored\n"))
+
 
             tt <- getWidget(container)
-            gp <- ttkframe(tt)
+            lab <- ttklabel(tt, text="")
 
-            imageID = paste("gimage",gp$ID,sep="")
-
-            ## base tk support gif, ppm and bitmap (ppm doesn't seem to though)
-            if(!is.null(iconFile) && file.exists(iconFile)) {
-              x = try(tcl("image","create","photo",imageID,file=iconFile),silent=TRUE)
-              ## now try as bitmap
-              if(inherits(x,"try-error")) {
-                x = try(tcl("image","create","bitmap",imageID,file=iconFile),silent=TRUE)
-              }
-              if(inherits(x,"try-error")) {
-                cat(gettext("gimage had issues. Only gif, ppm and xbm files  in gWidgetstcltk\n"))
-                lab <- ttklabel(gp,text="")
-              } else {
-                lab <- ttklabel(gp, image=imageID)
-              }
-            } else {
-              ##  uninitialized
-              lab <- ttklabel(gp,text="")
-            }
-            tkpack(lab, expand=TRUE, fill="both")
+            if(imageID != "")
+              tkconfigure(lab, image=imageID)
             
-            obj = new("gImagetcltk", block=gp, widget=lab,
+            obj = new("gImagetcltk", block=lab, widget=lab,
               toolkit=toolkit,ID=getNewID(),e = new.env()
               )
 
@@ -108,26 +142,21 @@ setReplaceMethod(".svalue",
                  function(obj, toolkit, index=NULL,  ..., value) {
                    ## value is a full filename or icon name
                    gWidgetstcltkIcons = getStockIcons()
+
                    
                    if(!file.exists(value)) {
-                     ## if not there, look for stock
-                     if(!is.null(gWidgetstcltkIcons[[value]])) {
-                       value = gWidgetstcltkIcons[[value]]
-                     } else {
-                       cat(sprintf("File %s does not exist\n",value))
-                       return(obj)
-                     }
-                   }
-
-                   x = try(tcl("image","create","photo",tag(obj,"imageID"),file=value), silent=TRUE)
-                   if(inherits(x,"try-error")) {
-                     cat(gettext("Only gif and pnm files are possible in gWidgetstcltk\n"))
+                     imageID <- findIcon(value)
+                     tkconfigure(getWidget(obj),image=imageID)
                    } else {
-                     tkconfigure(getWidget(obj),image=tag(obj,"imageID"))
+                     x = try(tcl("image","create","photo",tag(obj,"imageID"),file=value), silent=TRUE)
+                     if(inherits(x,"try-error")) {
+                       cat(gettext("Only gif and pnm files are possible in gWidgetstcltk\n"))
+                     } else {
+                       tkconfigure(getWidget(obj),image=tag(obj,"imageID"))
+                     }
+                     ## store dynamically, not with @filename
+                     tag(obj,"filename") <- value
                    }
-                   
-                   ## store dynamically, not with @filename
-                   tag(obj,"filename") <- value
                    
                    return(obj)
                  })

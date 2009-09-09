@@ -50,7 +50,7 @@ setMethod(".gcheckboxgroup",
             tag(obj, "itemlist") <- lst
             
             if(!is.null(handler))
-              id = addhandlerchanged(obj,handler,action)
+              tag(obj, "handler.id") <- addhandlerchanged(obj,handler,action)
 
             
             return(obj)
@@ -161,6 +161,17 @@ setMethod(".length",
           function(x,toolkit) {
             length(tag(x,"items"))
           })
+
+
+## inherited enabled isn't workgin                
+setReplaceMethod(".enabled",
+                 signature(toolkit="guiWidgetsToolkittcltk",obj="gCheckboxgrouptcltk"),
+                 function(obj, toolkit, ..., value) {
+
+                   sapply(tag(obj,"itemlist"), function(i)
+                          enabled(i,...) <- value)
+                   return(obj)
+                 })
 
 
 ## handlers should define addHandler class for gradio, gcheckbox, and

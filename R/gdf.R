@@ -1,3 +1,14 @@
+##################################################
+### Gdf
+## from Ben Goodrich's fair script who credits:
+
+## This function is modified from tcltk2:::tk2edit, which is
+## Copyright 2007 Jeffrey J. Hallman and originally licensed
+## under LGPL V3+
+
+## tcltk2:::tk2edit by Jeffrey Hallman
+
+
 ## gGrid cover gDf and gTable
 setClass("gGridtcltk",
          contains="gComponenttcltk",
@@ -8,9 +19,6 @@ setClass("gDftcltk",
          prototype=prototype(new("gComponenttcltk"))
          )
 
-##################################################
-### Gdf
-## from Ben Goodrich's fair script
 
 ## constructor for editing a data frame
 setMethod(".gdf",
@@ -83,7 +91,7 @@ setMethod(".gdf",
                                 titlerows = 1, titlecols = 1, # no or rows (cols) for titles
                                 selecttitle = 1,    # can edit titles (1 or 0)
                                 anchor = "e",
-                                multiline = TRUE,   # display newlines with new lines
+                                multiline = FALSE,   # display newlines with new lines
                                 selectmode = "extended", ## not extended
                                 rowseparator = dQuote("\n"), # getcontrols display of selection
                                 colseparator = dQuote("\t"),
@@ -94,6 +102,13 @@ setMethod(".gdf",
             ## pack in scrollbars
             addScrollbarsToWidget(tktable, parent)
 
+            ## add bindings (cf tkTable.tcl in source)
+            ## do with .Tcl, otherwise it adds to current binding instead of replacing.
+            .Tcl("bind Table <Return>		{::tk::table::MoveCell %W 1 0}" )            
+#            tkbind(tktable,"<Return>", function(W) tcl("::tk::table::MoveCell",W,1,0))
+            tkbind(tktable,"<Tab>", function(W) tcl("::tk::table::MoveCell",W,0,1))
+            
+            
             ## new object
             obj = new("gDftcltk",block=parent, widget=tktable,
               toolkit=toolkit, ID=getNewID(), e = new.env())

@@ -400,6 +400,8 @@
 \alias{.leftBracket<-,gMenutcltk,guiWidgetsToolkittcltk-method}
 \alias{.leftBracket<-,gNotebooktcltk,guiWidgetsToolkittcltk-method}
 \alias{.leftBracket<-,gRadiotcltk,guiWidgetsToolkittcltk-method}
+\alias{.leftBracket<-,gSlidertcltk,guiWidgetsToolkittcltk-method}
+\alias{.leftBracket<-,gSpinbuttontcltk,guiWidgetsToolkittcltk-method}
 \alias{.leftBracket<-,gTabletcltk,guiWidgetsToolkittcltk-method}
 \alias{.leftBracket<-,gTableWithFiltertcltk,guiWidgetsToolkittcltk-method}
 \alias{.leftBracket<-,gToolbartcltk,guiWidgetsToolkittcltk-method} 
@@ -571,9 +573,13 @@
 %% --  .enabled<- --
 %%
 \alias{.enabled<--methods}
+\alias{.enabled<-,gWidgettcltk,guiWidgetsToolkit-method}
 \alias{.enabled<-,gWidgettcltk,guiWidgetsToolkittcltk-method}
 \alias{.enabled<-,tcltkObject,guiWidgetsToolkittcltk-method} 
 \alias{.enabled<-,gActiontcltk,guiWidgetsToolkittcltk-method} 
+\alias{.enabled<-,gCheckboxgrouptcltk,guiWidgetsToolkittcltk-method} 
+\alias{.enabled<-,gCheckboxtcltk,guiWidgetsToolkittcltk-method} 
+\alias{.enabled<-,gRadiotcltk,guiWidgetsToolkittcltk-method} 
 \alias{.enabled<-,gSpinbuttontcltk,guiWidgetsToolkittcltk-method} 
 %%
 %% --  size --
@@ -1208,6 +1214,8 @@
 \alias{[<-,gMenutcltk-method}
 \alias{[<-,gNotebooktcltk-method}
 \alias{[<-,gRadiotcltk-method}
+\alias{[<-,gSlidertcltk-method}
+\alias{[<-,gSpinbuttontcltk-method}
 \alias{[<-,gTabletcltk-method}
 \alias{[<-,gTableWithFiltertcltk-method}
 \alias{[<-,gToolbartcltk-method}

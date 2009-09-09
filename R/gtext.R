@@ -140,7 +140,9 @@ setReplaceMethod(".svalue",
                    if(length(value) > 1)
                      value <- paste(value, collapse="\n")
                    tkinsert(getWidget(obj),"end",value)
-                            
+
+                   tksee(getWidget(obj),"end")
+                   
                    return(obj)
                  })
 
@@ -247,13 +249,14 @@ setMethod(".add",
 
               tkinsert(getWidget(obj),where,value,"foo")
 
-              ## does this place the cursor? TK FAQ 10.6
-              tksee(getWidget(obj),where) # where = "end" or "0.0"
               
             } else {
               ## no markup
               tkinsert(getWidget(obj),where,value)
             }
+
+            ## does this place the cursor? TK FAQ 10.6
+            tksee(getWidget(obj),where) # where = "end" or "0.0"
             
           })
 

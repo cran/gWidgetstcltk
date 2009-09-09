@@ -74,6 +74,45 @@ setReplaceMethod(".enabled",
                    return(obj)
                  })
 
+
+
+## Method to replace values of spin button
+setReplaceMethod("[",
+                 signature(x="gSpinbuttontcltk"),
+                 function(x, i, j,..., value) {
+                   .leftBracket(x, x@toolkit, i, j, ...) <- value
+                   return(x)
+                 })
+
+setReplaceMethod(".leftBracket",
+          signature(toolkit="guiWidgetsToolkittcltk",x="gSpinbuttontcltk"),
+          function(x, toolkit, i, j, ..., value) {
+            obj <- x
+            widget <- getWidget(obj)
+
+            ## check that value is a regular sequence
+            if(length(value) <=1) {
+              warning("Can only assign a vector with equal steps, as produced by seq")
+              return(obj)
+            }
+            if(length(value) > 2 &&
+               !all.equal(diff(diff(value)), rep(0, length(value) - 2))) {
+              warning("Can only assign a vector with equal steps, as produced by seq")
+              return(obj)
+            }
+            ## get current value, increment
+            curValue <- svalue(obj)
+            inc <- head(diff(value), n=1)
+
+            tkconfigure(widget, from=min(value), to =max(value), increment=inc)
+            tcl(widget, "set", curValue)
+
+            ## all done
+            return(obj)
+          })
+
+
+
 ## size has no height
 setReplaceMethod(".size", 
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gSpinbuttontcltk"),
