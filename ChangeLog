@@ -1,3 +1,7 @@
+2010-02-27  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gstatusbar.R: make argument not.toplevel for gstatusbar.
+
 2009-09-09  john verzani  <verzani@john-verzanis-macbook-pro.local>
 
 	* R/gtable.R (.computeWidths): fix for factor issue

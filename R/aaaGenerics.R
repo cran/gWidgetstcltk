@@ -413,6 +413,23 @@ setReplaceMethod(".defaultWidget",
             return(obj)
           })
 
+
+## isExtant
+
+
+
+## enabled -- TRUE If state is normal
+setMethod("isExtant",signature(obj="gWidgettcltk"),
+          function(obj, ...) {
+            .isExtant(obj, obj@toolkit,...)
+          })
+setMethod(".isExtant",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
+          function(obj, toolkit, ...) {
+            return(TRUE)
+          })
+
+
 ## tooltip<-
 setReplaceMethod("tooltip",signature(obj="gWidgettcltk"),
           function(obj, ..., value) {

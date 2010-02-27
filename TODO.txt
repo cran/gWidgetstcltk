@@ -1,6 +1,6 @@
 TODO:
 ---------
-
+* addHandlerColumnClicked use tcl(obj,"heading", colno, command=function(...) {})
 * anchor or expand=TRUE fails with add. -- This needs work!
 * addSpring -- isn't
 * fix sizeing issues: gedit too wide, gtable toowide, gwindow --

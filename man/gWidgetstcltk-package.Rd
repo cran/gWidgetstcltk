@@ -197,7 +197,7 @@ place.
 clicks of the arrows or to the return key in the text area.
 \cr
 
-\code{gstatusbar()} A hack. Just a \code{ggroup()} instance in disguise.
+\code{gstatusbar()} A hack. Just a \code{ggroup()} instance in disguise. By default it must have a gwindow instance for a parent container. If the argument not \code{not.toplevel=TRUE} is specified, a \code{ggroup} container may be used.
 \cr
 
 \code{gtable()} This is built on the underlying tree widget. It is not

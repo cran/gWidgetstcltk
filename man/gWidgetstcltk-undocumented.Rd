@@ -1225,6 +1225,9 @@
 \alias{length,gWidgettcltk-method}
 \alias{length,gSubsetbytcltk-method}
 \alias{length,gDroplisttcltk-method}
+%% -- isExtant
+\alias{isExtant,gWidgettcltk-method}
+\alias{.isExtant,gWidgettcltk,guiWidgetsToolkittcltk-method}
 
 
 \title{Undocumented functions in gWidgetstcltk}
