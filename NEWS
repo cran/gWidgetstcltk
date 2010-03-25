@@ -2,6 +2,11 @@ Dear Emacs, please make this -*-Text-*- mode!
 
 NEWS for gWidgetstcltk
 
+CHanges for 0.0-32
+-------------------
+
+* font fixes for gtext, and font<-
+
 Changes for  0.0-31
 -------------------
  

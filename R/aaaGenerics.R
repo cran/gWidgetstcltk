@@ -482,54 +482,80 @@ setReplaceMethod(".font",
   weights = c("normal","oblique","italic"),
   styles = c("ultra-light","light","normal","bold","ultra-bold","heavy"),
   colors = c("black","blue","red","green","brown","yellow","pink")
-)  
+)
+
+## common
+merge.list <- function(x,y, overwrite=TRUE) {
+  for(i in names(y)) {
+    if(is.null(x[[i]]) || overwrite)
+      x[[i]] <- y[[i]]
+  }
+  x
+}
+
+## ... passed into tkfont.create as font name
+fontlistFromMarkup <- function(markup,...) {
+
+  if(!is.list(markup))
+    markup <- lapply(markup,function(x) x)
+  
+  fontList <- list(...)
+  if(!is.null(markup$family))
+    fontList <- merge(fontList, list(family=switch(markup$family,
+                                       "normal"="times",
+                                       "sans" = "helvetica",
+                                       "serif" = "times",
+                                       "monospace"="courier",
+                                       markup$family)))
+  if(!is.null(markup$style))
+    fontList <- merge(fontList, list(slant=switch(markup$style,
+                                       "normal"="normal",
+                                       "oblique"="normal",
+                                       "italic"="italic",
+                                       "normal")))
+  if(!is.null(markup$weight))
+    fontList <- merge(fontList, list(weight=switch(markup$weight,
+                                       "heavy"="bold",
+                                       "ultra-bold"="bold",
+                                       "bold"="bold",
+                                       "normal"="normal",
+                                       "light"="normal",
+                                       "ultra-light" = "normal",
+                                       "normal")))
+  
+  if(!is.null(markup$size))
+    if(is.numeric(markup$size))
+      fontList <- merge(fontList, list(size=markup$size))
+    else
+      fontList <- merge(fontList,list(size = switch(markup$size,
+                                        "xxx-large"=24,
+                                        "xx-large"=20,
+                                        "x-large"=18,
+                                        "large"=16,
+                                        "medium"=12,
+                                        "small"=10,
+                                        "x-small"=8,
+                                        "xx-small"=6,
+                                        as.integer(markup$size))))
+  return(fontList)
+}
+
+
 
 
 setReplaceMethod(".font",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="tcltkObject"),
                  function(obj, toolkit, ..., value) {
-                   ## we use the styles above. So must translate
-                   fontFamily = function(i)
-                     switch(i,
-                            "normal"="times",
-                            "sans" = "helvetica",
-                            "serif"="times",
-                            "monospace"="courier",
-                            i)
-                   fontWeight = function(i) 
-                     switch(i,
-                            "normal"="normal",
-                            "oblique"="normal",
-                            "italic"="italic",
-                            i)
-                   fontStyle = function(i)
-                     switch(i,
-                            "bold"="bold",
-                            "ultra-bold"="bold",
-                            "heavy" = "bold",
-                            i)   # all others
-
-
-                   ## turn vector into list for consitency
-                   if(!is.list(value))
-                     value = lapply(value,function(x) x)
-
-                   theArgs = list()
-                   
-                   if(!is.null(value$family)) theArgs$family = fontFamily(value$family)
-                   if(!is.null(value$weight)) theArgs$slant = fontWeight(value$weight)
-                   if(!is.null(value$style)) theArgs$weight = fontStyle(value$style)
-
-                   if(!is.null(value$size)) theArgs$size = as.integer(value$size)
+                   fname <- paste(as.character(date()),rnorm(1), sep="") ## some random string
+                   theArgs <- fontlistFromMarkup(value, fname)
 
                    ## now call
                    ## font with ttk is different -- fix XXX
                    theFont = do.call("tkfont.create",theArgs)
-                   ret <- try(tkconfigure(getWidget(obj), font=theFont), silent=TRUE)
+                   ret <- try(tkconfigure(getWidget(obj), font=fname), silent=TRUE)
                    ## colors are different
-                   if(!is.null(value$color))
-                       try(tkconfigure(getWidget(obj), foreground=value$color), silent=TRUE)
-
+                   if("color" %in% names(value))
+                       try(tkconfigure(getWidget(obj), foreground=value['color']), silent=TRUE)
                    ## all done
                    return(obj)
                    
