@@ -1,3 +1,12 @@
+2010-05-03  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gedit.R: removed spurious tkgrid call causing issues when
+	combining with othter widgets.
+
+2010-04-18  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gcheckboxgroup.R: put in use.table argument, ignored for now
+
 2010-02-27  john verzani  <verzani@john-verzanis-macbook-pro.local>
 
 	* R/gstatusbar.R: make argument not.toplevel for gstatusbar.

@@ -1239,3 +1239,4 @@
 	functions here.
 }
 \keyword{interface}% at least one, from doc/KEYWORDS
+\keyword{internal}

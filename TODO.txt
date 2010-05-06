@@ -1,5 +1,7 @@
 TODO:
 ---------
+* the addSpring method!!!
+* move gcalendar into gWidgets as an ANY object?
 * addHandlerColumnClicked use tcl(obj,"heading", colno, command=function(...) {})
 * anchor or expand=TRUE fails with add. -- This needs work!
 * addSpring -- isn't

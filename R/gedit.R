@@ -44,7 +44,9 @@ setMethod(".gedit",
            entryValue = tclVar(text)
            entry = ttkentry(tt, width=as.character(width),
              textvariable=entryValue)
-           tkgrid(entry)
+
+           ## what gives with this, was causing an error. No reason to manage  here
+           ##           tkgrid(entry)
            
             obj <- new("gEdittcltk",block=entry, widget=entry,
               toolkit=toolkit,ID=getNewID(), e = new.env(),
@@ -76,8 +78,8 @@ setMethod(".gedit",
            
            add(container, obj,...)
            
-            if (!is.null(handler)) 
-              tag(obj, "handler.id") <- addhandlerchanged(obj,handler,action)
+           if (!is.null(handler)) 
+             tag(obj, "handler.id") <- addhandlerchanged(obj,handler,action)
            
            
            invisible(obj)

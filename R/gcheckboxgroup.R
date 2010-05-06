@@ -10,7 +10,7 @@ setMethod(".gcheckboxgroup",
           signature(toolkit="guiWidgetsToolkittcltk"),
           function(toolkit,
                    items, checked = FALSE,
-                   horizontal=FALSE, 
+                   horizontal=FALSE, use.table=TRUE,
                    handler = NULL, action = NULL, container = NULL, ...) {
 
             force(toolkit)

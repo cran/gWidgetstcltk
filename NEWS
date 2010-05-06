@@ -2,6 +2,11 @@ Dear Emacs, please make this -*-Text-*- mode!
 
 NEWS for gWidgetstcltk
 
+CHanges for 0.0-33
+-------------------
+
+* fix to slant value in font to pass R CMD check
+
 CHanges for 0.0-32
 -------------------
 

@@ -509,10 +509,10 @@ fontlistFromMarkup <- function(markup,...) {
                                        markup$family)))
   if(!is.null(markup$style))
     fontList <- merge(fontList, list(slant=switch(markup$style,
-                                       "normal"="normal",
-                                       "oblique"="normal",
+                                       "normal"="roman",
+                                       "oblique"="roman",
                                        "italic"="italic",
-                                       "normal")))
+                                       "roman")))
   if(!is.null(markup$weight))
     fontList <- merge(fontList, list(weight=switch(markup$weight,
                                        "heavy"="bold",

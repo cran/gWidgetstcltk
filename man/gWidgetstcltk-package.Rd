@@ -134,7 +134,7 @@ the possible space for a widget, even if \code{expand=TRUE} is given.
 \code{gcheckbox()} works as advertised
 \cr
 
-\code{gcheckboxgroup()} works as advertised
+\code{gcheckboxgroup()} works as advertised, except the \code{use.table} argument is ignored
 \cr
 
 \code{gdf()} is implemented if the user has installed the \code{tktable} package in Tcl. This is an additional download from \url{tktable.sourceforge.net}.
