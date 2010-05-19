@@ -294,7 +294,7 @@ setMethod(".svalue",
 
             inds <- which(visible(obj))[indices]
             if(!is.null(index) && index == TRUE) {
-              return(index)
+              return(inds)              # oops, had index
             }
 
             

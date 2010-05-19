@@ -30,12 +30,15 @@ setMethod(".glabel",
             }
 
             tt <- getWidget(container)
-            label <- ttklabel(tt, text=text)
+            label <- ttklabel(tt, text="")
             
             obj <- new("gLabeltcltk",
               block=label, widget=label, markup=markup,
               toolkit=toolkit,ID=getNewID(), e = new.env())
 
+            ## add text
+            svalue(obj) <- text
+            
             ## add to container
             add(container, obj, ...)
 
@@ -60,16 +63,17 @@ setMethod(".glabel",
 setMethod(".svalue",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gLabeltcltk"),
           function(obj, toolkit, index=NULL, drop=NULL, ...) {
-            val = as.character(tkcget(getWidget(obj),"-text"))
-            if(length(val) == 0) val=""
-            val = paste(val, collapse=" ")
+            val = tclvalue(tkcget(getWidget(obj),"-text")) # respects "\n"
+            if(length(val) == 0)
+              val=""
             return(val)
           })
 
 setReplaceMethod(".svalue",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gLabeltcltk"),
                  function(obj, toolkit, index=NULL, ..., value) {
-                   tkconfigure(obj@widget, text=as.character(value))
+                   txt <- paste(as.character(value), collapse="\n")
+                   tkconfigure(obj@widget, text=txt)
                    return(obj)
                  })
 

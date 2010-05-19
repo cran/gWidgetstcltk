@@ -24,6 +24,10 @@ setMethod(".gfile",
             force(toolkit)
             
             args = list(...)
+
+            ## this will be in the API, for now we pass in through ...
+            multiple <- getWithDefault(multiple, FALSE)
+
             
             type = match.arg(type)
 
@@ -52,7 +56,7 @@ setMethod(".gfile",
 
               if(!is.null(initialfilename))
                 val = tkgetOpenFile(initialfile=initialfilename, title=text,
-                  filetypes=theFilter)
+                  filetypes=theFilter, multiple=multiple)
               else
                 val <- tkgetOpenFile(title=text, filetypes=theFilter)
 
@@ -66,7 +70,8 @@ setMethod(".gfile",
 
             }
 
-            val = tclvalue(val)
+#            val = tclvalue(val)
+            val <- as.character(val)    # handler multiple too
             
             if (nchar(val) > 0) {
               ## file selected

@@ -1,3 +1,16 @@
+2010-05-19  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/glabel.R: fix to svalue<- to collapse with '\n', not
+	" ". Fix to svalue() to respect "\n".
+
+2010-05-15  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gfile.R: added multiple=TRUE argument for file selection. Not
+	yet in API, but will be
+
+	* R/gtable.R (.computeWidths): fix to svalue(...,index=TRUE)
+	Thanks Richie
+
 2010-05-03  john verzani  <verzani@john-verzanis-macbook-pro.local>
 
 	* R/gedit.R: removed spurious tkgrid call causing issues when

@@ -545,3 +545,10 @@ getStockIconName = function(name) allIcons[[name,exact=TRUE]]
 ## stockIconFromObject = function(obj)
 ##   stockIconFromClass(class(obj)[1])
 
+##' get with default value
+getWithDefault <- function(x, default) {
+  if(is.null(x) || is.na(x))
+    default
+  else
+    x
+}
