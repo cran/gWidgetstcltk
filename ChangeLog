@@ -1,3 +1,8 @@
+2010-05-20  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gradio.R: try to fix issue that handler called before variable
+	is set. (ButtonRelease and tcl("after")). Fix to index=TRUE call
+
 2010-05-19  john verzani  <verzani@john-verzanis-macbook-pro.local>
 
 	* R/glabel.R: fix to svalue<- to collapse with '\n', not

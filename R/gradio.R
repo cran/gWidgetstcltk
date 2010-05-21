@@ -109,7 +109,7 @@ setMethod(".svalue",
             ## return index or value
             index = ifelse(is.null(index),FALSE,as.logical(index))
             if(index) {
-              return(which(rbVal %in% as.character(tag(obj,"items"))))
+              return(which(as.character(tag(obj,"items")) %in% rbVal))
             } else {
               if(!is.null(obj@coercewith))
                 return(obj@coercewith(rbVal))
@@ -243,21 +243,23 @@ setMethod(".addhandlerchanged",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gRadiotcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
 
-            changeHandler = handler
-            theRBs = tag(obj,"theRBs")
-            tmp = sapply(theRBs, function(i) {
+            changeHandler <- handler
+            theRBs <- tag(obj,"theRBs")
+            IDs <- sapply(theRBs, function(i) {
               ## need to pause to let the click catch up
               ## we use scope to look up changeHandler and h
-              .addHandler(i,toolkit, signal="<Button-1>",
+              ## added ButtonRelease as Button-1 wasn't enought with windows
+              .addHandler(i,toolkit, signal="<ButtonRelease-1>",
                          actualobj = obj, 
                          action=action,
                          handler = function(h,...) {
-                           tcl("after",100,function(...) {
+                           tcl("after",150,function(...) {
                              changeHandler(h,...)
-                           })
+                           }
+                          )
                          })
             })
-            ## return(ID)
+            return(IDs)
           })
 
 ## click and changed the same
