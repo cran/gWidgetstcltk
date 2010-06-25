@@ -26,7 +26,7 @@ setMethod(".gfile",
             args = list(...)
 
             ## this will be in the API, for now we pass in through ...
-            multiple <- getWithDefault(multiple, FALSE)
+            multiple <- getWithDefault(args$multiple, FALSE)
 
             
             type = match.arg(type)
@@ -54,12 +54,11 @@ setMethod(".gfile",
                 theFilter = "{{All files} *}"
               }
 
+              l <- list(title=text, filetypes=theFilter, multiple=multiple)
               if(!is.null(initialfilename))
-                val = tkgetOpenFile(initialfile=initialfilename, title=text,
-                  filetypes=theFilter, multiple=multiple)
-              else
-                val <- tkgetOpenFile(title=text, filetypes=theFilter)
+                l$initialfile=initialfilename
 
+              val <- do.call("tkgetOpenFile", l)
             } else if(type == "save") {
 
               val = tkgetSaveFile(initialfile=initialfilename, title=text)

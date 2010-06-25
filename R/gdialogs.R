@@ -72,7 +72,7 @@ tcltkDialog = function(
   ## set up label
   if(missing(message) || is.null(message))
     message <- ""
-  l <- ttklabel(dlgframe, text = as.character(message))
+  l <- ttklabel(dlgframe, text = paste(as.character(message), sep="\n"))
   tkgrid(l, row=0, column = 1, stick ="nw", padx=25, pady=5)
 
 
@@ -152,24 +152,28 @@ setMethod(".gmessage",
 
             icon = match.arg(icon)
             l <- list(icon=icon,
-                      message=gettext(message),
+                      message=gettext(message[1]),
                       title = title,
                       type="ok")
+            if(length(message) > 1)
+              l$detail=gettext(message[2])
+            
             if(!is.null(parent))
               l$parent <- getWidget(parent)
+
             out <- do.call("tkmessageBox",l)
             return(out)
             
-            ## old
-            return(tcltkDialog(
-                               message,
-                               title=title,
-                               icon=icon,
-                               type="message",
-                               parent = parent,
-                               handler=handler,
-                               action=action,
-                               ...))
+            ## ## old
+            ## return(tcltkDialog(
+            ##                    message,
+            ##                    title=title,
+            ##                    icon=icon,
+            ##                    type="message",
+            ##                    parent = parent,
+            ##                    handler=handler,
+            ##                    action=action,
+            ##                    ...))
 
 ##             icon = match.arg(icon)
             
@@ -196,10 +200,15 @@ setMethod(".gconfirm",
                    ...
                    ) {
             icon = match.arg(icon)
+            
             l <- list(icon=icon,
-                      message=gettext(message),
+                      message=gettext(message[1]),
                       title = title,
                       type="yesno")
+
+            if(length(message) > 1)
+              l$detail=gettext(message[2])
+            
             if(!is.null(parent))
               l$parent <- getWidget(parent)
             out <- do.call("tkmessageBox",l)
@@ -209,15 +218,15 @@ setMethod(".gconfirm",
                           FALSE)
             return(val)
 
-            return(tcltkDialog(
-                               message,
-                               title=title,
-                               icon=icon,
-                               type="confirm",
-                               parent = parent,
-                               handler=handler,
-                               action=action,
-                               ...))
+            ## return(tcltkDialog(
+            ##                    message,
+            ##                    title=title,
+            ##                    icon=icon,
+            ##                    type="confirm",
+            ##                    parent = parent,
+            ##                    handler=handler,
+            ##                    action=action,
+            ##                    ...))
 
 ##             icon = match.arg(icon)
 

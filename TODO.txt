@@ -2,7 +2,7 @@ TODO:
 ---------
 ** Bug with gfile being opened from a button -- button stays depressed
    after gfile is closed
-* the addSpring method!!!
+DONE * the addSpring method. (Requires group to be expanded!)
 * move gcalendar into gWidgets as an ANY object?
 * addHandlerColumnClicked use tcl(obj,"heading", colno, command=function(...) {})
 * anchor or expand=TRUE fails with add. -- This needs work!

@@ -197,12 +197,11 @@ setMethod(".gtable",
             ## selectmode
             selectmode = if(multiple) "extended" else "browse"
 
+            ##########
             ## setup widget
-            tt = getWidget(container)
-            gp = ttkframe(tt)
+            tt <- getWidget(container)
+            gp <- ttkframe(tt)
 
-            
-            ## set up widget, tr, with scrollbars 
             xscr <- ttkscrollbar(gp, orient="horizontal",
                                  command=function(...)tkxview(tr,...))
             yscr <- ttkscrollbar(gp,  orient="vertical",
@@ -216,12 +215,25 @@ setMethod(".gtable",
                               xscrollcommand=function(...)tkset(xscr,...),
                               yscrollcommand=function(...)tkset(yscr,...))
             
-          
+            
+            ## pack into grid
+            ## see tkFAQ 10.1 -- makes for automatic resizing
+            tkgrid(tr,row=0,column=0, sticky="news")
+            tkgrid(yscr,row=0,column=1, sticky="ns")
+            tkgrid(xscr, row=1, column=0, sticky="ew")
+            tkgrid.columnconfigure(gp, 0, weight=1)
+            tkgrid.rowconfigure(gp, 0, weight=1)
+            
+            ## call in autoscroll
+##            tcl("autoscroll", xscr)
+##            tcl("autoscroll", yscr)
 
-          
+            ##
+            ######################
+            
             obj = new("gTabletcltk",block=gp,widget=tr,
               toolkit=toolkit,ID=getNewID(), e = new.env())
-
+            
             tag(obj,"icon.FUN") <- icon.FUN
             tag(obj,"chosencol") <- chosencol
             tag(obj,"color") = if(!is.null(theArgs$color))
@@ -235,18 +247,7 @@ setMethod(".gtable",
             tag(obj,"visible") <- NULL
             
 
-            ## pack into grid
-            ## see tkFAQ 10.1 -- makes for automatic resizing
-            tkgrid(tr,row=0,column=0, sticky="news")
-            tkgrid(yscr,row=0,column=1, sticky="ns")
-            tkgrid(xscr, row=1, column=0, sticky="ew")
-            tkgrid.columnconfigure(gp, 0, weight=1)
-            tkgrid.rowconfigure(gp, 0, weight=1)
-
-            ## call in autoscroll
-            tcl("autoscroll", xscr)
-            tcl("autoscroll", yscr)
-
+       
             
             ## font -- fixed unless overridden
 #            tkconfigure(tr, font="courier") # fixed
@@ -270,8 +271,7 @@ setMethod(".gtable",
             .populateTable(tr, .toCharacter(items), TRUE, icons,names(items),
                            getSizeFrom=gp)
 
-
-            
+            size(obj) <- size(obj) + c(0, 20)
             return(obj)
             
           })

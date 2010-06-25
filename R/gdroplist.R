@@ -150,6 +150,7 @@ setMethod(".svalue",
           })
 
 ## set the displayed value to value
+## if index=TRUE and value=0, seet to no state
 setReplaceMethod(".svalue",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gDroplisttcltk"),
                  function(obj, toolkit, index=NULL, ..., value) {
@@ -161,12 +162,12 @@ setReplaceMethod(".svalue",
 
                    widget <- getWidget(obj)
                    
-                   n = length(obj)
+                   n <- length(obj)
                    if(n <= 1) return(obj)
                    
                    if(is.null(index))
                      index <- FALSE
-                   index = as.logical(index)
+                   index <- as.logical(index)
 
                    ##  if editable do differently
                    ## editable not implented
@@ -175,7 +176,9 @@ setReplaceMethod(".svalue",
                    ## if index, set
                    if(index) {
                      if(value > 0 && value <= n)
-                       tclvalue(tcl(widget,"current", as.numeric(value) - 1))
+                       tcl(widget,"current", as.numeric(value) - 1)
+                     else               # set to no state
+                       tcl(widget,"set", "") # aka -1 for get
                    } else {
                      if(!is.null(editable) && editable) {
                        ## editable

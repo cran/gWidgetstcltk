@@ -162,6 +162,17 @@ setReplaceMethod(".size",
                  })
 
 
+##' visible<- if FALSE, for password usage
+setReplaceMethod("visible",signature(obj="gEdittcltk"),
+          function(obj, ..., value) {
+            widget <- getWidget(obj)
+            if(as.logical(value))
+              tkconfigure(widget, show="")
+            else
+              tkconfigure(widget, show="*")
+            return(obj)
+          })
+
 
 ##################################################
 ## handlers

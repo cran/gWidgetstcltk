@@ -78,6 +78,7 @@ setMethod(".ggroup",
               })
             } else {
               gp <- ttkframe(tt)
+              tkconfigure(gp, borderwidth=10) # XXX
               block <- gp
               widget <- NULL      # for later
             }

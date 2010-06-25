@@ -1,3 +1,24 @@
+2010-06-14  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gtable.R (.computeWidths): removed autoscroll call - caused
+	issues with initial drawing of screen. Also in gtext.
+
+2010-05-28  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gdroplist.R: svalue(obj, index=TRUE) <- -1 should work now (no
+	value set)
+
+2010-05-27  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gedit.R: added visible<- method
+
+2010-05-22  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gdialogs.R: fix to dialogs when message includes detail
+	(message has length 2 or more).
+
+	* R/gfile.R: bug fix with hidden argument multiple
+
 2010-05-20  john verzani  <verzani@john-verzanis-macbook-pro.local>
 
 	* R/gradio.R: try to fix issue that handler called before variable
