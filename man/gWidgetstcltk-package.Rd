@@ -197,21 +197,30 @@ place.
 clicks of the arrows or to the return key in the text area.
 \cr
 
-\code{gstatusbar()} A hack. Just a \code{ggroup()} instance in disguise. By default it must have a gwindow instance for a parent container. If the argument not \code{not.toplevel=TRUE} is specified, a \code{ggroup} container may be used.
-\cr
+\code{gstatusbar()} A hack. Just a \code{ggroup()} instance in
+disguise. By default it must have a gwindow instance for a parent
+container. If the hidden argument  \code{not.toplevel=TRUE} is specified,
+a \code{ggroup} container may be used.  \cr
 
 \code{gtable()} This is built on the underlying tree widget. It is not
 ideal, but avoids needing to have a separate library (eg. Tktable)
-installed. The size is a bit of a hack. The tcl widget wants to specify
-the number of rows to show for the height, but gWidgets specifies the
-height in pixels. We convert by dividing pixels by 16. The width for the
-widget is specified by each column. We proportionally allocate the
-specified width to each column based on the current width of the
-column. As such, there is no guarantee that setting the size, then
-querying for the size will produce the same values.
-
-Unfortunately, the \code{visible} and \code{visible<-} methods do not work.
+installed.  
 \cr
+
+Sizing is an issue. There may be a bug in the widget regarding
+horizontal scrolling (for Mac OS X anyways, where this is being
+developed), or more likely something is just coded wrong.  There is some
+Tk code for "autoscrolling" that works (with an idiosyncrasy) so that
+the initial size of the widget is correct, but only when this size is set
+via arguments \code{width} and \code{height} passed to the constructor
+-- not with the \code{size<-} method. This feature is not on by default, as
+when it is used any widgets on the right of the table are not shown in
+the initial window, and are only exposed by resizing the window. If
+you want to try it, pass in the hidden argument \code{do.autoscroll=TRUE}.
+However, the \code{size<-} method has another use. It can also take a
+list for value. If so, then the first component specifies the widths
+of each column in character size and the second component (if given)
+the number of rows to be visible.  \cr
 
 \code{gtext()} The \code{size<-} method can be used to resize the
 widget. This method guesses at the converstion from pixels to characters
@@ -224,7 +233,7 @@ selected text is returned.
 
 
 \code{gtree()} Implemented using ttktreeview. It is slow however, so use
-on smaller trees only.
+on smaller trees only. Has same issues with scrollbars as \code{gtable}.
 \cr
 
 
@@ -277,10 +286,18 @@ when Filter by: value is changed.
 \bold{Handlers:}
 \cr
 
-Currently only one handler (the last one) for a signal is called. That
-is if you try to add to handlers for a click event, only the last will
-be called. As well, the \code{removehandler} function does not work
-except for the idle handler.
+
+Handlers were rewritten so that one can have more than one handler per
+signal (although not with radio buttons and checkboxgroups). The
+\code{blockHandler}, \code{unblockHandler} and \code{removeHandler}
+methods are now working.  \cr
+
+The \code{addHandlerBlur} method should be called when a widget loses
+focuses, but here is called whenever a widget loses focus \emph{and}
+whenever the mouse leaves the widget. This can mean the handler is
+called twice. If you don'l like that, you can add the callback through
+\code{addHandler(obj, signal, handler)} where \code{signal} is
+\code{<FocusOut>} or \code{<Leave>}.
 \cr
 
 \code{adddroptarget()}, \code{adddropsource()}, and \code{adddropmotion}

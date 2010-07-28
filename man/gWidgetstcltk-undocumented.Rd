@@ -13,8 +13,8 @@
 \alias{[,gCommandlinetcltk-method}
 \alias{[,gDroplisttcltk-method}
 \alias{[,gEdittcltk-method}
-\alias{[,GtkTreeView-method}
 \alias{[,gGridtcltk-method}
+\alias{[,gLayouttcltk-method}
 \alias{[,gMenutcltk-method}
 \alias{[,gNotebooktcltk-method}
 \alias{[,gRadiotcltk-method}
@@ -36,6 +36,7 @@
 \alias{.svalue<-,gStatusbartcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
 \alias{.svalue<-,gTexttcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
 \alias{.svalue<-,gToolbartcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
+\alias{.svalue<-,gTreetcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
 \alias{.svalue<-,gAddargtcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
 \alias{.svalue<-,gBivariatetcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
 \alias{.svalue<-,gModeltcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
@@ -375,8 +376,8 @@
 \alias{.leftBracket,gCommandlinetcltk,guiWidgetsToolkittcltk-method}
 \alias{.leftBracket,gDroplisttcltk,guiWidgetsToolkittcltk-method}
 \alias{.leftBracket,gEdittcltk,guiWidgetsToolkittcltk-method}
-\alias{.leftBracket,GtkTreeView,guiWidgetsToolkittcltk-method}
 \alias{.leftBracket,gGridtcltk,guiWidgetsToolkittcltk-method}
+\alias{.leftBracket,gLayouttcltk,guiWidgetsToolkittcltk-method}
 \alias{.leftBracket,gMenutcltk,guiWidgetsToolkittcltk-method}
 \alias{.leftBracket,gNotebooktcltk,guiWidgetsToolkittcltk-method}
 \alias{.leftBracket,gRadiotcltk,guiWidgetsToolkittcltk-method}
@@ -771,7 +772,8 @@
 \alias{.removehandler-methods}
 \alias{.removehandler,gWidgettcltk,guiWidgetsToolkittcltk-method}
 \alias{.removehandler,tcltkObject,guiWidgetsToolkittcltk-method}
- \alias{.removehandler,gCheckboxgrouptcltk,guiWidgetsToolkittcltk-method} 
+\alias{.removehandler,gCheckboxgrouptcltk,guiWidgetsToolkittcltk-method} 
+\alias{.removehandler,gRadiotcltk,guiWidgetsToolkittcltk-method} 
 
 
 %%
@@ -804,6 +806,7 @@
 \alias{.blockhandler,gWidgettcltk,guiWidgetsToolkittcltk-method}
 \alias{.blockhandler,tcltkObject,guiWidgetsToolkittcltk-method} 
 \alias{.blockhandler,gCheckboxgrouptcltk,guiWidgetsToolkittcltk-method} 
+\alias{.blockhandler,gRadiotcltk,guiWidgetsToolkittcltk-method} 
 
 %% --  unblockhandler --
 %%
@@ -819,6 +822,7 @@
 \alias{.unblockhandler,gWidgettcltk,guiWidgetsToolkittcltk-method}
 \alias{.unblockhandler,tcltkObject,guiWidgetsToolkittcltk-method} 
 \alias{.unblockhandler,gCheckboxgrouptcltk,guiWidgetsToolkittcltk-method} 
+\alias{.unblockhandler,gRadiotcltk,guiWidgetsToolkittcltk-method} 
 
 %%
 %% --  addhandlerchanged --
@@ -1132,6 +1136,7 @@
 \alias{.length,gDroplisttcltk,guiWidgetsToolkittcltk-method} 
 \alias{.length,gGridtcltk,guiWidgetsToolkittcltk-method}
 \alias{.length,gHelptcltk,guiWidgetsToolkittcltk-method}
+\alias{.length,gLayouttcltk,guiWidgetsToolkittcltk-method}
 \alias{.length,gNotebooktcltk,guiWidgetsToolkittcltk-method}
 \alias{.length,gRadiotcltk,guiWidgetsToolkittcltk-method}
 \alias{.length,gTabletcltk,guiWidgetsToolkittcltk-method}
