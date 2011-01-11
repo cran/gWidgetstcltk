@@ -2,6 +2,22 @@ Dear Emacs, please make this -*-Text-*- mode!
 
 NEWS for gWidgetstcltk
 
+Changes for 0.0-41
+-------------------
+* doc fixes	
+Changes for 0.0-40
+-------------------
+* gcheckboxgroup now uses backend R5 class
+* gradio cannow use [<- to lengthen/shorten radio button count
+* gedit new [<- for auto complete
+* Added new R5 classes
+* change behavior of default anchoring of children into parent. This
+can be adjusted through the option "gw:tcltkDefaultAnchor".
+* added extra functionality for gslider. Need not be integer valued now.
+* bug fix for add method and fill argument
+* Added calendar selector to gcalendar
+* add [ method for gnotebook, kill [<- (wasn't working, isn't right)
+
 Changes for 0.0-39
 -------------------
 * added [ method to glayout for extraction

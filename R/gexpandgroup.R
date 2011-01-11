@@ -1,8 +1,8 @@
 ## expander group, like a group, only expands, contracts if requested
 ## inherits from ggroup, see ggroup's arguments: horizontal, spacing, container
 setClass("gExpandgrouptcltk",
-         contains="gContainertcltk",
-         prototype=prototype(new("gContainertcltk"))
+         contains="gGrouptcltk",
+         prototype=prototype(new("gGrouptcltk"))
          )
 
 
@@ -59,7 +59,7 @@ setMethod(".gexpandgroup",
 
 #            obj = new("gExpandgrouptcltk",block = eg1, widget = eg,
 
-            obj = new("gExpandgrouptcltk",block = cg, widget = eg,
+            obj = new("gExpandgrouptcltk",block = cg, widget = eg, horizontal=horizontal,
               toolkit = toolkit, ID = getNewID(), e = new.env())
 
 
@@ -67,10 +67,11 @@ setMethod(".gexpandgroup",
             tag(obj, "expandGroup") <- eg1
             tag(obj, "icon") <- icon
             tag(obj, "label") <- label
-            tag(obj, "state") <- TRUE
+            tag(obj, "state") <- FALSE
             tag(obj, "rightArrow") <- rightArrow
             tag(obj, "downArrow") <- downArrow
-
+            tag(obj, "height") <- tkcget(getWidget(obj), "-height")
+              
             changeState = function(h,...) {
               if((state <- tag(obj,"state"))) {
                 visible(obj) <- FALSE
@@ -82,6 +83,9 @@ setMethod(".gexpandgroup",
             addHandlerClicked(icon, handler=changeState)
             addHandlerClicked(label, handler=changeState)
 
+
+            visible(obj) <- FALSE       # initial state
+            
             ## must take care of closing/opening
             if(!is.null(handler)) {
               addHandlerChanged(obj, handler=handler, action=action)
@@ -164,14 +168,20 @@ setMethod(".visible",
 setReplaceMethod(".visible",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gExpandgrouptcltk"),
                  function(obj, toolkit, ..., value) {
-                   cg = tag(obj,"containerGroup")
-                   eg = tag(obj,"expandGroup")
+                   W <- getWidget(obj)
+                   ## cg = tag(obj,"containerGroup")
+                   ## eg = tag(obj,"expandGroup")
                    if( (value <- as.logical(value)) ) {
                     ## true, expand
-                     add(cg, eg, expand=TRUE)
+                     ##                     add(cg, eg, expand=TRUE)
+                     tkpack("propagate", W, TRUE)
+                     tkconfigure(W, height=tag(obj, "height"))
                      svalue(tag(obj,"icon")) <- tag(obj,"downArrow")
                    } else {
-                     delete(cg,eg)
+                     ##                     delete(cg,eg)
+                     tag(obj, "height") <- tkwinfo("height", W)
+                     tkpack("propagate", W, FALSE)
+                     tkconfigure(W, height=1)
                      svalue(tag(obj,"icon")) <- tag(obj,"rightArrow")
                    }
                    tag(obj,"state") <-value

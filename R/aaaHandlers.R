@@ -7,13 +7,22 @@
 ##' @param signal the signal (handler list keyed by signal)
 ##' @param h list with proper components from call
 runHandlers <- function(obj, signal, h, ...) {
-  l <- tag(obj, "..handlers")
-  signalList <- l[[signal]]
-  sapply(signalList, function(i) {
-    if(!i$blocked) {
-      i$handler(h, ...)
-    }
-  })
+  ## check if enabled
+  W <- getWidget(obj)
+  if(isTtkWidget(W))
+    enabled <- enabled_ttkwidget(W)
+  else
+    enabled <- enabled_tkwidget(W)
+
+  if(enabled) {
+    l <- tag(obj, "..handlers")
+    signalList <- l[[signal]]
+    sapply(signalList, function(i) {
+      if(!i$blocked) {
+        i$handler(h, ...)
+      }
+    })
+  }
 }
 
 ##' add a handler to an object
@@ -21,6 +30,7 @@ runHandlers <- function(obj, signal, h, ...) {
 ##' The basic idea is that a list of handlers (keyed by the signal) is kept along with a flag
 ##' indicating whether the handler is blocked or not
 ##' The binding is done to call the runHandlers function so that this flag can be intercepted
+##' For signal="command" we use the command option of the widget, otherwise we bind with tkbind
 setMethod(".addHandler",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
           function(obj, toolkit,
@@ -66,7 +76,11 @@ setMethod(".addHandler",
                 runHandlers(obj, signal, h, ...)
               }
             }
-            tkbind(getWidget(obj), signal, FUN)
+
+            if(signal == "command")
+              tkconfigure(getWidget(obj), command=FUN)
+            else
+              tkbind(getWidget(obj), signal, FUN)
 
             ## return id
             invisible(id)
@@ -81,9 +95,17 @@ setMethod(".addHandler",
             theobj = theArgs$actualobj
 
             handler <- force(handler)
-            tkbind(obj,signal, function(...) {
-              h = list(obj=theobj, action=action)
-              handler(h,...)
+            tkbind(obj, signal, function(...) {
+              ## check if enabled
+              if(isTtkWidget(obj))
+                enabled <- enabled_ttkwidget(obj)
+              else
+                enabled <- enabled_tkwidget(obj)
+
+              if(enabled) {
+                h = list(obj=theobj, action=action)
+                handler(h,...)
+              }
             })
             invisible(list(type=NULL,handlerID=NULL))
           })
@@ -221,7 +243,7 @@ setMethod(".removehandler",
             } else if(is.null(ID$id) && !is.null(ID[[1]]$obj)) {
               ## might be a list of IDs (gradio, gcheckboxgroup), we check here
               sapply(ID, function(i) {
-                .removehandler(i$obj, toolkit, ID=i$id)
+                removehandler(i$obj, ID=i)
               })
               return()
             } else {

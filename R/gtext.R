@@ -62,9 +62,13 @@ setMethod(".gtext",
             tkgrid.columnconfigure(gp, 0, weight=1)
             tkgrid.rowconfigure(gp, 0, weight=1)
 
-            ## call in autoscroll
-#            tcl("autoscroll", xscr)
-#            tcl("autoscroll", yscr)
+            ## from tcltk2 package, this package is installed
+            tclRequire("autoscroll")
+            if(windowingsystem() != "aqua") {
+              tcl("autoscroll::autoscroll", xscr)
+              tcl("autoscroll::autoscroll", yscr)
+            }
+
             
             ## set point
             tkmark.set(txt,"insert","0.0")
@@ -151,7 +155,7 @@ setReplaceMethod(".svalue",
                      value <- paste(value, collapse="\n")
                    tkinsert(getWidget(obj),"end",value)
 
-                   tksee(getWidget(obj),"end")
+                   tksee(getWidget(obj),"0.0")
                    
                    return(obj)
                  })
@@ -169,11 +173,10 @@ setMethod(".dispose",
           })
 
 
-### Add method is a workhorse for this class. Value can be
+### insert (was add) method is a workhorse for this class. Value can be
 ## * a line of text
 ## * a vector of lines of text
-## need to do where value of "point"
-## add, as a method, needs to have a consistent signature. I'
+## need to do where value of "at.cursor"
 
 ## add text
 setMethod(".insert",
@@ -187,6 +190,7 @@ setMethod(".insert",
                  do.newline=do.newline, ...)
           })
 
+## should be .insert, but legacy
 setMethod(".add",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gTexttcltk",value="character"),
           function(obj, toolkit, value,  ...) {

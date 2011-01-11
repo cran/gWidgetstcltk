@@ -20,7 +20,7 @@ setClass("guiWidgetsToolkittcltk",
 ## got these from apropos("New") -> try(class(do.call(i,list())))
 
 require(tcltk)
-oldClasses =c("tkwin")
+oldClasses =c("tkwin", "tclVar", "tclObj")
 setClass("tcltkObject")
 sapply(oldClasses, function(i) {
   setOldClass(i)
@@ -80,7 +80,7 @@ setClass("gContainertcltk",
 
 ## make tcltk S3 object S4 objects
 
-oldclasses = c("tkwin")
+oldclasses = c("tkwin", "tclVar")
 for(i in oldclasses) {
   setOldClass(i)
   setIs(i,"guiWidgetORgWidgettcltkORtcltkObject")
@@ -241,24 +241,26 @@ setMethod("visible",signature(obj="gWidgettcltk"),
             .visible(obj,obj@toolkit, set=set, ...)
           })
 
+##' get visibility
 setMethod(".visible",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
           function(obj, toolkit, set=TRUE, ...) {
-            widget = obj@widget
-
-            .visible(obj) <- set
-#            missingMsg(".visible")
-            return()
-            
-            if(as.logical(set))
-              widget$Show()
-            else
-              widget$Hide()
+            widget <- getBlock(obj)
+            if(is.null(set)) {
+              ## return logical
+              as.logical(tkwinfo("viewable", widget))
+            } else {
+              .visible(obj, toolkit) <- set
+              return(NA)
+            }
           })
+
+## is widget viewable
 setMethod(".visible",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="tkwin"),
                  function(obj, toolkit, set=TRUE, ...) {
-                   ## visible not implemented
+                   w <- getWidget(obj)
+                   as.logical(tkwinfo("viewable", w))
                  })
 
 
@@ -272,7 +274,7 @@ setReplaceMethod("visible",signature(obj="gWidgettcltk"),
 setReplaceMethod(".visible",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
                  function(obj, toolkit, ..., value) {
-                   .visible(getWidget(obj), toolkit, set=as.logical(value))
+                   cat("visible<- not implemented\n")
                    return(obj)
                  })
 setReplaceMethod(".visible",
@@ -285,6 +287,14 @@ setReplaceMethod(".visible",
 
 
 ## enabled -- TRUE If state is normal
+##' enabled different for ttk widget
+enabled_ttkwidget <- function(x, ...) {
+  !as.logical(tcl(x, "instate", "disabled"))
+}
+enabled_tkwidget <- function(x, ...) {
+  as.character(tkcget(x, "-state")) == "normal"
+}
+
 setMethod("enabled",signature(obj="gWidgettcltk"),
           function(obj, ...) {
             .enabled(obj, obj@toolkit,...)
@@ -292,11 +302,11 @@ setMethod("enabled",signature(obj="gWidgettcltk"),
 setMethod(".enabled",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
           function(obj, toolkit, ...) {
-            state = as.character(tcl(getWidget(obj),"state"))
-            if(length(state) > 0 && state == "disabled")
-              return(FALSE)
+            w <- getWidget(obj)
+            if(isTtkWidget(w))
+              enabled_ttkwidget(w)
             else
-              return(TRUE)
+              enabled_tkwidget(w)
           })
 
 ## enabled<-
@@ -312,20 +322,26 @@ setReplaceMethod(".enabled",
                    .enabled(obj,guiToolkit("tcltk"), ...) <- value
                    return(obj)
                  })
-                   
+
+setenabled_ttkwidget <- function(x, value) {
+  tcl(x, "state", ifelse(value, "!disabled", "disabled"))
+}
+setenabled_tkwidget <- function(x, value) {
+  tkconfigure(x, state=ifelse(as.logical(value), "normal", "disabled"))
+}
 setReplaceMethod(".enabled",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
                  function(obj, toolkit, ..., value) {
+                   w <- getWidget(obj)
 
-                   if(as.logical(value))
-                     tcl(getWidget(obj),"state","!disabled")
-#                     tkconfigure(getWidget(obj),state="normal")
+                   if(isTtkWidget(w))
+                     setenabled_ttkwidget(w, as.logical(value))
                    else
-                     tcl(getWidget(obj),"state","disabled")
-#                     tkconfigure(getWidget(obj),state="disabled")
+                     setenabled_tkwidget(w, as.logical(value))
 
                    ## recurse into childComponents
                    childComponents <- obj@e$childComponents
+                   
                    if(!is.null(childComponents))
                      sapply(childComponents,function(i) enabled(i) <- value)
                             
@@ -333,6 +349,15 @@ setReplaceMethod(".enabled",
                  })
 
 ## focus
+focus_ttkwidget <- function(x, ...) as.logical(tcl(x, "instate", "focus"))
+focus_tkwidget <- function(x, ...) {
+  if(is.tkwin(x))
+    x <- x$ID
+  tl <- tkwinfo("toplevel", x)
+  cur <- as.character(tcl("focus", displayof=tl))
+  return(cur == x)
+}
+
 setMethod("focus",signature(obj="gWidgettcltk"),
           function(obj, ...) {
             .focus(obj, obj@toolkit,...)
@@ -340,9 +365,13 @@ setMethod("focus",signature(obj="gWidgettcltk"),
 
 setMethod(".focus",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
-          function(obj, toolkit, ...)
-          tkfocus(getBlock(obj))
-          )
+          function(obj, toolkit, ...) {
+            w <- getWidget(obj)
+            if(isTtkWidget(w))
+             focus_ttkwidget(w)
+            else
+              focus_tkwidget(w)
+          })
 
 ## focus<-
 setReplaceMethod("focus",signature(obj="gWidgettcltk"),
@@ -350,6 +379,20 @@ setReplaceMethod("focus",signature(obj="gWidgettcltk"),
             .focus(obj, obj@toolkit,...) <- value
             return(obj)
           })
+
+setfocus_ttkwidget <- function(x, value) if(value) tcl(x, "state", "focus")
+setfocus_tkwidget <- function(x, value) if(value) tkfocus(x)
+
+setReplaceMethod("focus",signature(obj="tcltkObject"),
+          function(obj, ..., value) {
+            w <- getWidget(obj)
+            if(isTtkWidget(w))
+              setfocus_ttkwidget(w, value)
+            else
+              setfocus_tkwidget(w, value)
+            return(obj)
+          })
+
 
 setReplaceMethod(".focus",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
@@ -369,7 +412,7 @@ setReplaceMethod(".focus",
             return(obj)
           })
 
-## default Widget is initially focused
+## default Widget is initially focused. SHould have binding for this
 ## defaultWidget
 setMethod("defaultWidget",signature(obj="gWidgettcltk"),
           function(obj, ...) {
@@ -426,7 +469,8 @@ setMethod("isExtant",signature(obj="gWidgettcltk"),
 setMethod(".isExtant",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
           function(obj, toolkit, ...) {
-            return(TRUE)
+            w <- getWidget(obj)
+            as.logical(as.numeric(tkwinfo("exists", w)))
           })
 
 
@@ -440,14 +484,15 @@ setReplaceMethod("tooltip",signature(obj="gWidgettcltk"),
 setReplaceMethod(".tooltip",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
           function(obj, toolkit, ..., value) {
-            tooltip(obj@widget, toolkit, ...) <- value
+            widget <- getWidget(obj)
+            tcltk2:::tk2tip(widget, paste(value, collapse="\n"))
             return(obj)
           })
 
 setReplaceMethod("tooltip",signature(obj="tcltkObject"),
           function(obj, ..., value) {
             ## set the tip.
-            ## no tooltips without add on package tooltip
+            tcltk2:::tk2tip(obj, paste(value, collapse="\n"))
             return(obj)
           })
 
@@ -620,41 +665,6 @@ setMethod(".tag", signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk")
             else
               return(obj@e[[i]])
             
-##             ############ OLD ####################
-##             id = obj@ID
-
-##             ## get all values for this id
-##             tags = getFromNamespace("tags",ns="gWidgetstcltk")
-##             allKeys = names(tags)
-
-
-##             allKeys <- ls(obj@e)
-            
-
-##             inds = grep(paste("^",id,"::",sep=""),allKeys)
-##             if(length(inds) == 0)
-##               return(NULL)
-
-##             justTheKeys = sapply(allKeys[inds],function(keyWithID) {
-##               sub(paste("^",id,"::",sep=""),"",keyWithID)
-##             })
-
-##             tagByKey = list()
-##             for(key in justTheKeys) 
-##               tagByKey[[key]] = tags[[paste(id,key,sep="::")]]
-                      
-            
-            
-##             if(is.null(i)) return(tagByKey)
-
-##             if(drop) {
-##               if(length(i) == 1)
-##                 return(tagByKey[[i]])
-##               else
-##                 return(sapply(i, function(j) tagByKey[j]))
-##             } else {
-##               return(sapply(i, function(j) tagByKey[j]))
-##             }
           })
 
 ## tag <-
@@ -686,47 +696,7 @@ setReplaceMethod(".tag", signature(toolkit="guiWidgetsToolkittcltk",obj="gWidget
             obj@e[[i]] <- value
             return(obj)
 
-##             ########### OLD ######################
-            
-##             id = obj@ID
-##             key = paste(id,i,sep="::")
-            
-##             ## if we append we need to work a little harder
-##             tags = getFromNamespace("tags",ns="gWidgetstcltk")
-  
-##             if(replace==FALSE) {
-##               value = c(tags[[key]],value)
-##             }
-
-##             tags[[key]] <- value
-##             assignInNamespace("tags", tags,ns="gWidgetstcltk")
-
-##             return(obj)
-
           })
-## setReplaceMethod(".tag", signature(toolkit="guiWidgetsToolkittcltk",obj="tcltkObject"),
-##           function(obj, toolkit, i, replace=TRUE, ..., value) {
-##             if(missing(i) || is.null(i)) {
-##               warning("Need to specify a key to the 'i' argument of tag<-")
-##             } else {
-##               theArgs = list(...)
-##               replaceIt = as.logical(replace)
-
-##               missingMsg(".tag<-");return()
-              
-##               allData = obj$GetData(".tagKey")
-##               if(is.null(allData)) allData = list()
-              
-##               if(replaceIt) {
-##                 allData[[i]] <- value
-##               } else {
-##                 allData[[i]] <- c(allData[[i]], value)
-##               }
-##               obj$SetData(".tagKey", allData)
-##             }
-##             return(obj)
-##           })
-
 
 ##################################################
 ## id -- define for "ANY" as well
@@ -849,7 +819,9 @@ setMethod(".add",
 
             
             argList = list(getBlock(value))
-
+            argList$fill <- theArgs$fill
+            argList$expand <- theArgs$expand
+            
             ## expand. use fill, expand didn't
             if(!is.null(theArgs$expand) && theArgs$expand) {
               argList$expand <- TRUE
@@ -857,12 +829,9 @@ setMethod(".add",
                 argList$fill = "both"
             }
 
-            ## if anchor, then set expand=TRUE, no fill
-            if(!is.null(theArgs$anchor)) {
-              argList$expand <- TRUE
-              argList$fill <- NULL      # no fill
-              argList$anchor <- xyToAnchor(theArgs$anchor)
-            }
+            ## the default anchor. -1,1 or NW makes layouts nicer looking IMHO
+            defaultAnchor <- getWithDefault(getOption("gw:tcltkDefaultAnchor"), c(-1, 1))
+            argList$anchor <- xyToAnchor(getWithDefault(theArgs$anchor, defaultAnchor))
             
             if(obj@horizontal)
               argList$side = "left"
@@ -873,10 +842,10 @@ setMethod(".add",
             do.call("tkpack",argList)
 
             tcl("update","idletasks")
-
-            if(!is.null(widget <- .tag(value,toolkit,"scrollable.widget"))) {
+            
+            if(!is.null(widget <- .tag(obj,toolkit, "scrollable.widget"))) {
               ## get scrollbars to add to end etc.
-              tcl("event","generate",getWidget(value),"<Configure>")
+              tcl("event","generate",getWidget(obj),"<Configure>")
               tkxview.moveto(widget,1)
               tkyview.moveto(widget,1)
             }
@@ -904,10 +873,12 @@ setMethod(".addSpring",
             tt <- getBlock(obj)
             blankLabel <- ttklabel(tt,text=" ")
 
-            if(obj@horizontal)
-              tkpack(blankLabel,expand=TRUE,fill="y",side="left")
-            else
-              tkpack(blankLabel,expand=TRUE,fill="x",side="top")
+            if(obj@horizontal) {
+              ## doesn't work!
+              tkpack(blankLabel, expand=TRUE, fill="x", side="left")
+            } else {
+              tkpack(blankLabel, expand=TRUE, fill="y", side="top")
+            }
             invisible()
           })
 
@@ -1306,10 +1277,19 @@ setMethod(".addhandlerrightclick",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
           function(obj, toolkit,
                    handler, action=NULL, ...) {
-            f = function(h,...) {
-             .addHandler(obj, toolkit, signal="<Button-3>",
-                        handler=handler, action=action, ...)
-           }
+
+            if(windowingsystem() == "aqua" ||
+               grepl("^mac",.Platform$pkgType)) {
+              id <- lapply(c("<Control-1>", "<Button-2>", "<Button-3>"), function(i) {
+                id <- .addHandler(obj, toolkit, signal=i,
+                            handler=handler, action=action, ...)
+                list(obj=obj, id=id, signal=i)    # for remove/block/unblock
+              })
+            } else {
+              id <- .addHandler(obj, toolkit, signal="<Button-3>", 
+                          handler=handler, action=action, ...)
+            }
+            invisible(id)
           })
 
 

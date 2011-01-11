@@ -102,15 +102,19 @@ setMethod(".dispose",
             }
             ## clear out would like "hide" here, as then we can
             ## readd. Not working here? why not?
+
+            children <- obj@e$childComponents
             for(i in inds) {
               j = cur.pageno + i
               if(deleteOK(j)) {
 #                tcl(nb,"hide", j - 1)
                 tcl(nb,"forget", j - 1)
+                children[[j]] <- NULL
               }
             }
+            obj@e$childComponents <- children
 
-            if(cur.pageno > 0) {        # error if no pages
+            if(cur.pageno > 0 && length(children)) {        # error if no pages
               if(cur.pageno <= length(obj))
                 svalue(obj) <- cur.pageno
               else
@@ -120,12 +124,18 @@ setMethod(".dispose",
 
 
 setMethod(".delete",
-          signature(toolkit="guiWidgetsToolkittcltk",obj="gNotebooktcltk"),
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gNotebooktcltk", widget="gWidgettcltk"),
           function(obj, toolkit, widget, ...) {
             nb <- getWidget(obj)
-            widget <- getBlock(widget)
+            childWidget <- getBlock(widget)
 
-            tcl(nb,"forget",widget)
+            tcl(nb,"forget",childWidget)
+            ## remove from childComponents
+            children <- obj@e$childComponents
+            ind <- sapply(children, function(i) digest(i) == digest(widget))
+            if(any(ind))
+              children <- children[!ind]
+            obj@e$childComponents <- children
           })
 
 
@@ -203,7 +213,7 @@ setMethod(".add",
             
             ## closebutton
             ## closebutton
-            file = system.file("images/cancel.gif",package="gWidgets")
+            file <- system.file("images/cancel.gif",package="gWidgets")
             closeb <- tcl("image","create","photo",file=file)
             
             doCloseButton <- FALSE
@@ -222,10 +232,16 @@ setMethod(".add",
 
 
             ##
-            if(doCloseButton) {
-              packingOptions$image=closeb
-              packageOptions$compount = "right"
-            }
+            ## Can't do close buttons until we can identify when a tab click is on the icon
+            ## We should be able to: nb identify element x y should work, as in
+            ## tkbind(nb, "<Button-1>", function(x,y) {
+            ##      tcl(nb, "identify", "element", x, y)
+            ## })
+            ## however this failes, only identify works and we can't sort out label from image
+            ## if(doCloseButton) {
+            ##   packingOptions$image=closeb
+            ##   packingOptions$compound = "right"
+            ## }
             
             if(is.null(index)) {
               f <- function(...)
@@ -288,22 +304,15 @@ setMethod("[",
 setMethod(".leftBracket",
           signature(toolkit="guiWidgetsToolkittcltk",x="gNotebooktcltk"),
           function(x, toolkit, i, j, ..., drop=TRUE) {
-            nb <- getWidget(x)
-
-            ### XXX Implement this
-            gwCat(gettext("gnotebook: [ is not defined in gWidgetstcltk\n"))
-            return()
-
             
             if(missing(i))
               i = 1:length(x)
 
-            
-            lst <- sapply(i, function(j) tcl(nb,"tab",j-1))
-            if(length(i) == 1)
-              return(lst[[1]])
-            else
-              return(lst)
+            children <- x@e$childComponents[i]
+            if(length(children) == 1)
+              children <- children[[1]]
+
+            return(children)
           })
 
 
@@ -319,12 +328,15 @@ setReplaceMethod(".leftBracket",
           signature(toolkit="guiWidgetsToolkittcltk",x="gNotebooktcltk"),
           function(x, toolkit, i, j, ..., value) {
             ##
+            cat(gettext("Can't add widget via [<-\n"))
+            return()
+
             nb <- getWidget(x)
             widget <- getBlock(value)
 
             if(missing(i))
               stop(gettext("Missing value for i"))
-
+            ## works, but parent is all messed up
             tcl(nb,"add",i - 1, value)
             
           })

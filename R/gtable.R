@@ -20,34 +20,41 @@ setClass("gTabletcltk",
 }
 
 ## covert a dta frame into a character based on
-.toCharacter <- function(x,width,...) UseMethod(".toCharacter")
-.toCharacter.default <- function(x,width,...) as.character(x)
-.toCharacter.integer <- function(x,width,...) {
+.toCharacter <- function(x,width=NULL,...) UseMethod(".toCharacter")
+.toCharacter.default <- function(x,width=NULL,...) as.character(x)
+.toCharacter.integer <- function(x,width=NULL,...) {
  if(missing(width)) width <- max(nchar(as.character(x))) + 2  
-  format(x, justify="right", width=width)
+  format(x, justify="right", digits=width)
 }
-.toCharacter.numeric <- function(x,width,...) {
+.toCharacter.numeric <- function(x,width=NULL,...) {
   if(missing(width)) width <- max(nchar(as.character(x))) + 2
-  format(x,trim=FALSE, width=width, justify="right")
+  format(x,trim=FALSE, digits=width, justify="right")
 }
-.toCharacter.factor <- function(x,width,...) {
+.toCharacter.factor <- function(x,width=NULL,...) {
   if(missing(width)) width <- max(nchar(as.character(x))) + 2
   .toCharacter(as.character(x),width,...)
 }
-.toCharacter.logical <- function(x,width,...) {
-  if(missing(width)) width <- 7
+.toCharacter.logical <- function(x,width=NULL,...) {
+  if(is.null(width))
+    width <- 7
+  width <- max(7, width)
   format(as.character(x), justify="centre", width=width)
 }
-.toCharacter.data.frame <- function(x,width,...) {
+.toCharacter.data.frame <- function(x,width=NULL,...) {
   nms <- names(x)
-  df <- as.data.frame(lapply(x,function(i) .toCharacter(i)),
+  df <- as.data.frame(lapply(x,function(i) .toCharacter(i, width)),
                       stringsAsFactors=FALSE)
   names(df) <- nms
   return(df)
 }
-.toCharacter.matrix <- function(x, width, ...) {
+.toCharacter.matrix <- function(x, width=NULL, ...) {
   .toCharacter(as.data.frame(x), width, ...)
 }
+
+## pass in argument
+## function(x, width, ...)
+toCharacter <- getWithDefault(options("gw_toCharacter"), .toCharacter)
+
 
 
 .populateTable <- function(tr, items, visible, icons=NULL, nms=names(items),
@@ -87,10 +94,9 @@ setClass("gTabletcltk",
     if(fresh)
       tcl(tr,"column",0,width=1, stretch=FALSE) # override below if needed
 
-    
     ## set widths/names of other columns if present
     for(j in 1:n) {
-      tcl(tr,"column", j , width=widths[j], stretch=TRUE, anchor="w") 
+      tcl(tr,"column", j , width=widths[j], stretch=TRUE)
       tcl(tr,"heading", j, text=nms[j])
     }
   }
@@ -98,7 +104,9 @@ setClass("gTabletcltk",
   ## deal with visible
   visible <- rep(visible, length=m)
   items <- items[visible,,drop=FALSE]
-  m <- dim(items)[1]
+
+  d <- dim(items)
+  m <- d[1]; n <- d[2]
 
   ## if icons, we create
   if(!is.null(icons)) {
@@ -108,9 +116,11 @@ setClass("gTabletcltk",
   }
 
   if(m > 0) {
+    ## add in values
     sapply(1:m, function(i) {
       values <- as.character(unlist(items[i,]))
-#      values <- paste("{",values,"}", sep="")  ## JV 9/9/09 -- was needed, why not now?
+      if(n == 1)
+        values <- paste("{",values,"}", sep="")  ## needed for single column. o/w splits on , and +
       if(!is.null(icons)) {
         tcl(tr,"insert","","end",
             values = values,
@@ -125,6 +135,19 @@ setClass("gTabletcltk",
   }
 }
 
+## set anchor of columns for justification
+.setAnchors <- function(tr, items) {
+  anchorStyle <- function(x) UseMethod("anchorStyle")
+  anchorStyle.default <- function(x) "center"
+  anchorStyle.numeric <- function(x) "e"
+  anchorStyle.character <- function(x) "w"
+
+  ## set anchorStyle
+  for(j in 1:ncol(items)) 
+    tcl(tr,"column", j , anchor=anchorStyle(items[,j,drop=TRUE]))
+}
+
+  
 ## clear the children. Should also remove row count
 .clearColumns <- function(tr) {
   vals <- tcl(tr,"children","")
@@ -208,9 +231,6 @@ setMethod(".gtable",
             tt <- getWidget(container)
             gp <- ttkframe(tt)
             
-            width <- getWithDefault(theArgs$width, 500)
-            height <- getWithDefault(theArgs$width, 300)
-            tkconfigure(gp, width=width, height=height)
             
             xscr <- ttkscrollbar(gp, orient="horizontal",
                                  command=function(...) tkxview(tr,...))
@@ -235,10 +255,10 @@ setMethod(".gtable",
             tkgrid.rowconfigure(gp, 0, weight=1)
 
             ## call in autoscroll
-            do.autoscroll <- getWithDefault(theArgs$do.autoscroll, FALSE)
-            if(do.autoscroll) {
-              tcl("autoscroll", xscr)
-            ##            tcl("autoscroll", yscr)
+            do.autoscroll <- getWithDefault(theArgs$do.autoscroll, TRUE)
+            if(do.autoscroll && windowingsystem() != "aqua") {
+              tcl("autoscroll::autoscroll", xscr)
+              tcl("autoscroll::autoscroll", yscr)
             }
             ##
             ######################
@@ -257,7 +277,9 @@ setMethod(".gtable",
             else
               "red"
             tag(obj,"visible") <- NULL
-            
+
+            tag(obj, "round") <- getWithDefault(theArgs$round, NULL)
+
             
             ## font -- fixed unless overridden
 #            tkconfigure(tr, font="courier") # fixed
@@ -274,12 +296,18 @@ setMethod(".gtable",
             else
               icon.FUN(items)
 
-            .populateTable(tr, .toCharacter(items), TRUE, icons,names(items),
+            ## scrollable widgets need a width and height set.
+            width <- getWithDefault(theArgs$width, 500)
+            height <- getWithDefault(theArgs$height, 300)
+
+            
+            .populateTable(tr, .toCharacter(items, tag(obj, "round")), TRUE, icons, names(items),
                            getSizeFrom=width)
 
+            .setAnchors(tr, items)
 
             size(obj) <- c(width, height)
-
+            
             ## add to container -- do after populating so widths are set
             add(container, obj,...)
             
@@ -393,7 +421,7 @@ setReplaceMethod(".leftBracket",
               items <- as.data.frame(value, stringsAsFactors=FALSE)
               tag(x,"items") <- items
 
-              .populateTable(widget, .toCharacter(items), visible(x),
+              .populateTable(widget, .toCharacter(items, tag(x, "round")), visible(x),
                              icon.FUN(items), names(items),fresh=FALSE, doWidths=FALSE,
                              getSizeFrom=size(x)[1])
               return(x)
@@ -418,7 +446,7 @@ setReplaceMethod(".leftBracket",
             ## size is okay
             items[i,j] <- value
             tag(x,"items") <- items     # set
-            citems <- .toCharacter(items)
+            citems <- .toCharacter(items, tag(x, "round"))
             allChildren <- .allChildren(widget)
 
             ## add row by row (i)
@@ -498,32 +526,40 @@ setReplaceMethod(".names",
 ##' Width setting is hacked in if value is a list, 
 ##' we convert to pixel size so this should be related to the number of characters
 ##' @param value either a numeric vector with 1 or 2 values to set
-##' width [height] or A list with 1 or 2 components. First is a
-##' numeric vector of length n to set widths of each column, second is
-##' number vector of size 1 to set number of rows shown
+##' width [height] or A list with components width, height, columnWidths, and noRowsShown
 setReplaceMethod(".size", 
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gTabletcltk"),
                  function(obj, toolkit, ..., value) {
-                   if(!is.list(value)) {
-                     ## set width -- value in pixels
-                     tkconfigure(getBlock(obj), width=value[1])
-                     if(length(value) > 2) {
-                       tkconfigure(getBlock(obj), height=value[2])
-                     }
-                   } else {
-                     newWidths <- value[[1]]
-                     d <- dim(obj); m <- d[1]; n <- d[2]
-                     newWidths <- rep(newWidths, length=n) # recycle
-                       
-                     widths <- widthOfChar * newWidths
-                     sapply(1:n, function(j) {
-                       tcl(getWidget(obj), "column", j-1, width=widths[j])
+                   if(is.list(value) && !is.null(value$columnWidths)) {
+                     ## do column widths
+                     widths <- value$columnWidths
+                     widths <- rep(widths, length.out=dim(obj)[2])
+                     sapply(seq_along(widths[-length(widths)]), function(j) {
+                       tcl(getWidget(obj), "column", j,  width=widths[j], stretch=TRUE) # -1?
                      })
-                     
-                     ## set height -- value in pixels for total widget
-                     if(length(value) >= 2)
-                       tkconfigure(getWidget(obj), height = as.integer(value[2]))
                    }
+
+                   if(is.list(value) && !is.null(value$noRowsShown)) {
+                     tkconfigure(getBlock(obj), height = value$noRowsShown * 16) # XXX compute font size
+                   }
+
+                   ## set basic size of widget block
+                   if(is.list(value)) {
+                     width <- value$width   # possibly NULL
+                     height <- value$height # possibly NULL
+                   } else {
+                     ## a vector c(width, height)
+                     width <- value[1]
+                     height <- ifelse(length(value) > 1, value[2], NULL)
+                   }
+                   
+                   ## set width -- value in pixels
+                   if(!is.null(width))
+                     tkconfigure(getBlock(obj), width=width)
+                   if(!is.null(height)) 
+                     tkconfigure(getBlock(obj), height=height)
+                   
+                   
                    return(obj)
                  })
 

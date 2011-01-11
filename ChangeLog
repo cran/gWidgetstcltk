@@ -1,3 +1,114 @@
+2011-01-10  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gdroplist.R: fix for width if no intial items
+
+2011-01-07  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/aaaGenerics.R: fixed addHandlerRightClick. Thanks Marie V
+
+2011-01-05  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/aaaR5classes.R: can use "command" signal, not just tkbind.
+
+	* R/gslider.R: using ttk::scale for themed widget. We give up the
+	theme, but canuse the "command" binding.
+
+2011-01-04  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gwindow.R: new method update to get window to naturally resize
+
+	* R/glayout.R: added dim method
+
+2011-01-02  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gcheckboxgroup.R: similar to gradio. Now based on R5 class
+
+	* R/gradio.R: based on R5 class now, not on older. Allows one to
+	extend/shorten length of radio group
+
+2010-12-30  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gaction.R: added key.accel value. key.accel should be like "Control-a"
+
+	* R/aaaGenerics.R (setenabled_ttkwidget): fixed enabled<- method
+
+	* R/gexpandgroup.R: changed visible<- method to adjust height, not
+	remove widget. Latter didn't resize gracefully.
+
+2010-12-18  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gedit.R: changed backend to use a widget designed for autocompletion.
+
+2010-11-23  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/aaaGenerics.R: fixed isExtant
+
+2010-11-07  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gcheckbox.R: call as.character on text before display -- fix
+	bug when logical
+
+2010-11-03  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/aaaGenerics.R: fixed bug in addSpring. Still doesn't work horizontally
+
+	* R/aaaGenerics.R: changed default anchor value to c(-1,1) or
+	NW. This can be adjusted through through the option "gw:tcltkDefaultAnchor".
+
+2010-11-01  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gslider.R (modifyLabel): added from=vector argument where
+	values are run through sort(unique(...))
+
+2010-10-30  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gtable.R (.toCharacter.numeric): put round argument in
+	constructor for Liviu
+
+2010-10-20  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gimage.R: moved code into svalue<- method. Fix bug if no image
+	initially specified.
+
+2010-10-18  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gdf.R: fixed bug in svalue (doubled up); svalue<- implemented
+	(index=TRUE needed)
+
+2010-10-16  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gcheckbox.R: added use.togglebutton feature
+
+2010-10-15  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gtable.R (.populateTable): fix to single column tables to
+	avoid splitting on , or +
+
+	* R/aaaGenerics.R: fixed focus<- method for tkwin
+
+2010-10-05  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gtext.R (ladd): changed what is shown after text is added. Now
+	moves to top, not bottom
+
+	* R/aaaGenerics.R: fixed error with fill argument to add method
+	for containers.
+
+2010-09-18  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gnotebook.R: bug fix for closebuttons=TRUE
+
+	* R/gpanedgroup.R: bug fix in svalue() method
+
+2010-08-08  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gnotebook.R: added [ method to get children
+
+
+2010-08-01  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gcalendar.R: added calendar selector
+
 2010-07-26  john verzani  <verzani@john-verzanis-macbook-pro.local>
 
 	* R/gtree.R (.treeColWidths): added svalue<- method to set by index

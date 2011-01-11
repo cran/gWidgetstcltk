@@ -29,52 +29,103 @@ setMethod(".ggroup",
 
             tt <- getWidget(container)
 
-            ## implement scrollbars if asked. 
-            if(use.scrollwindow == TRUE) {
+            ## implement scrollbars if asked.
+            ## XXX Not quite working as desired...
+            if(use.scrollwindow == TRUE && windowingsystem() != "aqua") {
               ## cf http://mail.python.org/pipermail/python-list/1999-June/005180.html
               block <- ttkframe(tt)
-              tkpack(block, expand=TRUE, fill="both")
-              
-              xscr <- ttkscrollbar(block, orient="horizontal",
-                                   command=function(...)tkxview(widget,...))
-              yscr <- ttkscrollbar(block, 
-                                   command=function(...)tkyview(widget,...))
-              
-              widget <- tkcanvas(block)
-              tkconfigure(widget, xscrollcommand = function(...) tkset(xscr,...))
-              tkconfigure(widget, yscrollcommand = function(...) tkset(yscr,...))
-              
-              ## Pack into a grid
-              ## see tkFAQ 10.1 -- makes for automatic resizing
-              tkgrid(widget,row=0,column=0, sticky="news")
-              tkgrid(yscr,row=0,column=1, sticky="ns")
-              tkgrid(xscr, row=1, column=0, sticky="ew")
-              tkgrid.columnconfigure(block, 0, weight=1)
-              tkgrid.rowconfigure(block, 0, weight=1)
 
-              ## call in autoscroll
-              tcl("autoscroll", xscr)
-              tcl("autoscroll", yscr)
+              ## put in one direction only
+              widget <- tkcanvas(block)
               
+              if(horizontal) {
+                xscr <- ttkscrollbar(block, orient="horizontal",
+                                   command=function(...)tkxview(widget,...))
+                tkconfigure(widget, xscrollcommand = function(...) tkset(xscr,...))
+
+                ## Pack into a grid
+                ## see tkFAQ 10.1 -- makes for automatic resizing
+                tkgrid(widget,row=0,column=0, sticky="news")
+                tkgrid(xscr, row=1, column=0, sticky="ew")
+                tkgrid.rowconfigure(block, 0, weight=1)
+                
+                tcl("autoscroll::autoscroll", xscr)
+
+              } else {
+                yscr <- ttkscrollbar(block, 
+                                     command=function(...)tkyview(widget,...))
+                tkconfigure(widget, yscrollcommand = function(...) tkset(yscr,...))
+              
+                ## Pack into a grid
+                ## see tkFAQ 10.1 -- makes for automatic resizing
+                tkgrid(widget,row=0,column=0, sticky="news")
+                tkgrid(yscr,row=0,column=1, sticky="ns")
+                tkgrid.columnconfigure(block, 0, weight=1)
+                
+                tcl("autoscroll::autoscroll", yscr)
+              }
               
               ## Set up frame
               gp <- ttkframe(widget)
-              tcl(widget,"create","window",0,0,anchor="nw",window=gp)
-                                        #tkgrid(gp, row = 0, column = 0, sticky="news")
+              gpID <- tcl(widget,"create","window",0,0,anchor="nw",window=gp)
               tkgrid.columnconfigure(widget,0,weight=1)
               tkgrid.rowconfigure(widget,0,weight=1)
+              
 
+                
+              ## give an initial size
+#              gpwidth <- getWithDefault(theArgs$width, 300)
+#              gpheight <- getWithDefault(theArgs$height, 300)
+#              if(horizontal)
+#                tkitemconfigure(widget, gpID, height=gpheight)
+#              else
+#                tkitemconfigure(widget, gpID, width=gpwidth)
+              
               tcl("update","idletasks")
 
 
-              tkbind(widget,"<Configure>",function() {
+              ## tkbind(widget,"<Configure>",function() {
+              ##   bbox <- tcl(widget,"bbox","all")
+              ##   tcl(widget,"config",scrollregion=bbox)
+              ## })
+
+              tkbind(block, "<Map>", function() {
+                if(horizontal) {
+                  width <- tkwinfo("width", block)
+                  tkconfigure(widget, width=width)
+                } else {
+                  height <- tkwinfo("height", block)
+                  tkconfigure(widget, height=height)
+                }
+              })
+
+              tkbind(gp, "<Map>", function() {
+                if(horizontal) {
+                  tkconfigure(widget, height=tkwinfo("height", gp))
+                } else {
+                  tkconfigure(widget, width=tkwinfo("width", gp))
+                }
+              })
+              
+              tkbind(gp,"<Configure>",function() {
                 bbox <- tcl(widget,"bbox","all")
                 tcl(widget,"config",scrollregion=bbox)
               })
 
-              tkbind(gp,"<Configure>",function() {
-                bbox <- tcl(widget,"bbox","all")
-                tcl(widget,"config",scrollregion=bbox)
+              
+              tkbind(widget, "<Configure>", function(W) {
+                width <- as.numeric(tkwinfo("width", W))
+                height <- as.numeric(tkwinfo("height", W))
+                
+#                gpwidth <- as.numeric(tkwinfo("width", gp))
+#                gpheight <- as.numeric(tkwinfo("height", gp))
+                gpwidth <- as.numeric(tkwinfo("width", block))
+                gpheight <- as.numeric(tkwinfo("height", block))
+                
+                if(gpwidth < width && !horizontal)
+                  tkitemconfigure(widget, gpID, width=width)
+                if(gpheight < height && horizontal)
+                  tkitemconfigure(widget, gpID, height=height)
               })
             } else {
               gp <- ttkframe(tt)
@@ -98,7 +149,7 @@ setMethod(".ggroup",
             ##  tkxview.moveto(widget,1)
             ##  tkyview.moveto(widget,1)
             ## }
-##            .tag(obj,toolkit, i="scrollable.widget") <- widget
+            .tag(obj,toolkit, i="scrollable.widget") <- widget
             obj@e$i <- widget
 
             ## attach to container if there
