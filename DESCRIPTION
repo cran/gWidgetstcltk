@@ -1,5 +1,5 @@
 Package: gWidgetstcltk
-Version: 0.0-41
+Version: 0.0-42
 Title: Toolkit implementation of gWidgets for tcltk package
 Author: John Verzani
 Maintainer: John Verzani <gwidgetsrgtk@gmail.com>
@@ -20,6 +20,8 @@ Description: Port of the gWidgets API to the tcltk package. Requires TK
 License: GPL (>= 2)
 URL: http://gwidgets.r-forge.r-project.org/
 LazyLoad: yes
-Packaged: 2011-01-11 14:15:30 UTC; verzani
 Repository: CRAN
-Date/Publication: 2011-01-11 16:36:38
+Repository/R-Forge/Project: gwidgets
+Repository/R-Forge/Revision: 272
+Date/Publication: 2011-02-18 07:26:58
+Packaged: 2011-01-20 21:51:03 UTC; rforge
