@@ -90,7 +90,12 @@ setMethod(".gdroplist",
               size(obj) <- c(theArgs$width,0)
             
 
-            svalue(obj, index=TRUE) <- as.numeric(selected)
+            ## can add numeric or for Richie, a value
+            if(is.numeric(selected)) { 
+              svalue(obj, index = TRUE) <- selected 
+            } else { 
+              svalue(obj) <- as.character(selected) 
+            } 
             
 
             
@@ -199,20 +204,6 @@ setReplaceMethod(".svalue",
                    return(obj)
                  })
 
-## I want a editable<- method for gdf, gcombobox, glabel
-## setMethod(".editable",
-##           signature(x = "gDroplisttcltk"),
-##           function(x, toolkit) {
-##             as.character(tkcget(widget, "-state")) != "readonly"
-##           })
-
-## setReplaceMethod(".editable",
-##           signature(x = "gDroplisttcltk"),
-##           function(x, toolkit, ..., value) {
-##             widget <- getWidget(x)
-##             tkcget(widget, "state"=ifelse(value, "normal", "readonly"))
-##             return(x)
-##           })
 
 
 

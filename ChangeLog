@@ -1,3 +1,24 @@
+2011-04-14  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gdialogs.R (onCancel): added event handler for window delete
+	event with gbasicdialog -- should fix hang in windows (Thanks Erich)
+
+2011-04-08  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gedit.R: didn't have width argument acted on. Thanks Erich!
+
+2011-04-03  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gtoolbar.R: Fix to this -- had double window being
+	created. Thanks Erich!
+
+	* R/gdf.R: Fix bug with fontsize (thanks Carlos!)
+
+2011-02-18  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gdroplist.R: change to how selected= argument handled. Can be
+	a string with one of the values now.
+
 2011-01-19  john verzani  <verzani@john-verzanis-macbook-pro.local>
 
 	* R/gwindow.R (addHandlerDestroy): fixed issue with destroy
