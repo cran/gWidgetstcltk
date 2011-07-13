@@ -62,8 +62,12 @@ setMethod(".gdroplist",
             tt <- getWidget(container)
             gp <- ttkframe(tt)
             cbVar <- tclVar()
+            if(length(items) == 1)
+              values <- as.tclObj(as.character(items))
+            else
+              values <- as.character(items)
             cb <- ttkcombobox(gp,
-                              values = as.character(items),
+                              values = values,
                               textvariable = cbVar,
                               state = state)
             if(!is.null(width))
@@ -169,7 +173,7 @@ setReplaceMethod(".svalue",
                    widget <- getWidget(obj)
                    
                    n <- length(obj)
-                   if(n <= 1) return(obj)
+                   if(n < 1) return(obj)
                    
                    if(is.null(index))
                      index <- FALSE
@@ -194,12 +198,13 @@ setReplaceMethod(".svalue",
                        if(value %in% vals) {
                          tclvalue(tcl(widget,"set",as.character(value)))
                        } else {
-                         cat(sprintf("%s is not a valid item",value),"\n")
+                         message(sprintf("%s is not a valid item",value),"\n")
                        }
                      }
                    }
-                   
-                   tkevent.generate(getWidget(obj),"<<ValueChanged>>")
+                   ## notify event handlers unless set to 0
+                   if(!(index && value < 0))
+                     tkevent.generate(getWidget(obj), "<<ComboboxSelected>>")
                    
                    return(obj)
                  })
@@ -232,7 +237,7 @@ setMethod(".leftBracket",
 
             n = length(x)               # no. items
             if(n == 0)
-              return(NA)
+              character(0)              # Thanks Yves
             
             items = tag(x,"items")
             
@@ -263,7 +268,10 @@ setReplaceMethod(".leftBracket",
             ind <- svalue(x, index=TRUE)
             
             if(missing(i)) {
-              tcl(widget,"configure",values=value)
+              if(length(value) == 1)
+                 tcl(widget,"configure",values=as.tclObj(value))
+              else
+                tcl(widget,"configure",values=value)
               tag(x,"items") <- value
               if(ind > 0)
                 svalue(x, index=TRUE) <- ind
@@ -284,6 +292,7 @@ setReplaceMethod(".leftBracket",
 setMethod(".addhandlerchanged",
           signature(toolkit="guiWidgetsToolkittcltk",obj="gDroplisttcltk"),
           function(obj, toolkit, handler, action=NULL, ...) {
+
             .addHandler(obj,toolkit,"<<ComboboxSelected>>",handler,action,...)
 
             editable <- as.character(tkcget(getWidget(obj), "-state")) != "readonly"

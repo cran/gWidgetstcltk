@@ -165,6 +165,12 @@
 \alias{.gstatusbar-methods}
 \alias{.gstatusbar,guiWidgetsToolkittcltk-method} 
 %%
+%% --  .ghtml --
+%%
+\alias{.ghtml-methods}
+\alias{.ghtml,guiWidgetsToolkittcltk-method} 
+%%
+%%
 %% --  .gseparator --
 %%
 \alias{.gseparator-methods}
@@ -266,6 +272,7 @@
 \alias{.svalue,gActiontcltk,ANY,ANY,guiWidgetsToolkittcltk-method}
 \alias{.svalue,gActiontcltk,guiWidgetsToolkittcltk-method}
 \alias{.svalue,gButtontcltk,ANY,ANY,guiWidgetsToolkittcltk-method}
+\alias{.svalue,gCalendartcltk,guiWidgetsToolkittcltk-method}
 \alias{.svalue,gCheckboxtcltk,ANY,ANY,guiWidgetsToolkittcltk-method}
 \alias{.svalue,gCheckboxgrouptcltk,ANY,ANY,guiWidgetsToolkittcltk-method}
 \alias{.svalue,gCommandlinetcltk,ANY,ANY,guiWidgetsToolkittcltk-method}
@@ -341,6 +348,7 @@
 \alias{.svalue<-,gActiontcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
 \alias{.svalue<-,gButtontcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
 \alias{.svalue<-,gCheckboxtcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
+\alias{.svalue<-,gCalendartcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
 \alias{.svalue<-,gCheckboxgrouptcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
 \alias{.svalue<-,gCommandlinetcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
 \alias{.svalue<-,gDroplisttcltk,guiWidgetsToolkittcltk,ANY,ANY-method}
@@ -423,6 +431,7 @@
 \alias{.add,gBasicDialogNoParenttcltk,guiWidgetsToolkittcltk,gWidgettcltk-method}
 \alias{.add,gContainertcltk,guiWidgetsToolkittcltk,guiWidget-method}
 \alias{.add,gContainertcltk,guiWidgetsToolkittcltk,gWidgettcltk-method}
+\alias{.add,gContainertcltk,guiWidgetsToolkittcltk,tkwin-method}
 \alias{.add,gContainertcltk,guiWidgetsToolkittcltk,gGraphicstcltk-method}
 \alias{.add,gContainertcltk,guiWidgetsToolkittcltk,gMenutcltk-method}
 \alias{.add,gDfNotebooktcltk,guiWidgetsToolkittcltk,ANY-method}
@@ -643,6 +652,7 @@
 %%
 \alias{.focus-methods}
 \alias{.focus,gWidgettcltk,guiWidgetsToolkittcltk-method} 
+\alias{.focus,gWindowtcltk,guiWidgetsToolkittcltk-method} 
 %%
 %% --  focus<- --
 %%
@@ -655,7 +665,7 @@
 %%
 \alias{.focus<--methods}
 \alias{.focus<-,gWidgettcltk,guiWidgetsToolkittcltk-method}
-\alias{.focus<-,GtkWindow,guiWidgetsToolkittcltk-method}
+\alias{.focus<-,gWindowtcltk,guiWidgetsToolkittcltk-method}
 \alias{.focus<-,tcltkObject,guiWidgetsToolkittcltk-method} 
 %%
 %% --  defaultWidget --
@@ -863,6 +873,7 @@
 \alias{.addhandlerchanged,gCalendartcltk,guiWidgetsToolkittcltk-method}
 \alias{.addhandlerchanged,gCheckboxgrouptcltk,guiWidgetsToolkittcltk-method}
 \alias{.addhandlerchanged,gDroplisttcltk,guiWidgetsToolkittcltk-method}
+\alias{.addhandlerchanged,gFilebrowsetcltk,guiWidgetsToolkittcltk-method}
 \alias{.addhandlerchanged,gImagetcltk,guiWidgetsToolkittcltk-method}
 \alias{.addhandlerchanged,gTabletcltk,guiWidgetsToolkittcltk-method}
 \alias{.addhandlerchanged,gTableWithFiltertcltk,guiWidgetsToolkittcltk-method}

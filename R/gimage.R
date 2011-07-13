@@ -105,7 +105,7 @@ setMethod(".gimage",
             ## }
             
             ## implement size -- photo has width, height
-            if (size != "") cat(gettext("gimage: size argument is currently ignored\n"))
+            if (size != "") message(gettext("gimage: size argument is currently ignored\n"))
 
 
             tt <- getWidget(container)
@@ -154,10 +154,10 @@ setReplaceMethod(".svalue",
                      imageID <- findIcon(value)
                      tkconfigure(getWidget(obj),image=imageID)
                    } else if(file.exists(value)) {
-                    imageID <- sprintf("gWidgets::%s", value)
+                    imageID <- sprintf("gWidgets::%s", digest(value))
                     x = try(tcl("image","create","photo", imageID,file=value), silent=TRUE)
                     if(inherits(x,"try-error")) {
-                      cat(gettext("Only gif and pnm files are possible in gWidgetstcltk\n"))
+                      message(gettext("Only gif and pnm files are possible in gWidgetstcltk\n"))
                     } else {
                       tkconfigure(getWidget(obj),image=imageID)
                     }

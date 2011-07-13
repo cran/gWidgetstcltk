@@ -1,5 +1,9 @@
 TODO:
 ---------
+* add method for adding tkwin objects (tkrplot)
+* fix radiobuttons with no selection(Richie: remove variable check, 
+..) -- not so easy
+* optimize size<- with components
 * FIx gtree??
 * fix use.scrollwindow in ggroup
 * gspinbox: like gslider, make spin over sortable vectors.
@@ -7,7 +11,9 @@ TODO:
 * gtable: mess with _, , stuff and single column
 * gree: implement svalue( index=TRUE) (give index as "a:b:c") and
   svalue(obj) <- index
-DONE * tcltk2 scrollbar -- does it work on mac??
+DONE * when adding to box container make fill orthogonal to pakcing
+dirction the default (HBox fill="y", VBox fill="x") (must call expand=TRUE)
+ DONE * tcltk2 scrollbar -- does it work on mac??
 DONE * fix gexpandgroup
 DONE * use satte/instate bit for ttk widget
 DONE?* ggroup anchor/expand/fill (fill="both" default is wrong if anchor given)

@@ -1,3 +1,78 @@
+2011-07-13  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gcalendar.R: fixed gcalendar. It had issues when used within glayout.b
+
+	* R/aaaR5classes.R: fix to gradio if items is logical
+
+	* R/aaaGenerics.R: added ".add" method for tkwin objects. This
+	allows tk widgets to be embedded. Eg.,:
+	g = ggroup(cont=gwindow())
+	library(tkrplot)
+	l = tkrplot(getToolkitWidget(g), function() hist(rnorm(100)))
+	add(g, l)
+
+2011-07-11  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gspinbutton.R: Big change. Went to R5 widget to  use "command"
+	for the handler, rather than hacking. This is an issue though --
+	doesn't work well with the Mac, exposing a bug that can be
+	triggered by the following tcltk code:
+
+	w <- tktoplevel()
+	s <- tkwidget(w, "spinbox", from=0, to=10, increment=1)
+	tkpack(s)
+	tkconfigure(s, "command"=function(...) print("hi"))
+	tcl(s, "set", 5L)
+	## clicking on spinbutton can cause continuous invoking of widget
+	## until focus is on spinbutton
+
+	This might be fixed by 8.5.9 -- which has a ttk::spinbox, but
+	8.5.8 is the current version of tk for windows, ubuntu 11.04 and
+	on my mac ;), so untested
+
+	* R/gfile.R: added addhandlerchanged method. Didn't do yet
+	((un)blockhandler or removehandler). Use tag(obj, "entry") for that
+
+2011-07-10  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/aaaGenerics.R: changed default for fill for ggroup, gframe,
+	gexpandgour -- uses fill in dirction opposite of packing
+
+2011-07-06  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gwindow.R: add focus method for windows. Focusing a window
+	raises window, focusing control gives that control the focus.
+
+	* R/gimage.R: added digest call to file name to eliminate spaces
+	(Thanks Erich)
+
+2011-07-05  verzani  <verzani@gauss>
+
+	* R/ghtml.R: added ghtml stub
+
+	* R/gdroplist.R: fix to svalue<- so that event handlers are
+	called. (Thanks Yves).
+
+	fix to [ method-- return character(0), not NA when no selection
+
+	* R/gcheckbox.R: fix to enabled<- and gcheckbox (Thanks Yves)
+
+	* R/gfile.R: forgot call of tclvalue. Thanks Richie!
+
+2011-07-03  John Verzani  <jverzani@gmail.com>
+
+	* R/gdroplist.R: issue with select and n=1, changed
+	condition. Thanks Erich
+
+2011-06-16  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/aaaR5classes.R: fix to savlue and gradio. Thanks Richie!
+
+2011-06-14  john verzani  <verzani@john-verzanis-macbook-pro.local>
+
+	* R/gdroplist.R: fix to widget when single item with
+	spaces. (Thanks Richie!)
+
 2011-04-14  john verzani  <verzani@john-verzanis-macbook-pro.local>
 
 	* R/gdialogs.R (onCancel): added event handler for window delete

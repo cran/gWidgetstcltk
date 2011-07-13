@@ -1,7 +1,7 @@
-MSG = function(...) cat("DEBUG",...,"\n")
+MSG = function(...) message("DEBUG: ",...,"\n")
 missingMsg = function(x) {
   if(missing(x)) x = "XXX"
-  cat("This method",x,"needs to be written\n")
+  message("This method ",x," needs to be written\n")
 }
 
 
@@ -205,13 +205,41 @@ setReplaceMethod(".size",
                  function(obj, toolkit, ..., value) {
                    ## width in characters, height in lines
                    ## convert Pixels to each
-                   width <- ceiling(value[1]/widthOfChar)
-                   if(length(value) > 1)
-                     height <- ceiling(value[2]/heightOfChar)
-                   else
-                     height <- 0
 
-                   if(height > 0)
+                   ## XXX TODO: Hack in iterative process to fix size. This doesn't match
+                   ## size(obj) <- width; size(obj)[1] - width == 0 (or even close)
+
+                   ## simple way is
+                   width <- value[1]
+                   height <- NULL
+                   if(length(value) > 1)
+                     height <- value[2]
+                   
+                   ## ## set width
+                   ## f <- function(lamda) {
+                   ##   tkconfigure(getWidget(obj), width=ceiling(width*lamda/widthOfChar))
+                   ##   act_width <- as.numeric(tkwinfo("width", getWidget(obj)))
+                   ##   abs(act_width - width)
+                   ## }
+                   ## nlm(f, 1)#, stepmax=.05, steptol=.01)
+
+                   ## if(!is.null(height)) {
+                   ##   f <- function(char_height) {
+                   ##     tkconfigure(getWidget(obj), height=ceiling(width/char_height))
+                   ##     act_width <- as.numeric(tkwinfo("height", getWidget(obj)))
+                   ##     abs(act_width - width)
+                   ##   }
+                   ##   nlm(f, heightOfChar, steptol=1)
+
+                   ## }
+
+
+
+                   width <- ceiling(width/widthOfChar)
+                   if(!is.null(height))
+                     height <- ceiling(height/heightOfChar)
+
+                   if(!is.null(height))
                      tkconfigure(getWidget(obj), width=width, height=height)
                    else
                      tkconfigure(getWidget(obj), width=width)
@@ -278,7 +306,7 @@ setReplaceMethod("visible",signature(obj="gWidgettcltk"),
 setReplaceMethod(".visible",
                  signature(toolkit="guiWidgetsToolkittcltk",obj="gWidgettcltk"),
                  function(obj, toolkit, ..., value) {
-                   cat("visible<- not implemented\n")
+                   message("visible<- not implemented\n")
                    return(obj)
                  })
 setReplaceMethod(".visible",
@@ -842,16 +870,22 @@ setMethod(".add",
             argList = list(getBlock(value))
 
             ## expand, fill, anchor
-            expand <- getWithDefault(theArgs$expand, FALSE)
-            fill <- getWithDefault(theArgs$fill, FALSE) # FALSE, x, y, both=TRUE
+            ## XXX make expand option default to TRUE
+            expand <- getWithDefault(theArgs$expand,
+                                     getWithDefault(getOption("gw:tcltkDefaultExpand", FALSE)))
+
+            ## fill
+            horizontal <- obj@horizontal
+            fill <- getWithDefault(theArgs$fill, ifelse(horizontal, "y", "x")) # FALSE, x, y, both=TRUE
             if(is.logical(fill)) {
               if(fill)
                 fill <- "both"
               else
                 fill <- NULL
             }
-            ## the default anchor. -1,1 or NW makes layouts nicer looking IMHO
-            defaultAnchor <- getWithDefault(getOption("gw:tcltkDefaultAnchor"), c(-1, 1))
+
+            ## the default anchor. -1,0 or W makes layouts nicer looking IMHO
+            defaultAnchor <- getWithDefault(getOption("gw:tcltkDefaultAnchor"), c(-1, 0))
             anchor <- xyToAnchor(getWithDefault(theArgs$anchor, defaultAnchor))
 
             ## expand: if TRUE then can either anchor or fill. If 
@@ -883,11 +917,18 @@ setMethod(".add",
             }
           })
 
-## setMethod(".add",
-##           signature(toolkit="guiWidgetsToolkittcltk",obj="gContainertcltk", value="gWidgettcltk"),
-##           function(obj, toolkit, value, ...) {
-##             .add(obj, toolkit, value@block, ...)
-##           })
+##' Add method to incorporate tk widget into gui:
+##'
+##' @example
+##' g = ggroup(cont=gwindow())
+##' library(tkrplot)
+##' l = tkrplot(getToolkitWidget(g), function() hist(rnorm(100)))
+##' add(g, l)
+setMethod(".add",
+          signature(toolkit="guiWidgetsToolkittcltk",obj="gContainertcltk", value="tkwin"),
+          function(obj, toolkit, value, ...) {
+            tkpack(value, expand=TRUE, fill="both")
+          })
 
 
 
