@@ -63,7 +63,7 @@ setRefClass("TcltkWidget",
                     FUN <- i$handler
                     e <- environment(FUN)
                     for(j in names(formals(FUN))) e[[j]] <- h[[j]]
-                    if(!exists("..self", e))
+                    if(!exists(".self", e))
                       e[[".self"]] <- .self
                     e[["user.data"]] <- i$user.data
                     environment(FUN) <- e
@@ -377,11 +377,13 @@ setRefClass("Entry",
                 words <<- unique(as.character(words))
               },
               set_value = function(value) {
+                old_value <- tclvalue(v)
                 v_local <- v
                 tclvalue(v_local) <- value
                 lindex <<- 0
                 tcl(widget, "icursor", "end")
-                tcl("event","generate", widget, "<<Changed>>")
+                if(old_value != tclvalue(v))
+                  tcl("event","generate", widget, "<<Changed>>")
                 callSuper(value)
               },
               ## find match in word list
@@ -452,7 +454,7 @@ setRefClass("Entry",
                   tclvalue(v)
               },
               ##' initial message code
-               get_value = function() {
+              get_value = function() {
                 "Get the text value"
                 if(!is_init_msg())
                   as.character(tclvalue(v))
