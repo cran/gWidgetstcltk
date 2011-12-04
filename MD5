@@ -1,12 +1,12 @@
-6d86d5073cda7e69b285ba672530a109 *ChangeLog
-da6515b7cbc24a0e4519334f7e13086a *DESCRIPTION
+1c4794a6c2fad444f5cebfa5b5af183f *ChangeLog
+fd848402d056c82352b90a1da9ac208c *DESCRIPTION
 50f897720d4d1dad675eff1e8cfe8bc9 *NAMESPACE
-e69d3cc6fa5a3aa0e3caabedf2c640c9 *NEWS
+7540fa6873ecf7a1ea0f97c3de04daa9 *NEWS
 47c58313201353650a9cf2f5eaf7eb17 *R/aaaGenerics.R
 ab696b64fcf1faf5e59e1a34e83ed76f *R/aaaHandlers.R
 4529ba9283efa886161c09e30499f20c *R/aaaR5classes.R
 cec1dbf30b519a2ec100b45f70fd72ce *R/aabClasses.R
-8435d916d853b5b03f98d43b54de65be *R/common.R
+7669c565a441a9086be33b260454f502 *R/common.R
 8b64ee9f16989592489e700e4fd0938b *R/dnd.R
 ce489cd24d220d7a95d9437063675f64 *R/gaction.R
 b3547536d0c3f472b5ebedd30e5dc053 *R/gbutton.R
@@ -24,7 +24,7 @@ c8b02c4ed424ed7a4baf831cd8fadc85 *R/gdroplist.R
 390a6d0ada3003e74d5fb1e5a68ee179 *R/gframe.R
 01946635aae49c1120a8451755aea243 *R/ggraphics.R
 a9545073a95806ac0ba52133a80b3bea *R/ggraphicsnotebook.R
-90ffba3557c5a932a6a0db1c81d3250b *R/ggroup.R
+15844ce35775667519d87b5279358c14 *R/ggroup.R
 7b7f343af5e020ee9c4f8d51da900452 *R/ghtml.R
 c5ba78b359787d56d8481c18610252ca *R/gimage.R
 4c15976822fb4e0c1f07584fea00d12b *R/glabel.R
@@ -42,9 +42,9 @@ eaa0905a4ffd2f9fbde1cd06570a15d1 *R/gspinbutton.R
 dfc839ada8a514d1cb6d2eea3fe7fb8b *R/gtoolbar.R
 7925b0c09aeaae1fa133feb02214b150 *R/gtree.R
 967d76025c48e3b17f89bcc22befbc05 *R/gvarbrowser.R
-810627cf073ab3d8087edc0def492e6e *R/gwindow.R
+9ea82b77131d3ae23aaa98b23cde9a47 *R/gwindow.R
 93b7e9471d1b7e161686c8a144a6af1d *R/tcltkFuns.R
-43d01a3e19e5c23eb986c6a863d7c285 *R/zzz.R
+dcfb4ddcd7f7bd192ba4eb001b21f9f7 *R/zzz.R
 53d0e12c3a553093fa70a198b89419d9 *TODO.txt
 393f798c2e3903867b6a1bf749d2931f *inst/images/README
 8c593636751673167cd9a9dfbee3b0c2 *inst/images/character.gif
