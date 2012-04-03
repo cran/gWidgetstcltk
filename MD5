@@ -1,14 +1,14 @@
-1c4794a6c2fad444f5cebfa5b5af183f *ChangeLog
-fd848402d056c82352b90a1da9ac208c *DESCRIPTION
+16e2811b7ad836223b70a45ff66b3b23 *ChangeLog
+6e4137df344ee5822a8c787c48ea5e42 *DESCRIPTION
 50f897720d4d1dad675eff1e8cfe8bc9 *NAMESPACE
-7540fa6873ecf7a1ea0f97c3de04daa9 *NEWS
+7022983fc8e9e3b4a0bb59cbf5e81df5 *NEWS
 47c58313201353650a9cf2f5eaf7eb17 *R/aaaGenerics.R
 ab696b64fcf1faf5e59e1a34e83ed76f *R/aaaHandlers.R
-4529ba9283efa886161c09e30499f20c *R/aaaR5classes.R
+60fe39f478b3af0c9e95ad5476ebc8b0 *R/aaaR5classes.R
 cec1dbf30b519a2ec100b45f70fd72ce *R/aabClasses.R
 7669c565a441a9086be33b260454f502 *R/common.R
 8b64ee9f16989592489e700e4fd0938b *R/dnd.R
-ce489cd24d220d7a95d9437063675f64 *R/gaction.R
+1628d22de02861990cb56b34aed28bde *R/gaction.R
 b3547536d0c3f472b5ebedd30e5dc053 *R/gbutton.R
 a360eb0a40eda6b5076dc5af7d7cb592 *R/gcalendar.R
 444d1fc562e847a797145dbacbf75fda *R/gcheckbox.R
@@ -18,7 +18,7 @@ c9b0dd6c7bc6345257c8a9f12db59c79 *R/gcheckboxgrouptable.R
 5ce4d6f4decdcfe0c2c1c7adac31db6a *R/gdfnotebook.R
 17326a73dadd99e157fdf056bd9adba9 *R/gdialogs.R
 c8b02c4ed424ed7a4baf831cd8fadc85 *R/gdroplist.R
-98337cc3d8ed44f51655440c9e1c3b09 *R/gedit.R
+1e79477cd15c461c2b89567a1223f144 *R/gedit.R
 01c142f1deeacb692604638d13a64305 *R/gexpandgroup.R
 7737b0f8665cc9f6b904e6b9b87b6d5e *R/gfile.R
 390a6d0ada3003e74d5fb1e5a68ee179 *R/gframe.R
@@ -44,7 +44,7 @@ dfc839ada8a514d1cb6d2eea3fe7fb8b *R/gtoolbar.R
 967d76025c48e3b17f89bcc22befbc05 *R/gvarbrowser.R
 9ea82b77131d3ae23aaa98b23cde9a47 *R/gwindow.R
 93b7e9471d1b7e161686c8a144a6af1d *R/tcltkFuns.R
-dcfb4ddcd7f7bd192ba4eb001b21f9f7 *R/zzz.R
+0c781a7b6653457a10ab372914b5b9d7 *R/zzz.R
 53d0e12c3a553093fa70a198b89419d9 *TODO.txt
 393f798c2e3903867b6a1bf749d2931f *inst/images/README
 8c593636751673167cd9a9dfbee3b0c2 *inst/images/character.gif
