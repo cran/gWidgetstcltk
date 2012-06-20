@@ -1,5 +1,5 @@
 16e2811b7ad836223b70a45ff66b3b23 *ChangeLog
-2d1eed98b04ae256a5c5263e2a3ef5d3 *DESCRIPTION
+36053903ee70bf4e3bb0a03711dce4a9 *DESCRIPTION
 50f897720d4d1dad675eff1e8cfe8bc9 *NAMESPACE
 f87f1a3feba16fcc42bdacb53225f4ea *NEWS
 b4536e348a974d86c461d9515dd9030f *R/aaaGenerics.R
@@ -44,7 +44,7 @@ dfc839ada8a514d1cb6d2eea3fe7fb8b *R/gtoolbar.R
 967d76025c48e3b17f89bcc22befbc05 *R/gvarbrowser.R
 9ea82b77131d3ae23aaa98b23cde9a47 *R/gwindow.R
 a5e20902ae6fcd0a0a5ea3a48d751ce1 *R/tcltkFuns.R
-eb9d7d1a757b899a30966971847b0f02 *R/zzz.R
+b2541043e9dcd3fbc366304c5e03825e *R/zzz.R
 53d0e12c3a553093fa70a198b89419d9 *TODO.txt
 babd4e95870f4d89f744c86b7cc95589 *inst/ChangeLog
 fced6d9b00c198b56df95a3a1b1d0179 *inst/example.tcl
@@ -75,5 +75,5 @@ e0f81d760f20c8b550bd584e6f9590df *inst/tklibs/tooltip1.4/tipstack.tcl
 051452f302d59a0475b1dec54ad916fa *inst/tklibs/tooltip1.4/tooltip.tcl
 e8cac862b7349a6fad254108b97c79ef *man/gWidgetstcltk-package.Rd
 17778a27212d48fa84a898416f9f83ba *man/gWidgetstcltk-undocumented.Rd
-ae19aea4e638a59096cdb379636313a6 *tests/RunTests.R
-d6cb538cd1bd53eee597e378cb5dfbd5 *tests/runRUnit.R
+111618cdedead3bf38c7738dc9f4170b *tests/RunTests.R
+5dde361fa38321fdaa459adbc9a2949c *tests/runRUnit.R
