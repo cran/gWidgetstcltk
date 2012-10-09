@@ -141,6 +141,10 @@ setMethod(".gfilebrowse",
             entry = gedit(text=text, container=group, ...)
             browseButton = gbutton("browse",container=group)
 
+            args <- list(...)
+            filter <- args$filter
+            initialfilename <- args$initialfilename
+            
             file.cb = function(h,...) {
               ## called when button is clicked
               
@@ -148,7 +152,8 @@ setMethod(".gfilebrowse",
               gfile(text=text,
                     type = type,
                     handler = function(h,...) svalue(entry) <- h$file,
-                    quote = TRUE
+                    quote = TRUE,
+                    filter=filter, initialfilename=initialfilename
                     )
             }
             addhandlerclicked(browseButton,handler=file.cb)
