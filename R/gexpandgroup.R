@@ -198,10 +198,20 @@ setMethod(".names",
           })
 
 setReplaceMethod(".names",
-                 signature(toolkit="guiWidgetsToolkittcltk",x="gExpandgrouptcltk"),
+                 signature(toolkit="guiWidgetsToolkittcltk",
+                           x="gExpandgrouptcltk"),
                  function(x, toolkit, value) {
                    svalue(tag(x,"label")) <- as.character(value)
                    return(x)
+                 })
+
+
+setReplaceMethod(".font",
+                 signature(toolkit="guiWidgetsToolkittcltk",
+                           obj="gExpandgrouptcltk"),
+                 function(obj, toolkit, value) {
+                   font(tag(obj, "label")) <- value
+                   return(obj)
                  })
 
 

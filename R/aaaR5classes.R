@@ -378,6 +378,8 @@ setRefClass("Entry",
               },
               set_value = function(value) {
                 old_value <- tclvalue(v)
+                if(old_value == init_msg)
+                    tkconfigure(widget, foreground="black")
                 v_local <- v
                 tclvalue(v_local) <- value
                 lindex <<- 0
@@ -441,6 +443,9 @@ setRefClass("Entry",
                          tktag.add(l,"selectedWord",sprintf("%s.0", lindex), sprintf("%s.end", lindex))
                   tktag.configure(l, "selectedWord", font="bold")
                 }
+              },
+              no_items = function() {
+                length(no.wds)
               },
               ## get current word. From lineindex if applicable, or from entry widget itself
               getCurrentWord = function() {
